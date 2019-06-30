@@ -1,40 +1,37 @@
 package de.randombyte.lighthub.config
 
-import ninja.leaping.configurate.objectmapping.Setting
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
-
-@ConfigSerializable abstract class Color {
+abstract class Color {
 
     companion object {
         val DEFAULT_COLOR_KEY = "red"
     }
 
-    @ConfigSerializable open class Rgb(
-        @Setting val red: UByte = 255u,
-        @Setting val green: UByte = 255u,
-        @Setting val blue: UByte = 255u
+    open class Rgb(
+        val red: Int = 255,
+        val green: Int = 255,
+        val blue: Int = 255
     ) : Color() {
         companion object {
-            fun new(r: UByte, g: UByte, b: UByte) = Rgb(red = r, green = g, blue = b)
+            fun new(r: Int, g: Int, b: Int) = Rgb(red = r, green = g, blue = b)
         }
     }
 
-    @ConfigSerializable class Rgbwauv(
-        red: UByte = 255u,
-        green: UByte = 255u,
-        blue: UByte = 255u,
-        @Setting val white: UByte = 255u,
-        @Setting val amber: UByte = 255u,
-        @Setting val uv: UByte = 255u
+    class Rgbwauv(
+        red: Int = 255,
+        green: Int = 255,
+        blue: Int = 255,
+        val white: Int = 255,
+        val amber: Int = 255,
+        val uv: Int = 255
     ) : Rgb(red, green, blue) {
         companion object {
             fun new(
-                r: UByte,
-                g: UByte,
-                b: UByte,
-                w: UByte,
-                a: UByte,
-                uv: UByte
+                r: Int,
+                g: Int,
+                b: Int,
+                w: Int,
+                a: Int,
+                uv: Int
             ) = Rgbwauv(red = r, green = g, blue = b, white = w, amber = a, uv = uv)
         }
     }

@@ -3,14 +3,11 @@ package de.randombyte.lighthub.dmx
 import de.randombyte.lighthub.config.Color
 import de.randombyte.lighthub.config.Color.Rgb
 import de.randombyte.lighthub.config.Color.Rgb.Companion.new
-import de.randombyte.lighthub.config.loader.ConfigManager
 import de.randombyte.lighthub.config.loader.toConfigHolder
-import de.randombyte.lighthub.config.loader.toConfigLoader
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 
 class LedBar(oscBasePath: String, startAddress: Int) : Light<Rgb>(oscBasePath, startAddress) {
 
-    @ConfigSerializable class Config(
+    class Config(
         meta: Meta = Meta(
             manufacturer = "Stairville",
             model = "LED BAR 252 RGB (no. 234564)",
@@ -19,16 +16,15 @@ class LedBar(oscBasePath: String, startAddress: Int) : Light<Rgb>(oscBasePath, s
         ),
         addresses: List<UByte> = listOf(1u), // todo
         colors: Map<String, Rgb> = mapOf(
-            "red" to new(r = 255u, g = 0u, b = 0u),
-            "green" to new(r = 0u, g = 255u, b = 0u),
-            "blue" to new(r = 0u, g = 0u, b = 255u)
+            "red" to new(r = 255, g = 0, b = 0),
+            "green" to new(r = 0, g = 255, b = 0),
+            "blue" to new(r = 0, g = 0, b = 255)
         )
     ) : Light.Config<Rgb>(meta, addresses, colors)
 
     companion object : Type<Rgb> {
-        override val config = ConfigManager("led-bar.conf".toConfigLoader(), Config::class.java).toConfigHolder()
+        override val configHolder = "led-bar.conf".toConfigHolder<Config>()
         override val channels = 11
-        override val colors =  emptyMap<String, Rgb>() //config.get().colors
     }
 
     private val dmxMode = DmxChannel("$oscBasePath/mode")
@@ -36,7 +32,7 @@ class LedBar(oscBasePath: String, startAddress: Int) : Light<Rgb>(oscBasePath, s
     private val dmxGreen = DmxChannel("$oscBasePath/green")
     private val dmxBlue = DmxChannel("$oscBasePath/blue")
 
-    var color: Rgb = config.get().colors.getValue(Color.DEFAULT_COLOR_KEY)
+    override var color: Rgb = configHolder.config.colors.getValue(Color.DEFAULT_COLOR_KEY)
         set(value) {
             field = value
             dmxRed.sendValue(value.red)
@@ -45,6 +41,6 @@ class LedBar(oscBasePath: String, startAddress: Int) : Light<Rgb>(oscBasePath, s
         }
 
     override fun blackout() {
-        dmxMode.sendValue(0u)
+        dmxMode.sendValue(0)
     }
 }

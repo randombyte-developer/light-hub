@@ -34,7 +34,7 @@ object QlcShowFileGenerator {
 
                 var currentId = 0
                 deviceTypes.forEach { device ->
-                    val config = device.config.get()
+                    val config = device.configHolder.config
                     val meta = config.meta
                     config.addresses.forEach { address ->
                         "Fixture" {

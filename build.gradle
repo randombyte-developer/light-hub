@@ -20,7 +20,7 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
     compile 'com.illposed.osc:javaosc-core:0.6'
     compile 'org.redundent:kotlin-xml-builder:1.5.1'
-    compile 'org.spongepowered:configurate-hocon:3.6'
+    compile 'io.github.config4k:config4k:0.4.1'
 }
 
 compileKotlin.kotlinOptions {
