@@ -4,10 +4,10 @@ import de.randombyte.lighthub.qlc.OscHandler
 
 class DmxChannel(val oscPath: String) {
 
-    var lastValue: UByte = 0u
+    var lastValue: Int = 0
         private set
 
-    fun sendValue(value: UByte) {
+    fun sendValue(value: Int) {
         OscHandler.send(this, value)
         lastValue = value
     }

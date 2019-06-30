@@ -1,6 +1,8 @@
 package de.randombyte.lighthub
 
+import de.randombyte.lighthub.config.serializer.CustomTypes
 import de.randombyte.lighthub.dmx.AdjPar
+import de.randombyte.lighthub.dmx.Device
 import de.randombyte.lighthub.dmx.LedBar
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.qlc.QlcShowFileGenerator
@@ -10,7 +12,12 @@ val deviceTypes = listOf(AdjPar, LedBar)
 
 fun main(args: Array<String>) {
 
-    deviceTypes.forEach { it.config.reload() }
+    CustomTypes.register()
+
+    deviceTypes.forEach { deviceType: Device.Type ->
+        deviceType.configHolder.reload()
+        deviceType.configHolder.save()
+    }
 
     if (args.getOrNull(0) == "gen-qlc") {
         val path = Paths.get("LightHubShow.qxw").toAbsolutePath()

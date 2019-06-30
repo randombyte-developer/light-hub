@@ -8,7 +8,7 @@ import java.net.InetAddress
 object OscHandler {
     private val oscPort = OSCPortOut(InetAddress.getLoopbackAddress(), 7700)
 
-    fun send(dmxChannel: DmxChannel, value: UByte) {
-        oscPort.send(OSCMessage(dmxChannel.oscPath, listOf(value.toInt())))
+    fun send(dmxChannel: DmxChannel, value: Int) {
+        oscPort.send(OSCMessage(dmxChannel.oscPath, listOf(value)))
     }
 }
