@@ -6,6 +6,7 @@ import de.randombyte.lighthub.config.Color.Rgb.Companion.new
 import de.randombyte.lighthub.config.loader.toConfigHolder
 import de.randombyte.lighthub.osc.OscChannel
 import de.randombyte.lighthub.osc.OscChannelMapping
+import kotlin.reflect.KClass
 
 class LedBar(number: Int, startAddress: Int) : Light<Rgb>(
     type = Companion,
@@ -21,23 +22,24 @@ class LedBar(number: Int, startAddress: Int) : Light<Rgb>(
             mode = "Mode 1",
             name = "LedBar"
         ),
-        addresses: List<UByte> = listOf(1u), // todo
+        addresses: List<Int> = emptyList(),
         colors: Map<String, Rgb> = mapOf(
-            "red" to new(r = 255, g = 0, b = 0),
-            "green" to new(r = 0, g = 255, b = 0),
-            "blue" to new(r = 0, g = 0, b = 255)
+            "Red" to new(r = 255, g = 0, b = 0),
+            "Green" to new(r = 0, g = 255, b = 0),
+            "Blue" to new(r = 0, g = 0, b = 255)
         )
     ) : Light.Config<Rgb>(meta, addresses, colors)
 
     companion object : Type<Rgb> {
         override val configHolder = "led-bar.conf".toConfigHolder<Config>()
         override val channels = 11
+        override val colorClass = Rgb::class
     }
 
-    private val oscMode = "mode".toOscChannel()
-    private val oscRed = "red".toOscChannel()
-    private val oscGreen = "green".toOscChannel()
-    private val oscBlue = "blue".toOscChannel()
+    private val oscMode = "Mode".toOscChannel()
+    private val oscRed = "Red".toOscChannel()
+    private val oscGreen = "Green".toOscChannel()
+    private val oscBlue = "Blue".toOscChannel()
 
     override val oscChannelMapping = OscChannelMapping(mapOf(
         0 to oscMode,

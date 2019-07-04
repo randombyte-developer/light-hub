@@ -29,6 +29,7 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         if (!super.open()) return false
         enableSpecialMode()
         setupListener()
+        sendMapping()
         return true
     }
 
@@ -40,7 +41,7 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         inDevice.transmitter.receiver = object : Receiver {
             override fun send(message: MidiMessage, timestamp: Long) {
                 val signal = SysEx.parseSysEx(message.message) ?: return
-                //println(signal)
+                println(signal)
                 val control = findControl(signal) ?: return
                 control.update(signal.value)
             }
@@ -61,5 +62,9 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
      */
     private fun enableSpecialMode() {
         sendSysEx(SysEx.SYSEX_SPECIAL_MODE)
+    }
+
+    fun sendMapping() {
+        outDevice.receiver.send(SysexMessage(SysEx.createMappingWithName(";)"), SysEx.MAPPING_LENGTH), -1)
     }
 }

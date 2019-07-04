@@ -1,7 +1,7 @@
 package de.randombyte.lighthub.osc
 
-import de.randombyte.lighthub.qlc.Osc
 import de.randombyte.lighthub.utils.CRC16
+import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
 
 class OscChannel(val path: String) {
 
@@ -10,8 +10,13 @@ class OscChannel(val path: String) {
     var lastValue: Int = 0
         private set
 
-    fun sendValue(value: Int) {
-        Osc.send(path, value)
-        lastValue = value
+    fun sendValue(value: Int): Int {
+        val coercedValue = value.coerceIn(DMX_RANGE)
+        if (coercedValue != lastValue) {
+            Osc.send(path, coercedValue)
+            lastValue = coercedValue
+        }
+
+        return coercedValue
     }
 }

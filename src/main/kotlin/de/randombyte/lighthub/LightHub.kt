@@ -3,6 +3,7 @@ package de.randombyte.lighthub
 import de.randombyte.lighthub.config.Configs
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.qlc.QlcShowFileGenerator
+import de.randombyte.lighthub.show.ThatShow
 import java.nio.file.Paths
 
 fun main(args: Array<String>) {

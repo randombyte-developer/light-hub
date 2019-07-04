@@ -1,6 +1,8 @@
 package de.randombyte.lighthub.qlc
 
+import de.randombyte.lighthub.osc.QlcPlus
 import de.randombyte.lighthub.osc.dmx.Device
+import io.github.config4k.toConfig
 import org.redundent.kotlin.xml.PrintOptions
 import org.redundent.kotlin.xml.xml
 import java.nio.file.Files
@@ -10,9 +12,6 @@ object QlcShowFileGenerator {
 
     const val VC_WIDTH = 1920
     const val VC_HEIGHT = 1080
-
-    const val SLIDER_WIDTH = 60
-    const val SLIDER_HEIGHT = 200
 
     fun generate(path: Path, devices: List<Device>) {
         Files.createDirectories(path.parent)
@@ -53,7 +52,7 @@ object QlcShowFileGenerator {
                             "Mode" { -meta.mode }
                             "Universe" { -"0" }
                             "ID" { -index.toString() }
-                            "Address" { -address.toString() }
+                            "Address" { -(address - 1).toString() }
                             "Channels" { -type.channels.toString() }
                         }
                     }
@@ -64,23 +63,26 @@ object QlcShowFileGenerator {
                 "Frame" {
                     WidgetAppearance.DEFAULT.toXml(this)
 
-                    var currentSliderIndex = 0
+                    var currentWidgetIndex = 0
+
+                    "Button"("Caption" to "", "ID" to currentWidgetIndex++) {
+                        WindowsState.BUTTON.copy(x = 0, y = 0).toXml(this)
+                        WidgetAppearance.SUNKEN.toXml(this)
+                        "Action" {
+                            -"Blackout"
+                        }
+                        "Input"("Universe" to 0, "Channel" to QlcPlus.oscBlackout.qlcChannel)
+                    }
 
                     indexedDevices.forEach { deviceIndex, device ->
                         device.oscChannelMapping.channels.forEach { dmxDeviceChannel, oscChannel ->
                             "Slider"(
-                                "Caption" to "Slider $currentSliderIndex",
+                                "Caption" to "Slider $currentWidgetIndex",
                                 "ID" to deviceIndex,
                                 "WidgetStyle" to "Slider",
                                 "InvertedAppearance" to false
                             ) {
-                                "WindowState"(
-                                    "Visible" to "True",
-                                    "X" to SLIDER_WIDTH * currentSliderIndex,
-                                    "Y" to 0,
-                                    "Width" to SLIDER_WIDTH,
-                                    "Height" to SLIDER_HEIGHT
-                                )
+                                WindowsState.SLIDER.copy(x = WindowsState.SLIDER_WIDTH * currentWidgetIndex).toXml(this)
 
                                 WidgetAppearance.DEFAULT.toXml(this)
 
@@ -100,13 +102,15 @@ object QlcShowFileGenerator {
                                 "Input"("Universe" to 0, "Channel" to oscChannel.qlcChannel)
                             }
 
-                            currentSliderIndex++
+                            currentWidgetIndex++
                         }
                     }
                 }
                 "Properties" {
                     "Size"("Width" to VC_WIDTH, "Height" to VC_HEIGHT)
-                    "GrandMaster"("ChannelMode" to "Intensity", "ValueMode" to "Reduce", "SliderMode" to "Normal")
+                    "GrandMaster"("ChannelMode" to "Intensity", "ValueMode" to "Reduce", "SliderMode" to "Normal") {
+                        "Input"("Universe" to 0, "Channel" to QlcPlus.oscMasterDimmer.qlcChannel)
+                    }
                 }
             }
         }.writeTo(writer, PrintOptions(singleLineTextElements = true))

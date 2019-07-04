@@ -1,12 +1,12 @@
-package de.randombyte.lighthub
+package de.randombyte.lighthub.utils
 
 object Ranges {
-    val MIDI_RANGE = (0..127)
-    val DMX_RANGE = (0..255)
 
-    fun mapMidiToDmx(value: Int) = mapRange(from = MIDI_RANGE, to = DMX_RANGE, value = value)
+    val DMX_RANGE = 0..255
+    val MIDI_RANGE = 0..127
 
-    fun mapDmxToMidi(value: Int) = mapRange(from = DMX_RANGE, to = MIDI_RANGE, value = value)
+    fun mapMidiToDmx(value: Int) = Ranges.mapRange(from = MIDI_RANGE, to = DMX_RANGE, value = value)
+    fun mapDmxToMidi(value: Int) = Ranges.mapRange(from = DMX_RANGE, to = MIDI_RANGE, value = value)
 
     fun mapRange(from: IntRange, to: IntRange, value: Int): Int {
         if (value !in from) throw IllegalArgumentException("Value is not in from-range!")

@@ -1,4 +1,4 @@
-package de.randombyte.lighthub.qlc
+package de.randombyte.lighthub.osc
 
 import com.illposed.osc.OSCMessage
 import com.illposed.osc.transport.udp.OSCPortOut
