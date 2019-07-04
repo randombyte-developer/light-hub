@@ -4,9 +4,10 @@ import de.randombyte.lighthub.midi.MidiHandler
 import javax.sound.midi.*
 
 /**
- * Specifically the Akai MPD26.
+ * Specifically the Akai MPD26. The listener will only react to the special SysEx messages enabled with [enableSpecialMode].
  */
 class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, outDevice) {
+
     companion object {
         const val NAME = "MPD26"
 
@@ -16,33 +17,42 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
             val inDevice = devices.firstOrNull { "MidiInDevice" in it.javaClass.simpleName && NAME in it.deviceInfo.name }
             val outDevice = devices.firstOrNull { "MidiOutDevice" in it.javaClass.simpleName && NAME in it.deviceInfo.name }
 
-            if (inDevice == null || outDevice == null) throw RuntimeException("Akai unavailable!")
-
-            Akai(inDevice, outDevice)
+            if (inDevice != null && outDevice != null) Akai(inDevice, outDevice) else null
         } catch (ex: MidiUnavailableException) {
             null
         }
     }
 
+    private val controls: MutableList<Control> = mutableListOf()
+
     override fun open(): Boolean {
         if (!super.open()) return false
         enableSpecialMode()
+        setupListener()
         return true
     }
 
-    /**
-     * This listener will only react to the special SysEx messages enabled with [enableSpecialMode].
-     */
-    fun setListener(listener: (SysEx.Signal) -> Unit) {
+    fun registerControl(control: Control) {
+        controls += control
+    }
+
+    private fun setupListener() {
         inDevice.transmitter.receiver = object : Receiver {
             override fun send(message: MidiMessage, timestamp: Long) {
-                listener(SysEx.parseSysEx(message.message) ?: return)
+                val signal = SysEx.parseSysEx(message.message) ?: return
+                //println(signal)
+                val control = findControl(signal) ?: return
+                control.update(signal.value)
             }
 
             override fun close() {
                 println("Closing")
             }
         }
+    }
+
+    private fun findControl(signal: SysEx.Signal) = controls.find { control ->
+        control.type == signal.type && control.number == signal.control
     }
 
     /**

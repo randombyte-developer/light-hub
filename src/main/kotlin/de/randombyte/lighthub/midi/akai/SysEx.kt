@@ -8,15 +8,19 @@ object SysEx {
 
     val SYSEX_SPECIAL_MODE = ubyteArrayOf(0xF0u, 0x47u, 0x00u, 0x78u, 0x30u, 0x00u, 0x04u, 0x01u, 0x00u, 0x00u, 0x38u, 0xF7u)
 
-    data class Signal(val control: UByte, val value: UByte)
+    data class Signal constructor(val type: Int, val control: Int, val value: Int)
 
     fun parseSysEx(rawData: ByteArray): Signal? {
         if (rawData.size != 10) return null
         val uData = rawData.toUByteArray()
         if (!uData.containsAtFront(SYSEX_START) || rawData.last() != SYSEX_END) return null
-        if (uData[4] !in SIGNAL_VALID_STATUS) return null
 
-        return Signal(uData[7], uData[8])
+        if (uData[4] !in SIGNAL_VALID_STATUS) {
+            println("Invalid type: ${uData[4]}")
+            return null
+        }
+
+        return Signal(uData[4].toInt(), uData[7].toInt(), uData[8].toInt())
     }
 
     private fun UByteArray.containsAtFront(data: UByteArray): Boolean {

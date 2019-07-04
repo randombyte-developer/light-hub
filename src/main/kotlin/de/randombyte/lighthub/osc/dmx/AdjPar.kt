@@ -1,10 +1,11 @@
-package de.randombyte.lighthub.dmx
+package de.randombyte.lighthub.osc.dmx
 
 import de.randombyte.lighthub.config.Color.Rgbwauv
 import de.randombyte.lighthub.config.Color.Rgbwauv.Companion.new
 import de.randombyte.lighthub.config.loader.toConfigHolder
+import de.randombyte.lighthub.osc.OscChannelMapping
 
-class AdjPar(oscBasePath: String, startAddress: Int) : Light<Rgbwauv>(oscBasePath, startAddress) {
+class AdjPar(type: Type<Rgbwauv>, oscBasePath: String, number: Int, startAddress: Int) : Light<Rgbwauv>(type, oscBasePath, number, startAddress) {
 
     class Config(
         colors: Map<String, Rgbwauv> = mapOf(
@@ -25,6 +26,8 @@ class AdjPar(oscBasePath: String, startAddress: Int) : Light<Rgbwauv>(oscBasePat
         override val configHolder = "adj-par.conf".toConfigHolder<Config>()
         override val channels = 12
     }
+
+    override val oscChannelMapping = OscChannelMapping(mapOf())
 
     override var color: Rgbwauv
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.

@@ -1,11 +1,18 @@
-package de.randombyte.lighthub.dmx
+package de.randombyte.lighthub.osc.dmx
 
 import de.randombyte.lighthub.config.Color
 import de.randombyte.lighthub.config.Color.Rgb
 import de.randombyte.lighthub.config.Color.Rgb.Companion.new
 import de.randombyte.lighthub.config.loader.toConfigHolder
+import de.randombyte.lighthub.osc.OscChannel
+import de.randombyte.lighthub.osc.OscChannelMapping
 
-class LedBar(oscBasePath: String, startAddress: Int) : Light<Rgb>(oscBasePath, startAddress) {
+class LedBar(number: Int, startAddress: Int) : Light<Rgb>(
+    type = Companion,
+    oscBasePath = "LedBar",
+    number = number,
+    startAddress = startAddress
+) {
 
     class Config(
         meta: Meta = Meta(
@@ -27,20 +34,27 @@ class LedBar(oscBasePath: String, startAddress: Int) : Light<Rgb>(oscBasePath, s
         override val channels = 11
     }
 
-    private val dmxMode = DmxChannel("$oscBasePath/mode")
-    private val dmxRed = DmxChannel("$oscBasePath/red")
-    private val dmxGreen = DmxChannel("$oscBasePath/green")
-    private val dmxBlue = DmxChannel("$oscBasePath/blue")
+    private val oscMode = "mode".toOscChannel()
+    private val oscRed = "red".toOscChannel()
+    private val oscGreen = "green".toOscChannel()
+    private val oscBlue = "blue".toOscChannel()
+
+    override val oscChannelMapping = OscChannelMapping(mapOf(
+        0 to oscMode,
+        1 to oscRed,
+        2 to oscGreen,
+        3 to oscBlue
+    ))
 
     override var color: Rgb = configHolder.config.colors.getValue(Color.DEFAULT_COLOR_KEY)
         set(value) {
             field = value
-            dmxRed.sendValue(value.red)
-            dmxGreen.sendValue(value.green)
-            dmxBlue.sendValue(value.blue)
+            oscRed.sendValue(value.red)
+            oscGreen.sendValue(value.green)
+            oscBlue.sendValue(value.blue)
         }
 
     override fun blackout() {
-        dmxMode.sendValue(0)
+        oscMode.sendValue(0)
     }
 }

@@ -27,11 +27,6 @@ open class ConfigHolder<T : Any>(val clazz: KClass<T>, val name: String, val fil
 
     lateinit var config: T
 
-    /**
-     * Called when the config was reloaded.
-     */
-    open fun reloaded() { }
-
     fun reload() {
         val config = ConfigFactory.parseFile(file)
         val result = SelectReader.getReader(ClassContainer(clazz, genericType))(config, name) ?: clazz.createInstance()
@@ -42,7 +37,7 @@ open class ConfigHolder<T : Any>(val clazz: KClass<T>, val name: String, val fil
             throw exception
         }
 
-        reloaded()
+        save() // generates missing values, corrects identation, etc.
     }
 
     fun save() {

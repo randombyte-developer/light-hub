@@ -1,42 +1,29 @@
 package de.randombyte.lighthub
 
-import de.randombyte.lighthub.config.serializer.CustomTypes
-import de.randombyte.lighthub.dmx.AdjPar
-import de.randombyte.lighthub.dmx.Device
-import de.randombyte.lighthub.dmx.LedBar
+import de.randombyte.lighthub.config.Configs
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.qlc.QlcShowFileGenerator
 import java.nio.file.Paths
 
-val deviceTypes = listOf(AdjPar, LedBar)
-
 fun main(args: Array<String>) {
-
-    CustomTypes.register()
-
-    deviceTypes.forEach { deviceType: Device.Type ->
-        deviceType.configHolder.reload()
-        deviceType.configHolder.save()
-    }
+    Configs.setup()
 
     if (args.getOrNull(0) == "gen-qlc") {
         val path = Paths.get("LightHubShow.qxw").toAbsolutePath()
-        QlcShowFileGenerator.generate(path, deviceTypes)
+        QlcShowFileGenerator.generate(path, ThatShow.lights)
         println("Generated file: $path")
-
         return
     }
 
-    val akai = Akai.findBestMatch() ?: throw RuntimeException("Midi unavailable!")
-
-    if (!akai.open()) throw RuntimeException("Midi unavailable!")
-
-    akai.setListener { signal ->
-        println(signal)
-    }
-
+    LightHub.run()
 }
 
-class LightHub {
+object LightHub {
+    fun run() {
+        val akai = Akai.findBestMatch() ?: throw RuntimeException("Midi unavailable!")
 
+        if (!akai.open()) throw RuntimeException("Midi unavailable!")
+
+        ThatShow.setup(akai)
+    }
 }

@@ -1,10 +1,10 @@
-package de.randombyte.lighthub.dmx
+package de.randombyte.lighthub.osc.dmx
 
 import de.randombyte.lighthub.Animation
 import de.randombyte.lighthub.config.Color
 import de.randombyte.lighthub.config.loader.ConfigHolder
 
-abstract class Light<C : Color> (oscBasePath: String, startAddress: Int) : Device(oscBasePath, startAddress) {
+abstract class Light<C : Color>(type: Device.Type, oscBasePath: String, number: Int, startAddress: Int) : Device(type, oscBasePath, number, startAddress) {
 
     open class Config<C : Color>(
         meta: Meta,

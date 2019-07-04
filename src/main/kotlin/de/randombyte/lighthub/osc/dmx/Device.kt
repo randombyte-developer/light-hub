@@ -1,8 +1,18 @@
-package de.randombyte.lighthub.dmx
+package de.randombyte.lighthub.osc.dmx
 
 import de.randombyte.lighthub.config.loader.ConfigHolder
+import de.randombyte.lighthub.osc.OscChannelMapping
+import de.randombyte.lighthub.osc.Receiver
 
-abstract class Device (val oscBasePath: String, val startAddress: Int) {
+abstract class Device(val type: Type, oscBasePath: String, number: Int, val startAddress: Int) : Receiver("/$oscBasePath/$number") {
+
+    companion object {
+        val types = listOf(AdjPar, LedBar)
+    }
+
+    val channels = 0 until type.channels
+    abstract val oscChannelMapping: OscChannelMapping
+
     open class Config(
         val meta: Meta,
         val addresses: List<UByte>
