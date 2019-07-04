@@ -1,15 +1,11 @@
 package de.randombyte.lighthub.osc.dmx
 
 import de.randombyte.lighthub.config.Color
-import de.randombyte.lighthub.config.Color.Rgb
-import de.randombyte.lighthub.config.Color.Rgb.Companion.new
 import de.randombyte.lighthub.config.Color.Rgbw
 import de.randombyte.lighthub.config.Color.Rgbw.Companion.new
 import de.randombyte.lighthub.config.loader.toConfigHolder
-import de.randombyte.lighthub.osc.OscChannel
 import de.randombyte.lighthub.osc.OscChannelMapping
 import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
-import kotlin.reflect.KClass
 
 class TsssPar(number: Int, startAddress: Int) : Light<Rgbw>(
     type = Companion,
@@ -23,7 +19,8 @@ class TsssPar(number: Int, startAddress: Int) : Light<Rgbw>(
             manufacturer = "TSSS",
             model = "TSSS",
             mode = "Normal",
-            name = "TSSS"
+            name = "TSSS",
+            `short-name` = "TSSS"
         ),
         addresses: List<Int> = emptyList(),
         colors: Map<String, Rgbw> = mapOf(

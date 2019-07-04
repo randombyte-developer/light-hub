@@ -29,7 +29,7 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         if (!super.open()) return false
         enableSpecialMode()
         setupListener()
-        sendMapping()
+        sendMapping("QLC+")
         return true
     }
 
@@ -64,7 +64,7 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         sendSysEx(SysEx.SYSEX_SPECIAL_MODE)
     }
 
-    fun sendMapping() {
-        outDevice.receiver.send(SysexMessage(SysEx.createMappingWithName(";)"), SysEx.MAPPING_LENGTH), -1)
+    fun sendMapping(name: String) {
+        outDevice.receiver.send(SysexMessage(SysEx.createMappingWithName(name), SysEx.MAPPING_LENGTH), -1)
     }
 }

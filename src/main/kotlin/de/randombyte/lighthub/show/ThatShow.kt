@@ -92,9 +92,10 @@ object ThatShow {
                 adjPars.forEach { it.dimmingMode() }
                 tsssPars.forEach { it.dimmingMode() }
                 ambientManual.selectNext()
+                val selectedLight = ambientManual.get().type.configHolder.config.meta.`short-name` + "/" +
+                        ambientManual.get().number.toString()
+                akai.sendMapping(selectedLight)
             }
         })
     }
-
-    private fun Boolean.toInt() = if (this) 1 else 0
 }

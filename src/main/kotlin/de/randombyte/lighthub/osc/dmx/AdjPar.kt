@@ -25,7 +25,8 @@ class AdjPar(number: Int, startAddress: Int) : Light<Rgbwauv>(
             manufacturer = "American DJ",
             model = "Mega Hex Par",
             mode = "12 channel",
-            name = "ADJPar"
+            name = "ADJPar",
+            `short-name` = "ADJ"
         )
     ) : Light.Config<Rgbwauv>(meta, addresses, colors)
 

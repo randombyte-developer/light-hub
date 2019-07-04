@@ -4,7 +4,7 @@ import de.randombyte.lighthub.config.loader.ConfigHolder
 import de.randombyte.lighthub.osc.OscChannelMapping
 import de.randombyte.lighthub.osc.Receiver
 
-abstract class Device(val type: Type, oscBasePath: String, number: Int, val startAddress: Int) : Receiver("$oscBasePath/$number") {
+abstract class Device(val type: Type, oscBasePath: String, val number: Int, val startAddress: Int) : Receiver("$oscBasePath/$number") {
 
     companion object {
         val types = listOf(AdjPar, LedBar, TsssPar)
@@ -21,7 +21,8 @@ abstract class Device(val type: Type, oscBasePath: String, number: Int, val star
             val manufacturer: String = "",
             val model: String = "",
             val mode: String = "",
-            val name: String = ""
+            val name: String = "",
+            val `short-name`: String = ""
         )
     }
 

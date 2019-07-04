@@ -4,9 +4,7 @@ import de.randombyte.lighthub.config.Color
 import de.randombyte.lighthub.config.Color.Rgb
 import de.randombyte.lighthub.config.Color.Rgb.Companion.new
 import de.randombyte.lighthub.config.loader.toConfigHolder
-import de.randombyte.lighthub.osc.OscChannel
 import de.randombyte.lighthub.osc.OscChannelMapping
-import kotlin.reflect.KClass
 
 class LedBar(number: Int, startAddress: Int) : Light<Rgb>(
     type = Companion,
@@ -20,7 +18,8 @@ class LedBar(number: Int, startAddress: Int) : Light<Rgb>(
             manufacturer = "Stairville",
             model = "LED BAR 252 RGB (no. 234564)",
             mode = "Mode 1",
-            name = "LedBar"
+            name = "LedBar",
+            `short-name` = "LedBar"
         ),
         addresses: List<Int> = emptyList(),
         colors: Map<String, Rgb> = mapOf(

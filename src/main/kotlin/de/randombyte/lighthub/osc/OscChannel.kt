@@ -12,10 +12,8 @@ class OscChannel(val path: String) {
 
     fun sendValue(value: Int): Int {
         val coercedValue = value.coerceIn(DMX_RANGE)
-        if (coercedValue != lastValue) {
-            Osc.send(path, coercedValue)
-            lastValue = coercedValue
-        }
+        Osc.send(path, coercedValue)
+        lastValue = coercedValue
 
         return coercedValue
     }
