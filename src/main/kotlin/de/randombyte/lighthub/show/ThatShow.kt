@@ -2,10 +2,10 @@ package de.randombyte.lighthub.show
 
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.midi.akai.Control
-import de.randombyte.lighthub.osc.OscChannel
 import de.randombyte.lighthub.osc.QlcPlus
 import de.randombyte.lighthub.osc.dmx.AdjPar
 import de.randombyte.lighthub.osc.dmx.LedBar
+import de.randombyte.lighthub.osc.dmx.TsssPar
 import de.randombyte.lighthub.show.ThatShow.Mode.AMBIENT_MANUAL
 import de.randombyte.lighthub.utils.Ranges
 
@@ -15,20 +15,23 @@ import de.randombyte.lighthub.utils.Ranges
 object ThatShow {
 
     val ledBar1 = LedBar(number = 1, startAddress = 29)
+    val ledBars = listOf(ledBar1)
+
+    val tsssPar1 = TsssPar(number = 1, startAddress = 43)
+    val tsssPar2 = TsssPar(number = 2, startAddress = 51)
+    val tsssPars = listOf(tsssPar1, tsssPar2)
 
     val adjPar1 = AdjPar(number = 1, startAddress = 65)
     val adjPar2 = AdjPar(number = 2, startAddress = 77)
-
-    val ledBars = listOf(ledBar1)
     val adjPars = listOf(adjPar1, adjPar2)
 
-    val lights = listOf(ledBars, adjPars).flatten()
+    val lights = listOf(ledBars, adjPars, tsssPars).flatten()
 
 
     enum class Mode { AMBIENT_MANUAL }
     var mode = AMBIENT_MANUAL
 
-    val ambientManual = AmbientManual(ledBars, adjPars)
+    val ambientManual = AmbientManual(ledBars, tsssPars, adjPars)
 
 
     fun setup(akai: Akai) {
@@ -87,6 +90,7 @@ object ThatShow {
         akai.registerControl(object : Control.Button.SimpleButton(20) {
             override fun onDown() {
                 adjPars.forEach { it.dimmingMode() }
+                tsssPars.forEach { it.dimmingMode() }
                 ambientManual.selectNext()
             }
         })

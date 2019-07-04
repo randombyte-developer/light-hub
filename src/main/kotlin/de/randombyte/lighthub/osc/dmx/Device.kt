@@ -7,7 +7,7 @@ import de.randombyte.lighthub.osc.Receiver
 abstract class Device(val type: Type, oscBasePath: String, number: Int, val startAddress: Int) : Receiver("$oscBasePath/$number") {
 
     companion object {
-        val types = listOf(AdjPar, LedBar)
+        val types = listOf(AdjPar, LedBar, TsssPar)
     }
 
     val channels = 0 until type.channels
