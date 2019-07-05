@@ -36,23 +36,52 @@ class LedBar(number: Int, startAddress: Int) : Light<Rgb>(
     }
 
     private val oscMode = "Mode".toOscChannel()
-    private val oscRed = "Red".toOscChannel()
-    private val oscGreen = "Green".toOscChannel()
-    private val oscBlue = "Blue".toOscChannel()
+    private val oscShutter = "Shutter".toOscChannel()
+
+    private val oscRed1 = "Red1".toOscChannel()
+    private val oscGreen1 = "Green1".toOscChannel()
+    private val oscBlue1 = "Blue1".toOscChannel()
+    private val oscRed2 = "Red2".toOscChannel()
+    private val oscGreen2 = "Green2".toOscChannel()
+    private val oscBlue2 = "Blue2".toOscChannel()
+    private val oscRed3 = "Red3".toOscChannel()
+    private val oscGreen3 = "Green3".toOscChannel()
+    private val oscBlue3 = "Blue3".toOscChannel()
+
+    private val oscReds = listOf(oscRed1, oscRed2, oscRed3)
+    private val oscGreens = listOf(oscGreen1, oscGreen2, oscGreen3)
+    private val oscBlues = listOf(oscBlue1, oscBlue2, oscBlue3)
 
     override val oscChannelMapping = OscChannelMapping(mapOf(
         0 to oscMode,
-        1 to oscRed,
-        2 to oscGreen,
-        3 to oscBlue
+        1 to oscShutter,
+        2 to oscRed1,
+        3 to oscGreen1,
+        4 to oscBlue1,
+        5 to oscRed2,
+        6 to oscGreen2,
+        7 to oscBlue2,
+        8 to oscRed3,
+        9 to oscGreen3,
+        10 to oscBlue3
     ))
+
+    fun ledOn() {
+        oscMode.sendValue(41)
+        oscShutter.sendValue(0)
+    }
+
+    fun strobe() {
+        ledOn()
+        oscShutter.sendValue(200)
+    }
 
     override var color: Rgb = configHolder.config.colors.getValue(Color.DEFAULT_COLOR_KEY)
         set(value) {
             field = value
-            oscRed.sendValue(value.red)
-            oscGreen.sendValue(value.green)
-            oscBlue.sendValue(value.blue)
+            oscReds.forEach { it.sendValue(value.red) }
+            oscGreens.forEach { it.sendValue(value.green) }
+            oscBlues.forEach { it.sendValue(value.blue) }
         }
 
     override fun blackout() {

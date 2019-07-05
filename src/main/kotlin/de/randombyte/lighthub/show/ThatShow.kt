@@ -15,7 +15,8 @@ import de.randombyte.lighthub.utils.Ranges
 object ThatShow {
 
     val ledBar1 = LedBar(number = 1, startAddress = 29)
-    val ledBars = listOf(ledBar1)
+    val ledBar2 = LedBar(number = 2, startAddress = 38)
+    val ledBars = listOf(ledBar1, ledBar2)
 
     val tsssPar1 = TsssPar(number = 1, startAddress = 43)
     val tsssPar2 = TsssPar(number = 2, startAddress = 51)
@@ -89,6 +90,7 @@ object ThatShow {
         // manual ambient switch
         akai.registerControl(object : Control.Button.SimpleButton(20) {
             override fun onDown() {
+                ledBars.forEach { it.ledOn() }
                 adjPars.forEach { it.dimmingMode() }
                 tsssPars.forEach { it.dimmingMode() }
                 ambientManual.selectNext()
