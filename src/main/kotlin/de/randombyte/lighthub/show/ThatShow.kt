@@ -3,9 +3,9 @@ package de.randombyte.lighthub.show
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.midi.akai.Control
 import de.randombyte.lighthub.osc.QlcPlus
-import de.randombyte.lighthub.osc.dmx.AdjPar
-import de.randombyte.lighthub.osc.dmx.LedBar
-import de.randombyte.lighthub.osc.dmx.TsssPar
+import de.randombyte.lighthub.osc.devices.HexPar
+import de.randombyte.lighthub.osc.devices.LedBar
+import de.randombyte.lighthub.osc.devices.TsssPar
 import de.randombyte.lighthub.show.ThatShow.Mode.AMBIENT_MANUAL
 import de.randombyte.lighthub.utils.Ranges
 
@@ -14,16 +14,16 @@ import de.randombyte.lighthub.utils.Ranges
  */
 object ThatShow {
 
-    val ledBar1 = LedBar(number = 1, startAddress = 29)
-    val ledBar2 = LedBar(number = 2, startAddress = 38)
+    val ledBar1 = LedBar(number = 1)
+    val ledBar2 = LedBar(number = 2)
     val ledBars = listOf(ledBar1, ledBar2)
 
-    val tsssPar1 = TsssPar(number = 1, startAddress = 43)
-    val tsssPar2 = TsssPar(number = 2, startAddress = 51)
+    val tsssPar1 = TsssPar(number = 1)
+    val tsssPar2 = TsssPar(number = 2)
     val tsssPars = listOf(tsssPar1, tsssPar2)
 
-    val adjPar1 = AdjPar(number = 1, startAddress = 65)
-    val adjPar2 = AdjPar(number = 2, startAddress = 77)
+    val adjPar1 = HexPar(number = 1)
+    val adjPar2 = HexPar(number = 2)
     val adjPars = listOf(adjPar1, adjPar2)
 
     val lights = listOf(ledBars, adjPars, tsssPars).flatten()
@@ -32,7 +32,7 @@ object ThatShow {
     enum class Mode { AMBIENT_MANUAL }
     var mode = AMBIENT_MANUAL
 
-    val ambientManual = AmbientManual(ledBars, tsssPars, adjPars)
+    val ambientManual = AmbientManual(ledBars + tsssPars + adjPars)
 
 
     fun setup(akai: Akai) {
@@ -93,10 +93,8 @@ object ThatShow {
                 ledBars.forEach { it.ledOn() }
                 adjPars.forEach { it.dimmingMode() }
                 tsssPars.forEach { it.dimmingMode() }
-                ambientManual.selectNext()
-                val selectedLight = ambientManual.get().type.configHolder.config.meta.`short-name` + "/" +
-                        ambientManual.get().number.toString()
-                akai.sendMapping(selectedLight)
+                val selectedDeviceName = ambientManual.selectNextDevice()
+                akai.sendMapping(selectedDeviceName)
             }
         })
     }

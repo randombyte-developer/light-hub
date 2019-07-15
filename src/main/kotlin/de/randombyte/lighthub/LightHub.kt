@@ -7,7 +7,7 @@ import de.randombyte.lighthub.show.ThatShow
 import java.nio.file.Paths
 
 fun main(args: Array<String>) {
-    Configs.setup()
+    Configs.reload()
 
     if (args.getOrNull(0) == "gen-qlc") {
         val path = Paths.get("LightHubShow.qxw").toAbsolutePath()

@@ -1,20 +1,9 @@
 package de.randombyte.lighthub.config
 
-import de.randombyte.lighthub.config.loader.toConfigHolder
-import de.randombyte.lighthub.config.serializer.CustomTypes
-import de.randombyte.lighthub.osc.dmx.Device
-
 object Configs {
-    val general = "general.conf".toConfigHolder<GeneralConfig>()
+    val general = ConfigHolder.create<GeneralConfig>(folder = "", name = "general")
 
     private val configs = listOf(general)
-
-    fun setup() {
-        CustomTypes.register()
-
-        Device.types.forEach { it.configHolder.reload() }
-        reload()
-    }
 
     fun reload() {
         configs.forEach { it.reload() }

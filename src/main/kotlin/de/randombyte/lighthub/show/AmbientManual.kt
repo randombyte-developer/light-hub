@@ -1,92 +1,72 @@
 package de.randombyte.lighthub.show
 
-import de.randombyte.lighthub.config.Color
-import de.randombyte.lighthub.osc.dmx.Light
+import de.randombyte.lighthub.osc.devices.Device
+import de.randombyte.lighthub.osc.devices.features.colors.RgbFeature
+import de.randombyte.lighthub.osc.devices.features.colors.RgbwFeature
+import de.randombyte.lighthub.osc.devices.features.colors.RgbwauvFeature
 
 /**
- * Most ugly class... type erasure ffs TODO: improve
+ * Set the color of each device separately.
  */
-class AmbientManual(val rgbLights: List<Light<Color.Rgb>>, val rgbwLights: List<Light<Color.Rgbw>>, val rgbwauvLights: List<Light<Color.Rgbwauv>>) {
+class AmbientManual(devices: List<Device>) {
 
-    var rgbIndex = 0
-    var rgbwIndex = 0
-    var rgbwauvIndex = 0
+    private val features: List<RgbFeature>
+    private val deviceShortNames: List<String>
 
-    var rgbLight: Light<Color.Rgb>? = rgbLights[0]
-    var rgbwLight: Light<Color.Rgbw>? = null
-    var rgbwauvLight: Light<Color.Rgbwauv>? = null
+    init {
+        val tmpFeatures= mutableListOf<RgbFeature>()
+        val tmpDeviceShortNames = mutableListOf<String>()
+        devices.forEach { device ->
+            tmpFeatures += device.getFeaturesByType<RgbFeature>()
+            tmpDeviceShortNames += device.metaFeature.configHolder.config.`short-name` + device.number
+        }
 
-    enum class Switch { Rgb, Rgbw, Rgbwauv }
-    var switch = Switch.Rgb
+        features = tmpFeatures
+        deviceShortNames = tmpDeviceShortNames
+    }
+
+    private var selectedIndex = 0
+    private var selectedFeature = features[0]
+
+    /**
+     * @return the short name of the newly selected device/feature
+     */
+    fun selectNextDevice(): String {
+        selectedIndex = (selectedIndex + 1) % features.size
+        selectedFeature = features[selectedIndex]
+        return deviceShortNames[selectedIndex]
+    }
 
     fun plusRed(delta: Int) {
-        rgbLight?.color = rgbLight!!.color.plusRed(delta)
-        rgbwLight?.color = rgbwLight!!.color.plusRed(delta)
-        rgbwauvLight?.color = rgbwauvLight!!.color.plusRed(delta)
+        selectedFeature.rgb = selectedFeature.rgb.plusRed(delta)
     }
 
     fun plusGreen(delta: Int) {
-        rgbLight?.color = rgbLight!!.color.plusGreen(delta)
-        rgbwLight?.color = rgbwLight!!.color.plusGreen(delta)
-        rgbwauvLight?.color = rgbwauvLight!!.color.plusGreen(delta)
+        selectedFeature.rgb = selectedFeature.rgb.plusGreen(delta)
     }
 
     fun plusBlue(delta: Int) {
-        rgbLight?.color = rgbLight!!.color.plusBlue(delta)
-        rgbwLight?.color = rgbwLight!!.color.plusBlue(delta)
-        rgbwauvLight?.color = rgbwauvLight!!.color.plusBlue(delta)
+        selectedFeature.rgb = selectedFeature.rgb.plusBlue(delta)
     }
 
     fun plusWhite(delta: Int) {
-        rgbwLight?.color = rgbwLight!!.color.plusWhite(delta)
-        rgbwauvLight?.color = rgbwauvLight!!.color.plusWhite(delta)
-    }
-
-    fun plusAmber(delta: Int) {
-        rgbwauvLight?.color = rgbwauvLight!!.color.plusAmber(delta)
-    }
-
-    fun plusUv(delta: Int) {
-        rgbwauvLight?.color = rgbwauvLight!!.color.plusUv(delta)
-    }
-
-    fun get(): Light<out Color> {
-        return when (switch) {
-            Switch.Rgb -> rgbLight!!
-            Switch.Rgbw -> rgbwLight!!
-            Switch.Rgbwauv -> rgbwauvLight!!
+        val feature = selectedFeature
+        if (feature is RgbwFeature) {
+            feature.rgb = feature.rgbw.plusWhite(delta)
         }
     }
 
-    fun selectNext() {
-        when (switch) {
-            Switch.Rgb -> {
-                rgbLight = rgbLights.getOrNull(rgbIndex)
-                rgbIndex++
-                if (rgbLight == null) {
-                    switch = Switch.Rgbw
-                    selectNext()
-                    rgbIndex = 0
-                }
-            }
-            Switch.Rgbw -> {
-                rgbwLight = rgbwLights.getOrNull(rgbwIndex)
-                rgbwIndex++
-                if (rgbwLight == null) {
-                    switch = Switch.Rgbwauv
-                    selectNext()
-                    rgbwIndex = 0
-                }
-            }
-            Switch.Rgbwauv -> {
-                rgbwauvLight = rgbwauvLights.getOrNull(rgbwauvIndex)
-                rgbwauvIndex++
-                if (rgbwauvLight == null) {
-                    switch = Switch.Rgb
-                    selectNext()
-                    rgbwauvIndex = 0
-                }
-            }
+    fun plusAmber(delta: Int) {
+        val feature = selectedFeature
+        if (feature is RgbwauvFeature) {
+            feature.rgb = feature.rgbwauv.plusAmber(delta)
+        }
+    }
+
+    fun plusUv(delta: Int) {
+        val feature = selectedFeature
+        if (feature is RgbwauvFeature) {
+            feature.rgb = feature.rgbwauv.plusUv(delta)
         }
     }
 }

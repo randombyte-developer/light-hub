@@ -1,8 +1,8 @@
 package de.randombyte.lighthub.qlc
 
 import de.randombyte.lighthub.osc.QlcPlus
-import de.randombyte.lighthub.osc.dmx.Device
-import io.github.config4k.toConfig
+import de.randombyte.lighthub.osc.devices.Device
+import de.randombyte.lighthub.utils.forEach
 import org.redundent.kotlin.xml.PrintOptions
 import org.redundent.kotlin.xml.xml
 import java.nio.file.Files
@@ -40,21 +40,23 @@ object QlcShowFileGenerator {
                     }
                 }
 
-                indexedDevices.forEach { index, device ->
-                    val type = device.type
-                    val config = type.configHolder.config
-                    val meta = config.meta
-                    config.addresses.forEach { address ->
-                        "Fixture" {
-                            "Manufacturer" { -meta.manufacturer }
-                            "Model" { -meta.model }
-                            "Name" { -meta.name }
-                            "Mode" { -meta.mode }
-                            "Universe" { -"0" }
-                            "ID" { -index.toString() }
-                            "Address" { -(address - 1).toString() }
-                            "Channels" { -type.channels.toString() }
-                        }
+                indexedDevices.forEach { (index, device) ->
+                    val meta = device.metaFeature.configHolder.config
+                    val qlcMeta = meta.qlcMeta
+                    val address = meta.addresses.getOrNull(device.number - 1)
+                    if (address == null) {
+                        println("Expected device '${device.type.id}'!")
+                        return@forEach
+                    }
+                    "Fixture" {
+                        "Manufacturer" { -qlcMeta.manufacturer }
+                        "Model" { -qlcMeta.model }
+                        "Name" { -qlcMeta.name }
+                        "Mode" { -qlcMeta.mode }
+                        "Universe" { -"0" }
+                        "ID" { -index.toString() }
+                        "Address" { -(address - 1).toString() }
+                        "Channels" { -device.type.channels.toString() }
                     }
                 }
             }
@@ -74,7 +76,7 @@ object QlcShowFileGenerator {
                         "Input"("Universe" to 0, "Channel" to QlcPlus.oscBlackout.qlcChannel)
                     }
 
-                    indexedDevices.forEach { deviceIndex, device ->
+                    indexedDevices.forEach { (deviceIndex, device) ->
                         device.oscChannelMapping.channels.forEach { dmxDeviceChannel, oscChannel ->
                             "Slider"(
                                 "Caption" to "Slider $currentWidgetIndex",

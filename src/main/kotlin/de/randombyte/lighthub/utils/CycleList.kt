@@ -4,13 +4,10 @@ class CycleList<T>(val list: List<T>) {
 
     private var i = 0
 
-    /**
-     * @return true when the list just wrapped around
-     */
-    fun next(): Boolean {
-        i = (i +1) % list.size
-        return i == 0
+    fun next() {
+        i = (i + 1) % list.size
     }
 
-    fun get(): T = list[i]
+    val value: T
+        get() = list[i]
 }

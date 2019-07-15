@@ -6,4 +6,4 @@ package de.randombyte.lighthub.osc
 * This could be simply done by the index of a list, but it might lead to bugs
 * because the index is not easily readable.
 */
-class OscChannelMapping(val channels: Map<Int, OscChannel>)
+class OscChannelMapping(vararg val channels: Pair<Int, OscChannel>)
