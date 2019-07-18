@@ -26,9 +26,12 @@ open class RgbwFeature(
         oscWhite.sendValue(rgbw.white)
     }
 
-    override val colors: ConfigHolder<out Rgbw> = create(deviceType.id, "colors")
+    private val colors: ConfigHolder<RgbwConfig> = create(deviceType.id, "colors")
 
-    override val configHolders = listOf(colors)
+    override val configHolders: List<ConfigHolder<*>> = listOf(colors)
+
+
+    class RgbwConfig(val colors: Map<String, Rgbw> = emptyMap())
 
     open class Rgbw(
         red: Int = 0,
@@ -43,8 +46,7 @@ open class RgbwFeature(
         }
 
         companion object {
-            val default: Rgbw =
-                new(r = 0, g = 0, b = 0, w = 0)
+            val default: Rgbw = new(r = 0, g = 0, b = 0, w = 0)
 
             fun new(r: Int, g: Int, b: Int, w: Int) = Rgbw(
                 red = r.coerceIn(Ranges.DMX_RANGE),

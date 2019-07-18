@@ -1,6 +1,7 @@
 package de.randombyte.lighthub.osc.devices.features.colors
 
 import de.randombyte.lighthub.config.ConfigHolder
+import de.randombyte.lighthub.config.ConfigHolder.Companion.create
 import de.randombyte.lighthub.osc.OscChannel
 import de.randombyte.lighthub.osc.devices.features.Feature
 import de.randombyte.lighthub.osc.devices.Device
@@ -25,9 +26,12 @@ open class RgbFeature(
         oscBlue.sendValue(rgb.blue)
     }
 
-    open val colors: ConfigHolder<out Rgb> = ConfigHolder.create(deviceType.id, "colors")
+    private val colors: ConfigHolder<RgbConfig> = create(deviceType.id, "colors")
 
-    override val configHolders = listOf(colors)
+    override val configHolders: List<ConfigHolder<*>> = listOf(colors)
+
+
+    class RgbConfig(val colors: Map<String, Rgb> = emptyMap())
 
     open class Rgb(
         val red: Int = 0,
@@ -41,8 +45,7 @@ open class RgbFeature(
         }
 
         companion object {
-            val default: Rgb =
-                new(r = 0, g = 0, b = 0)
+            val default: Rgb = new(r = 0, g = 0, b = 0)
 
             fun new(r: Int, g: Int, b: Int) =
                 Rgb(

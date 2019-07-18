@@ -12,7 +12,7 @@ import de.randombyte.lighthub.utils.Ranges
 /**
  * One specific show with this many lights and the [Akai] as the controller.
  */
-object ThatShow {
+class ThatShow {
 
     val ledBar1 = LedBar(number = 1)
     val ledBar2 = LedBar(number = 2)
@@ -28,14 +28,26 @@ object ThatShow {
 
     val lights = listOf(ledBars, adjPars, tsssPars).flatten()
 
+    init {
+        setupLights()
+    }
 
     enum class Mode { AMBIENT_MANUAL }
     var mode = AMBIENT_MANUAL
 
-    val ambientManual = AmbientManual(ledBars + tsssPars + adjPars)
+    lateinit var ambientManual: AmbientManual
 
+    fun setupLights() {
+        lights.forEach { it.reloadConfigs() }
+    }
 
     fun setup(akai: Akai) {
+        setupLights()
+        ambientManual = AmbientManual(ledBars + tsssPars + adjPars)
+        setupController(akai)
+    }
+
+    private fun setupController(akai: Akai) {
         akai.registerControl(object : Control.Button.TouchButton(0) {
             override fun onUp() {
                 // make the toggle button to a "flash" button

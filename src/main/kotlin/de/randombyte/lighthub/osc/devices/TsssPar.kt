@@ -37,7 +37,7 @@ class TsssPar(number: Int) : Device(
         7 to oscWhite
     )
 
-    val rgbwFeature = RgbwFeature(HexPar, oscRed, oscGreen, oscBlue, oscWhite)
+    val rgbwFeature = RgbwFeature(Companion, oscRed, oscGreen, oscBlue, oscWhite)
 
     override val metaFeature = MetaFeature(Companion)
 

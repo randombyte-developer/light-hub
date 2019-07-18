@@ -10,9 +10,9 @@ class MetaFeature(deviceType: Device.Type) : Feature.Configurable {
     override val configHolders = listOf(configHolder)
 
     open class Config(
-        val qlcMeta: QlcMeta,
-        val addresses: List<Int>,
-        val `short-name`: String
+        val qlcMeta: QlcMeta = QlcMeta(),
+        val addresses: List<Int> = emptyList(),
+        val `short-name`: String = ""
     ) {
         /**
          * Used in QLC+ to pick the DMX mapping.

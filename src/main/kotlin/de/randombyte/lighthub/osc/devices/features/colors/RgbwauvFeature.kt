@@ -1,6 +1,7 @@
 package de.randombyte.lighthub.osc.devices.features.colors
 
 import de.randombyte.lighthub.config.ConfigHolder
+import de.randombyte.lighthub.config.ConfigHolder.Companion.create
 import de.randombyte.lighthub.osc.OscChannel
 import de.randombyte.lighthub.osc.devices.Device
 import de.randombyte.lighthub.utils.Ranges
@@ -28,9 +29,12 @@ class RgbwauvFeature(
         oscUv.sendValue(rgbwauv.uv)
     }
 
-    override val colors: ConfigHolder<out Rgbwauv> = ConfigHolder.create(deviceType.id, "colors")
+    private val colors: ConfigHolder<RgbwauvConfig> = create(deviceType.id, "colors")
 
-    override val configHolders = listOf(colors)
+    override val configHolders: List<ConfigHolder<*>> = listOf(colors)
+
+
+    class RgbwauvConfig(val colors: Map<String, Rgbwauv> = emptyMap())
 
     class Rgbwauv(
         red: Int = 0,
@@ -47,8 +51,7 @@ class RgbwauvFeature(
         }
 
         companion object {
-            val default: Rgbwauv =
-                new(r = 0, g = 0, b = 0, w = 0, a = 0, uv = 0)
+            val default: Rgbwauv = new(r = 0, g = 0, b = 0, w = 0, a = 0, uv = 0)
 
             fun new(r: Int, g: Int, b: Int, w: Int, a: Int, uv: Int) = Rgbwauv(
                 red = r.coerceIn(Ranges.DMX_RANGE),

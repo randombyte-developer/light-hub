@@ -18,12 +18,8 @@ abstract class Device(
         val channels: Int
     }
 
-    init {
-        reloadConfigs()
-    }
-
     fun reloadConfigs() {
-        features.forEach { feature ->
+        (features + metaFeature).forEach { feature ->
             (feature as? Feature.Configurable)?.configHolders?.forEach {
                     configHolder -> configHolder.reload()
             }
