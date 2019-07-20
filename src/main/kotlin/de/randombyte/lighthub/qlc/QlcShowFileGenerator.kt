@@ -19,11 +19,13 @@ object QlcShowFileGenerator {
 
         val indexedDevices = devices.mapIndexed { index, device -> index to device }.toMap()
 
-        writer.write("""
+        writer.write(
+            """
             <?xml version="1.0" encoding="UTF-8"?>
             <!DOCTYPE Workspace>
 
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         xml("Workspace") {
             xmlns = "http://www.qlcplus.org/Workspace"
@@ -41,13 +43,7 @@ object QlcShowFileGenerator {
                 }
 
                 indexedDevices.forEach { (index, device) ->
-                    val meta = device.metaFeature.configHolder.config
-                    val qlcMeta = meta.qlcMeta
-                    val address = meta.addresses.getOrNull(device.number - 1)
-                    if (address == null) {
-                        println("Expected device '${device.type.id}'!")
-                        return@forEach
-                    }
+                    val qlcMeta = device.type.metaConfigHolder.config.qlcMeta
                     "Fixture" {
                         "Manufacturer" { -qlcMeta.manufacturer }
                         "Model" { -qlcMeta.model }
@@ -55,7 +51,7 @@ object QlcShowFileGenerator {
                         "Mode" { -qlcMeta.mode }
                         "Universe" { -"0" }
                         "ID" { -index.toString() }
-                        "Address" { -(address - 1).toString() }
+                        "Address" { -(device.dmxAddress - 1).toString() }
                         "Channels" { -device.type.channels.toString() }
                     }
                 }
@@ -77,7 +73,7 @@ object QlcShowFileGenerator {
                     }
 
                     indexedDevices.forEach { (deviceIndex, device) ->
-                        device.oscChannelMapping.channels.forEach { dmxDeviceChannel, oscChannel ->
+                        device.oscChannelMapping.channels.forEach { relativeDmxDeviceChannel, oscChannel ->
                             "Slider"(
                                 "Caption" to "Slider $currentWidgetIndex",
                                 "ID" to deviceIndex,
@@ -97,7 +93,7 @@ object QlcShowFileGenerator {
                                 }
                                 "Level"("LowLimit" to 0, "HighLimit" to 255, "Value" to 0) {
                                     "Channel"("Fixture" to deviceIndex) {
-                                        -dmxDeviceChannel.toString()
+                                        -relativeDmxDeviceChannel.toString()
                                     }
                                 }
 

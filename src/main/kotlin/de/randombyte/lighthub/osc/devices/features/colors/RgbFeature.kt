@@ -1,18 +1,19 @@
 package de.randombyte.lighthub.osc.devices.features.colors
 
-import de.randombyte.lighthub.config.ConfigHolder
-import de.randombyte.lighthub.config.ConfigHolder.Companion.create
 import de.randombyte.lighthub.osc.OscChannel
-import de.randombyte.lighthub.osc.devices.features.Feature
 import de.randombyte.lighthub.osc.devices.Device
+import de.randombyte.lighthub.osc.devices.Device.Companion.getByType
+import de.randombyte.lighthub.osc.devices.features.Feature
 import de.randombyte.lighthub.utils.Ranges
 
 open class RgbFeature(
-    deviceType: Device.Type,
+    type: Device.Type<*>,
     val oscRed: OscChannel,
     val oscGreen: OscChannel,
     val oscBlue: OscChannel
-) : Feature.Configurable {
+) : Feature {
+
+    private val colors = type.configHolders.getByType<RgbConfig>()
 
     var rgb: Rgb = Rgb.default
         set(value) {
@@ -25,10 +26,6 @@ open class RgbFeature(
         oscGreen.sendValue(rgb.green)
         oscBlue.sendValue(rgb.blue)
     }
-
-    private val colors: ConfigHolder<RgbConfig> = create(deviceType.id, "colors")
-
-    override val configHolders: List<ConfigHolder<*>> = listOf(colors)
 
 
     class RgbConfig(val colors: Map<String, Rgb> = emptyMap())

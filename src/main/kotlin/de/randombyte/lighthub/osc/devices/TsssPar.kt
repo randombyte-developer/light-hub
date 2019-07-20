@@ -1,30 +1,38 @@
 package de.randombyte.lighthub.osc.devices
 
+import de.randombyte.lighthub.config.ConfigHolder.Companion.create
 import de.randombyte.lighthub.osc.OscChannelMapping
 import de.randombyte.lighthub.osc.devices.features.Feature
-import de.randombyte.lighthub.osc.devices.features.MetaFeature
+import de.randombyte.lighthub.osc.devices.features.MetaConfig
 import de.randombyte.lighthub.osc.devices.features.colors.RgbwFeature
 import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
 
-class TsssPar(number: Int) : Device(
+class TsssPar(number: Int, dmxAddress: Int) : Device(
     type = Companion,
-    oscBasePath = "TsssPar",
-    number = number
+    number = number,
+    dmxAddress = dmxAddress
 ) {
 
-    companion object : Type {
+    companion object : Type<TsssPar> {
+        override val clazz = TsssPar::class
+        override val constructor = ::TsssPar
         override val id = "tsss-par"
         override val channels = 8
+
+        override val metaConfigHolder = create<MetaConfig>(id, "meta")
+        val colors = create<RgbwFeature.RgbwConfig>(id, "colors")
+
+        override val configHolders = listOf(colors)
     }
 
-    private val oscMode = "Mode".toOscChannel()
-    private val oscColorMacro = "ColorMacro".toOscChannel()
-    private val oscSpeed = "Speed".toOscChannel()
-    private val oscMasterDimmer = "MasterDimmer".toOscChannel()
-    private val oscRed = "Red".toOscChannel()
-    private val oscGreen = "Green".toOscChannel()
-    private val oscBlue = "Blue".toOscChannel()
-    private val oscWhite = "White".toOscChannel()
+    private val oscMode = "mode".toOscChannel()
+    private val oscColorMacro = "color-macro".toOscChannel()
+    private val oscSpeed = "speed".toOscChannel()
+    private val oscMasterDimmer = "master-dimmer".toOscChannel()
+    private val oscRed = "red".toOscChannel()
+    private val oscGreen = "green".toOscChannel()
+    private val oscBlue = "blue".toOscChannel()
+    private val oscWhite = "white".toOscChannel()
 
     override val oscChannelMapping = OscChannelMapping(
         0 to oscMode,
@@ -38,8 +46,6 @@ class TsssPar(number: Int) : Device(
     )
 
     val rgbwFeature = RgbwFeature(Companion, oscRed, oscGreen, oscBlue, oscWhite)
-
-    override val metaFeature = MetaFeature(Companion)
 
     override val features: List<Feature> = listOf(rgbwFeature)
 

@@ -11,8 +11,7 @@ fun main(args: Array<String>) {
 
     if (args.getOrNull(0) == "gen-qlc") {
         val path = Paths.get("LightHubShow.qxw").toAbsolutePath()
-        val show = ThatShow()
-        show.setupLights()
+        val show = ThatShow.createFromConfig()
         QlcShowFileGenerator.generate(path, show.lights)
         println("Generated file: $path")
         return
@@ -27,7 +26,6 @@ object LightHub {
 
         if (!akai.open()) throw RuntimeException("Midi unavailable!")
 
-        val show = ThatShow()
-        show.setup(akai)
+        val show = ThatShow.createFromConfig()
     }
 }

@@ -7,7 +7,7 @@ sealed class Control(val type: Int, val number: Int) {
     var value: Int = 0
     var lastValue: Int = 0
 
-    open fun onUpdate() { }
+    open fun onUpdate() {}
 
     fun update(newValue: Int) {
         lastValue = value
@@ -27,9 +27,9 @@ sealed class Control(val type: Int, val number: Int) {
             }
         }
 
-        open fun onUp() { }
+        open fun onUp() {}
 
-        open fun onDown() { }
+        open fun onDown() {}
 
         abstract class SimpleButton(number: Int) : Button(0x40, number)
 

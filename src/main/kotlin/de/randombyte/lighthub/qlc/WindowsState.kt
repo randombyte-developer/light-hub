@@ -1,6 +1,5 @@
 package de.randombyte.lighthub.qlc
 
-import de.randombyte.lighthub.midi.akai.Control
 import org.redundent.kotlin.xml.Node
 
 data class WindowsState(

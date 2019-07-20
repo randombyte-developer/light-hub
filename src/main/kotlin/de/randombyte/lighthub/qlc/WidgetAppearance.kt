@@ -1,7 +1,6 @@
 package de.randombyte.lighthub.qlc
 
 import org.redundent.kotlin.xml.Node
-import org.redundent.kotlin.xml.node
 
 class WidgetAppearance(
     val frameStyle: FrameStyle = FrameStyle.None,

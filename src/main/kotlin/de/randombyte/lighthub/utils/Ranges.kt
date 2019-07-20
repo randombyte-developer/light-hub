@@ -13,4 +13,6 @@ object Ranges {
         if (from.last == from.first) throw IllegalArgumentException("from-range must be larger than one!")
         return to.first + (value - from.first) * (to.last - to.first) / (from.last - from.first)
     }
+
+    fun IntRange.intersects(other: IntRange) = this.first in other || this.last in other || other.first in this || other.last in this
 }

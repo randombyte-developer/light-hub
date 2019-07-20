@@ -14,11 +14,11 @@ class AmbientManual(devices: List<Device>) {
     private val deviceShortNames: List<String>
 
     init {
-        val tmpFeatures= mutableListOf<RgbFeature>()
+        val tmpFeatures = mutableListOf<RgbFeature>()
         val tmpDeviceShortNames = mutableListOf<String>()
         devices.forEach { device ->
             tmpFeatures += device.getFeaturesByType<RgbFeature>()
-            tmpDeviceShortNames += device.metaFeature.configHolder.config.`short-name` + device.number
+            tmpDeviceShortNames += device.type.metaConfigHolder.config.`short-name` + device.number
         }
 
         features = tmpFeatures
