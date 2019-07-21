@@ -52,21 +52,21 @@ class AmbientManual(devices: List<Device>) {
     fun plusWhite(delta: Int) {
         val feature = selectedFeature
         if (feature is RgbwFeature) {
-            feature.rgb = feature.rgbw.plusWhite(delta)
+            feature.rgbw = feature.rgbw.plusWhite(delta)
         }
     }
 
     fun plusAmber(delta: Int) {
         val feature = selectedFeature
         if (feature is RgbwauvFeature) {
-            feature.rgb = feature.rgbwauv.plusAmber(delta)
+            feature.rgbwauv = feature.rgbwauv.plusAmber(delta)
         }
     }
 
     fun plusUv(delta: Int) {
         val feature = selectedFeature
         if (feature is RgbwauvFeature) {
-            feature.rgb = feature.rgbwauv.plusUv(delta)
+            feature.rgbwauv = feature.rgbwauv.plusUv(delta)
         }
     }
 }

@@ -27,5 +27,6 @@ object LightHub {
         if (!akai.open()) throw RuntimeException("Midi unavailable!")
 
         val show = ThatShow.createFromConfig()
+        show.setController(akai)
     }
 }

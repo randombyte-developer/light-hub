@@ -15,7 +15,7 @@ open class RgbFeature(
 
     private val colors = type.configHolders.getByType<RgbConfig>()
 
-    var rgb: Rgb = Rgb.default
+    open var rgb: Rgb = Rgb.default
         set(value) {
             field = value
             sendOsc()

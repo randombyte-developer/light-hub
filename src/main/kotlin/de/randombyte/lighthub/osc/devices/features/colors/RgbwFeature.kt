@@ -15,10 +15,16 @@ open class RgbwFeature(
 
     private val colors = type.configHolders.getByType<RgbwConfig>()
 
-    var rgbw: Rgbw = Rgbw.default
+    // the super-class is never called, the field rgbw is actually storing the information
+    override var rgb: Rgb
+        get() = rgbw
+        set(value) {
+            rgbw = Rgbw.new(r = value.red, g = value.green, b = value.blue, w = rgbw.white)
+        }
+
+    open var rgbw: Rgbw = Rgbw.default
         set(value) {
             field = value
-            rgb = value
             sendOsc()
         }
 

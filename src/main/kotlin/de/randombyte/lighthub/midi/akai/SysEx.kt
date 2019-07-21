@@ -8,9 +8,9 @@ object SysEx {
 
     val SYSEX_SPECIAL_MODE = ubyteArrayOf(0xF0u, 0x47u, 0x00u, 0x78u, 0x30u, 0x00u, 0x04u, 0x01u, 0x00u, 0x00u, 0x38u, 0xF7u)
 
-    val MAPPING_START = listOf(0xF0, 0x47, 0x00, 0x78, 0x10, 0x04, 0x59, 0x00).map { it.toByte() }.toByteArray()
+    private val MAPPING_START = listOf(0xF0, 0x47, 0x00, 0x78, 0x10, 0x04, 0x59, 0x00).map { it.toByte() }.toByteArray()
 
-    val MAPPING_END = listOf(
+    private val MAPPING_END = listOf(
         0x20, 0x78, 0x01, 0x04, 0x01, 0x32, 0x3A, 0x02, 0x03, 0x00, 0x24, 0x00, 0x01, 0x00, 0x00, 0x00,
         0x03, 0x00, 0x25, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x00, 0x26, 0x00, 0x01, 0x00, 0x00, 0x00,
         0x03, 0x00, 0x27, 0x00, 0x01, 0x00, 0x00, 0x00, 0x03, 0x00, 0x28, 0x00, 0x01, 0x00, 0x00, 0x00,
@@ -51,12 +51,12 @@ object SysEx {
         0xF7
     ).map { it.toByte() }.toByteArray()
 
-    const val MAPPING_NAME_LENGTH = 8
+    private const val MAPPING_NAME_LENGTH = 8
 
     val MAPPING_LENGTH = MAPPING_START.size + MAPPING_NAME_LENGTH + MAPPING_END.size
 
     fun createMappingWithName(name: String) =
-        MAPPING_START + (name + " ".repeat(MAPPING_NAME_LENGTH)).take(8).toByteArray() + MAPPING_END
+        MAPPING_START + name.forceLength(length = MAPPING_NAME_LENGTH, filler = " ").toByteArray() + MAPPING_END
 
     data class Signal constructor(val type: Int, val control: Int, val value: Int)
 
@@ -80,4 +80,6 @@ object SysEx {
         }
         return true
     }
+
+    private fun String.forceLength(length: Int, filler: String) = (this + filler.repeat(length)).substring(0, length)
 }

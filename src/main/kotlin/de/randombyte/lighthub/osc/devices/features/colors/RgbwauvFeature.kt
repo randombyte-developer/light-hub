@@ -17,10 +17,15 @@ class RgbwauvFeature(
 
     private val colors = type.configHolders.getByType<RgbwauvConfig>()
 
+    override var rgbw: Rgbw
+        get() = rgbwauv
+        set(value) {
+            rgbwauv = Rgbwauv.new(r = value.red, g = value.green, b = value.blue, w = value.white, a = rgbwauv.amber, uv = rgbwauv.uv)
+        }
+
     var rgbwauv: Rgbwauv = Rgbwauv.default
         set(value) {
             field = value
-            rgbw = value
             sendOsc()
         }
 
