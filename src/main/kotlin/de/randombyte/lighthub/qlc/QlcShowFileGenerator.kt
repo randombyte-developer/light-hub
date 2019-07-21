@@ -76,11 +76,14 @@ object QlcShowFileGenerator {
                         device.oscChannelMapping.channels.forEach { relativeDmxDeviceChannel, oscChannel ->
                             "Slider"(
                                 "Caption" to "Slider $currentWidgetIndex",
-                                "ID" to deviceIndex,
+                                "ID" to currentWidgetIndex,
                                 "WidgetStyle" to "Slider",
                                 "InvertedAppearance" to false
                             ) {
-                                WindowsState.SLIDER.copy(x = WindowsState.SLIDER_WIDTH * currentWidgetIndex).toXml(this)
+                                WindowsState.SLIDER.copy(
+                                    x = WindowsState.SLIDER_WIDTH * (currentWidgetIndex % 20),
+                                    y = WindowsState.SLIDER_HEIGHT * (currentWidgetIndex / 20)
+                                ).toXml(this)
 
                                 WidgetAppearance.DEFAULT.toXml(this)
 
