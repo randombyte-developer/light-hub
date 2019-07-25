@@ -4,8 +4,8 @@ import kotlin.math.absoluteValue
 
 sealed class Control(val type: Int, val number: Int) {
 
-    var value: Int = 0
-    var lastValue: Int = 0
+    var value = 0
+    var lastValue = 0
 
     open fun onUpdate() {}
 

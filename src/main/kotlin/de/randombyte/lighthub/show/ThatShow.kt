@@ -65,14 +65,12 @@ class ThatShow(
     fun setController(akai: Akai) {
         akai.registerControl(object : Control.Button.TouchButton(0) {
             override fun onUp() {
-                // make the toggle button to a "flash" button
+                // simulate a "flash" button, the real QLC+ is actually a toggle button
                 QlcPlus.oscBlackout.sendValue(1)
-                QlcPlus.oscBlackout.sendValue(0)
             }
 
             override fun onDown() {
                 QlcPlus.oscBlackout.sendValue(1)
-                QlcPlus.oscBlackout.sendValue(0)
             }
         })
 
