@@ -3,10 +3,10 @@ package de.randombyte.lighthub.osc.devices
 import de.randombyte.lighthub.config.ConfigHolder.Companion.create
 import de.randombyte.lighthub.osc.OscChannelMapping
 import de.randombyte.lighthub.osc.devices.features.Feature
-import de.randombyte.lighthub.osc.devices.features.MetaConfig
-import de.randombyte.lighthub.osc.devices.features.colors.RgbwauvFeature
-import de.randombyte.lighthub.osc.devices.features.colors.RgbwauvFeature.RgbwauvConfig
-import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
+import de.randombyte.lighthub.osc.devices.features.impl.MasterDimmerFeatureImpl
+import de.randombyte.lighthub.osc.devices.features.impl.RgbwauvFeatureImpl
+import de.randombyte.lighthub.osc.devices.features.impl.RgbwauvFeatureImpl.RgbwauvConfig
+import de.randombyte.lighthub.utils.Ranges
 
 class HexPar(number: Int, dmxAddress: Int) : Device(
     type = Companion,
@@ -24,6 +24,9 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
         val colors = create<RgbwauvConfig>(id, "colors")
 
         override val configHolders = listOf(colors)
+
+        private const val OSC_PROGRAM_DIMMING_MODE = 0
+        private const val OSC_SHUTTER_LED_ON = 32
     }
 
     private val oscRed = "red".toOscChannel()
@@ -54,22 +57,15 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
         11 to oscDimmerCurve
     )
 
-    val rgbwauvFeature = RgbwauvFeature(Companion, oscRed, oscGreen, oscBlue, oscWhite, oscAmber, oscUv)
+    val color = RgbwauvFeatureImpl(Companion, oscRed, oscGreen, oscBlue, oscWhite, oscAmber, oscUv)
 
-    override val features: List<Feature> = listOf(rgbwauvFeature)
+    val masterDimmer = MasterDimmerFeatureImpl(oscMasterDimmer)
 
-    fun ledOn() {
-        oscShutter.sendValue(32)
-    }
+    override val features: List<Feature> = listOf(color, masterDimmer)
 
     fun dimmingMode() {
-        oscProgram.sendValue(0)
-        ledOn()
-        masterDimmer = DMX_RANGE.endInclusive
+        oscProgram.sendValue(OSC_PROGRAM_DIMMING_MODE)
+        oscShutter.sendValue(OSC_SHUTTER_LED_ON)
+        masterDimmer.on()
     }
-
-    var masterDimmer: Int = DMX_RANGE.endInclusive
-        set(value) {
-            field = oscMasterDimmer.sendValue(value)
-        }
 }

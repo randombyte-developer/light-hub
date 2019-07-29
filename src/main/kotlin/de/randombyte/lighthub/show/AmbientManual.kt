@@ -1,9 +1,9 @@
 package de.randombyte.lighthub.show
 
 import de.randombyte.lighthub.osc.devices.Device
-import de.randombyte.lighthub.osc.devices.features.colors.RgbFeature
-import de.randombyte.lighthub.osc.devices.features.colors.RgbwFeature
-import de.randombyte.lighthub.osc.devices.features.colors.RgbwauvFeature
+import de.randombyte.lighthub.osc.devices.features.RgbFeature
+import de.randombyte.lighthub.osc.devices.features.RgbwFeature
+import de.randombyte.lighthub.osc.devices.features.impl.RgbwauvFeatureImpl
 
 /**
  * Set the color of each device separately.
@@ -58,14 +58,14 @@ class AmbientManual(devices: List<Device>) {
 
     fun plusAmber(delta: Int) {
         val feature = selectedFeature
-        if (feature is RgbwauvFeature) {
+        if (feature is RgbwauvFeatureImpl) {
             feature.rgbwauv = feature.rgbwauv.plusAmber(delta)
         }
     }
 
     fun plusUv(delta: Int) {
         val feature = selectedFeature
-        if (feature is RgbwauvFeature) {
+        if (feature is RgbwauvFeatureImpl) {
             feature.rgbwauv = feature.rgbwauv.plusUv(delta)
         }
     }

@@ -4,9 +4,8 @@ import de.randombyte.lighthub.config.ConfigHolder.Companion.create
 import de.randombyte.lighthub.osc.OscChannel.OscMultiChannel
 import de.randombyte.lighthub.osc.OscChannelMapping
 import de.randombyte.lighthub.osc.devices.features.Feature
-import de.randombyte.lighthub.osc.devices.features.MetaConfig
-import de.randombyte.lighthub.osc.devices.features.colors.RgbFeature
-import de.randombyte.lighthub.osc.devices.features.colors.RgbFeature.RgbConfig
+import de.randombyte.lighthub.osc.devices.features.impl.RgbFeatureImpl
+import de.randombyte.lighthub.osc.devices.features.impl.RgbFeatureImpl.RgbConfig
 
 class LedBar(number: Int, dmxAddress: Int) : Device(
     type = Companion,
@@ -57,9 +56,9 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
         10 to oscBlue3
     )
 
-    val rgbFeature = RgbFeature(Companion, oscReds, oscGreens, oscBlues)
+    val rgb = RgbFeatureImpl(Companion, oscReds, oscGreens, oscBlues)
 
-    override val features: List<Feature> = listOf(rgbFeature)
+    override val features: List<Feature> = listOf(rgb)
 
     fun ledOn() {
         oscMode.sendValue(41)

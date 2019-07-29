@@ -1,4 +1,4 @@
-package de.randombyte.lighthub.osc.devices.features
+package de.randombyte.lighthub.osc.devices
 
 open class MetaConfig(
     val qlcMeta: QlcMeta = QlcMeta(),

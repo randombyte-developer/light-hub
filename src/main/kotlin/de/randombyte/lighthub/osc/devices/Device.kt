@@ -4,7 +4,6 @@ import de.randombyte.lighthub.config.ConfigHolder
 import de.randombyte.lighthub.osc.OscChannelMapping
 import de.randombyte.lighthub.osc.Receiver
 import de.randombyte.lighthub.osc.devices.features.Feature
-import de.randombyte.lighthub.osc.devices.features.MetaConfig
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction2
 

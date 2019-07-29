@@ -3,8 +3,9 @@ package de.randombyte.lighthub.osc.devices
 import de.randombyte.lighthub.config.ConfigHolder.Companion.create
 import de.randombyte.lighthub.osc.OscChannelMapping
 import de.randombyte.lighthub.osc.devices.features.Feature
-import de.randombyte.lighthub.osc.devices.features.MetaConfig
-import de.randombyte.lighthub.osc.devices.features.colors.RgbwFeature
+import de.randombyte.lighthub.osc.devices.features.impl.MasterDimmerFeatureImpl
+import de.randombyte.lighthub.osc.devices.features.impl.RgbwFeatureImpl
+import de.randombyte.lighthub.osc.devices.features.impl.RgbwFeatureImpl.RgbwConfig
 import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
 
 class TsssPar(number: Int, dmxAddress: Int) : Device(
@@ -20,7 +21,7 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
         override val channels = 8
 
         override val metaConfigHolder = create<MetaConfig>(id, "meta")
-        val colors = create<RgbwFeature.RgbwConfig>(id, "colors")
+        val colors = create<RgbwConfig>(id, "colors")
 
         override val configHolders = listOf(colors)
     }
@@ -45,9 +46,11 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
         7 to oscWhite
     )
 
-    val rgbwFeature = RgbwFeature(Companion, oscRed, oscGreen, oscBlue, oscWhite)
+    val rgbw = RgbwFeatureImpl(Companion, oscRed, oscGreen, oscBlue, oscWhite)
+    val masterDimmer = MasterDimmerFeatureImpl(oscMasterDimmer)
 
-    override val features: List<Feature> = listOf(rgbwFeature)
+
+    override val features: List<Feature> = listOf(rgbw, masterDimmer)
 
     fun dimmingMode() {
         oscMode.sendValue(0)

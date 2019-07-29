@@ -11,7 +11,12 @@ open class OscChannel(val path: String) {
         protected set
 
     open fun sendValue(value: Int): Int {
-        val coercedValue = value.coerceIn(DMX_RANGE)
+        val coercedValue = if (value in DMX_RANGE) value else {
+            val coercedValue = value.coerceIn(DMX_RANGE)
+            println("[Warning] OscChannel#sendValue(value) value($value) not in DMX range! Coercing to $coercedValue!")
+            coercedValue
+        }
+
         Osc.send(path, coercedValue)
         lastValue = coercedValue
 
