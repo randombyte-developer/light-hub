@@ -61,11 +61,4 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
         oscShutter.sendValue(OSC_SHUTTER_LED_ON)
         fullIntensity()
     }
-
-    override fun strobeOn() {
-    }
-
-    override fun strobeOff() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 }

@@ -10,8 +10,7 @@ interface StrobeFeature : Feature {
         val STROBE_SPEED_RANGE = 0.0..1.0
     }
 
-    fun strobeOn()
-    fun strobeOff()
+    val strobeActivated: Boolean
 
     var strobeSpeed: Double
 }
@@ -21,8 +20,17 @@ interface StrobeFeatureImpl : StrobeFeature {
 
     val oscSpeedRange: IntRange
 
+    override val strobeActivated: Boolean
+        get() = oscSpeed.lastValue in oscSpeedRange
+
+    /**
+     * Only returns meaningful values if [strobeActivated] is true.
+     * Setting a strobe speed immediately activates the strobe.
+     */
     override var strobeSpeed: Double
-        get() = (oscSpeed.lastValue - oscSpeedRange.first).toDouble() / oscSpeedRange.length
+        get() {
+            return (oscSpeed.lastValue - oscSpeedRange.first).toDouble() / oscSpeedRange.length
+        }
         set(value) {
             val dmxValue = (value.coerceIn(STROBE_SPEED_RANGE) * oscSpeedRange.length) + oscSpeedRange.first
             oscSpeed.sendValue(dmxValue.toInt())

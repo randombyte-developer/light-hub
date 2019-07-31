@@ -6,6 +6,7 @@ import de.randombyte.lighthub.osc.OscChannel.OscMultiChannel
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeatureImpl
 import de.randombyte.lighthub.osc.devices.features.RgbFeatureImpl
+import de.randombyte.lighthub.osc.devices.features.StrobeFeatureImpl
 import de.randombyte.lighthub.osc.devices.features.colors.RgbConfig
 import de.randombyte.lighthub.utils.Ranges
 
@@ -13,7 +14,7 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
     type = Companion,
     number = number,
     dmxAddress = dmxAddress
-), RgbFeatureImpl, MasterDimmerFeatureImpl {
+), RgbFeatureImpl, MasterDimmerFeatureImpl, StrobeFeatureImpl {
 
     companion object : Type<LedBar> {
         override val clazz = LedBar::class
@@ -47,6 +48,9 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
     override val oscGreen = oscGreens
     override val oscBlue = oscBlues
 
+    override val oscSpeed = oscShutter
+    override val oscSpeedRange = 161..255
+
     override val oscMasterDimmer: OscChannel = object : OscChannel("", -1) {
         override fun sendValue(value: Int): Int {
             oscColorComponents.forEach { component ->
@@ -74,11 +78,6 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
     fun ledOn() {
         oscMode.sendValue(41)
         oscShutter.sendValue(0)
-    }
-
-    fun strobe() {
-        ledOn()
-        oscShutter.sendValue(200)
     }
 
     fun blackout() {
