@@ -27,6 +27,15 @@ class Rgbwauv(
             amber = a.coerceIn(Ranges.DMX_RANGE),
             uv = uv.coerceIn(Ranges.DMX_RANGE)
         )
+
+        fun new(rgbw: Rgbw, a: Int, uv: Int) = new(
+            r = rgbw.red,
+            g = rgbw.green,
+            b = rgbw.blue,
+            w = rgbw.white,
+            a = a,
+            uv = uv
+        )
     }
 
     override fun plusRed(delta: Int) = new(red + delta, green, blue, white, amber, uv)
@@ -36,3 +45,5 @@ class Rgbwauv(
     fun plusAmber(delta: Int) = new(red, green, blue, white, amber + delta, uv)
     fun plusUv(delta: Int) = new(red, green, blue, white, amber, uv + delta)
 }
+
+class RgbwauvConfig(override val colors: Map<String, Rgbwauv> = emptyMap()) : RgbwConfig()

@@ -23,6 +23,13 @@ open class Rgbw(
             blue = b.coerceIn(Ranges.DMX_RANGE),
             white = w.coerceIn(Ranges.DMX_RANGE)
         )
+
+        fun new(rgb: Rgb, w: Int) = new(
+            r = rgb.red,
+            g = rgb.green,
+            b = rgb.blue,
+            w = w
+        )
     }
 
     override fun plusRed(delta: Int) = new(red + delta, green, blue, white)
@@ -30,3 +37,5 @@ open class Rgbw(
     override fun plusBlue(delta: Int) = new(red, green, blue + delta, white)
     open fun plusWhite(delta: Int) = new(red, green, blue, white + delta)
 }
+
+open class RgbwConfig(override val colors: Map<String, Rgbw> = emptyMap()) : RgbConfig()

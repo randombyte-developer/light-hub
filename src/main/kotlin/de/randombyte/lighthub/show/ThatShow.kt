@@ -35,7 +35,7 @@ class ThatShow(
         }
 
         private inline fun <reified T : Device> constructDevicesFromConfig(amount: Int, type: Device.Type<T>): List<T> {
-            type.reloadConfigs()
+            type.metaConfigHolder.reload()
             val addresses = type.metaConfigHolder.config.addresses
             if (addresses.size != amount) {
                 throw RuntimeException("Exactly $amount addresses are needed for ${type.id}! ${addresses.size} addresses are set.")

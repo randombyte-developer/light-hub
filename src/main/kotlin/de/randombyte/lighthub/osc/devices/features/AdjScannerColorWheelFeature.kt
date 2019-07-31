@@ -3,7 +3,7 @@ package de.randombyte.lighthub.osc.devices.features
 /**
  * This feature is for the specific American DJ Scan 250 EX.
  */
-interface AdjScannerColorWheelFeature : Feature {
+interface AdjScannerColorWheelFeature : ConfigurableFeature {
 
     var color: Color
 
