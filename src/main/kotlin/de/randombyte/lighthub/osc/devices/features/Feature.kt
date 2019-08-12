@@ -1,11 +1,13 @@
 package de.randombyte.lighthub.osc.devices.features
 
-import de.randombyte.lighthub.config.ConfigHolder
+import de.randombyte.lighthub.osc.devices.Device
 
-interface Feature
-
-interface ConfigurableFeature : Feature {
-    val configs: List<ConfigHolder<*>>
-
-    fun reloadConfig() = configs.forEach { it.reload() }
+/**
+ * Abilities of devices like setting RGB color or strobing.
+ */
+interface Feature {
+    /**
+     * The [Device.Type] which implements this feature.
+     */
+    val type: Device.Type<*>
 }

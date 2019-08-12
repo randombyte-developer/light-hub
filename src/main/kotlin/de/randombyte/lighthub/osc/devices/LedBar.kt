@@ -1,13 +1,13 @@
 package de.randombyte.lighthub.osc.devices
 
-import de.randombyte.lighthub.config.ConfigHolder.Companion.create
+import de.randombyte.lighthub.config.createConfigHolder
 import de.randombyte.lighthub.osc.OscChannel
 import de.randombyte.lighthub.osc.OscChannel.OscMultiChannel
 import de.randombyte.lighthub.osc.OscChannelList
+import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeatureImpl
 import de.randombyte.lighthub.osc.devices.features.RgbFeatureImpl
 import de.randombyte.lighthub.osc.devices.features.StrobeFeatureImpl
-import de.randombyte.lighthub.osc.devices.features.colors.RgbConfig
 import de.randombyte.lighthub.utils.Ranges
 
 class LedBar(number: Int, dmxAddress: Int) : Device(
@@ -22,9 +22,10 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
         override val id = "led-bar"
         override val channels = 11
 
-        override val metaConfigHolder = create<MetaConfig>(id, "meta")
-        val colors = create<RgbConfig>(id, "colors")
+        override val metaConfigHolder = createConfigHolder<MetaConfig>( "meta")
     }
+
+    override val configs get() = listOf(colors, strobeSpeeds)
 
     private val oscMode = createOscChannel("mode", 0)
     private val oscShutter = createOscChannel("shutter", 1)

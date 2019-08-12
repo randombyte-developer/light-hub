@@ -3,6 +3,8 @@ package de.randombyte.lighthub.config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigRenderOptions
 import de.randombyte.lighthub.Constants
+import de.randombyte.lighthub.osc.devices.Device
+import de.randombyte.lighthub.osc.devices.features.Feature
 import io.github.config4k.ClassContainer
 import io.github.config4k.TypeReference
 import io.github.config4k.readers.SelectReader
@@ -21,13 +23,6 @@ open class ConfigHolder<T : Any>(val clazz: KClass<T>, val name: String, val fil
         val configRenderOptions = ConfigRenderOptions.defaults()
             .setJson(false)
             .setOriginComments(false)
-
-        inline fun <reified T : Any> create(folder: String, name: String): ConfigHolder<T> {
-            val configPath = Constants.CONFIG_PATH.resolve(folder)
-            if (Files.notExists(configPath)) Files.createDirectories(configPath)
-
-            return ConfigHolder(T::class, name, configPath.resolve("$name.conf").toFile())
-        }
     }
 
     lateinit var config: T
@@ -47,3 +42,14 @@ open class ConfigHolder<T : Any>(val clazz: KClass<T>, val name: String, val fil
         file.writeText(config.toConfig(name).root().render(configRenderOptions))
     }
 }
+
+inline fun <reified T : Any> createConfigHolder(folder: String, name: String): ConfigHolder<T> {
+    val configPath = Constants.CONFIG_PATH.resolve(folder)
+    if (Files.notExists(configPath)) Files.createDirectories(configPath)
+
+    return ConfigHolder(T::class, name, configPath.resolve("$name.conf").toFile())
+}
+
+inline fun <reified T : Any> Device.Type<*>.createConfigHolder(name: String): ConfigHolder<T> = createConfigHolder(id, name)
+
+inline fun <reified T : Any> Feature.createConfigHolder(name: String): ConfigHolder<T> = type.createConfigHolder(name)

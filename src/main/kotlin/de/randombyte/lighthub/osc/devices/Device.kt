@@ -3,7 +3,6 @@ package de.randombyte.lighthub.osc.devices
 import de.randombyte.lighthub.config.ConfigHolder
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.Receiver
-import de.randombyte.lighthub.osc.devices.features.ConfigurableFeature
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction2
 
@@ -23,11 +22,11 @@ abstract class Device(
         val metaConfigHolder: ConfigHolder<MetaConfig>
     }
 
-    init {
-        (this as? ConfigurableFeature)?.reloadConfig()
-    }
-
     val addressRange = dmxAddress until dmxAddress + type.channels
 
     abstract val oscChannelList: OscChannelList
+
+    // overwrite if the device can be configured
+    open val configs: List<ConfigHolder<*>> = emptyList()
+    fun reloadConfigs() = configs.forEach { it.reload() }
 }

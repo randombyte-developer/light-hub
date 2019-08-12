@@ -1,11 +1,11 @@
 package de.randombyte.lighthub.osc.devices
 
-import de.randombyte.lighthub.config.ConfigHolder.Companion.create
+import de.randombyte.lighthub.config.createConfigHolder
 import de.randombyte.lighthub.osc.OscChannelList
+import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeatureImpl
 import de.randombyte.lighthub.osc.devices.features.RgbwauvFeatureImpl
 import de.randombyte.lighthub.osc.devices.features.StrobeFeatureImpl
-import de.randombyte.lighthub.osc.devices.features.colors.RgbwauvConfig
 
 class HexPar(number: Int, dmxAddress: Int) : Device(
     type = Companion,
@@ -19,12 +19,13 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
         override val id = "hex-par"
         override val channels = 12
 
-        override val metaConfigHolder = create<MetaConfig>(id, "meta")
-        val colors = create<RgbwauvConfig>(id, "colors")
+        override val metaConfigHolder = createConfigHolder<MetaConfig>("meta")
 
         private const val OSC_PROGRAM_DIMMING_MODE = 0
         private const val OSC_SHUTTER_LED_ON = 32
     }
+
+    override val configs get() = listOf(colors, strobeSpeeds)
 
     override val oscRed = createOscChannel("red", 0)
     override val oscGreen = createOscChannel("green", 1)

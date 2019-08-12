@@ -8,7 +8,7 @@ open class OscChannel(val path: String, val relativeDmxAddress: Int) {
     companion object {
         fun coerceValue(value: Int) = if (value in DMX_RANGE) value else {
             val coercedValue = value.coerceIn(DMX_RANGE)
-            println("[Warning] OscChannel#sendValue(value) value($value) not in DMX range! Coercing to $coercedValue!")
+            println("[Warning] OscChannel#sendValue(value) value($value) not in DMX range! Coerced to $coercedValue!")
             coercedValue
         }
     }
@@ -44,6 +44,8 @@ open class OscChannel(val path: String, val relativeDmxAddress: Int) {
         }
     }
 }
+
+fun Receiver.createOscChannel(path: String, relativeDmxAddress: Int) = OscChannel("/$oscBasePath/$path", relativeDmxAddress)
 
 class OscChannelList(vararg val channels: OscChannel) {
     class Snapshot(val snapshots: List<OscChannel.Snapshot>)

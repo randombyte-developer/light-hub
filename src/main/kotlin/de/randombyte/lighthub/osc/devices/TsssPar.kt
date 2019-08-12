@@ -1,7 +1,8 @@
 package de.randombyte.lighthub.osc.devices
 
-import de.randombyte.lighthub.config.ConfigHolder.Companion.create
+import de.randombyte.lighthub.config.createConfigHolder
 import de.randombyte.lighthub.osc.OscChannelList
+import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeatureImpl
 import de.randombyte.lighthub.osc.devices.features.RgbwFeatureImpl
 import de.randombyte.lighthub.osc.devices.features.StrobeFeatureImpl
@@ -19,10 +20,12 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
         override val id = "tsss-par"
         override val channels = 8
 
-        override val metaConfigHolder = create<MetaConfig>(id, "meta")
+        override val metaConfigHolder = createConfigHolder<MetaConfig>("meta")
 
         private val OSC_MODE_STROBE_RANGE = 103..255
     }
+
+    override val configs get() = listOf(colors, strobeSpeeds)
 
     private val oscMode = createOscChannel("mode", 0)
     private val oscColorMacro = createOscChannel("color-macro", 1)

@@ -1,14 +1,15 @@
 package de.randombyte.lighthub.osc.devices
 
-import de.randombyte.lighthub.config.ConfigHolder
+import de.randombyte.lighthub.config.createConfigHolder
 import de.randombyte.lighthub.osc.OscChannelList
-import de.randombyte.lighthub.osc.devices.features.impl.AdjScannerColorWheelFeatureImpl
+import de.randombyte.lighthub.osc.createOscChannel
+import de.randombyte.lighthub.osc.devices.features.AdjScannerColorWheelFeatureImpl
 
 class AdjScanner(number: Int, dmxAddress: Int) : Device(
     type = Companion,
     number = number,
     dmxAddress = dmxAddress
-) {
+), AdjScannerColorWheelFeatureImpl {
 
     companion object : Type<AdjScanner> {
         override val clazz = AdjScanner::class
@@ -16,12 +17,12 @@ class AdjScanner(number: Int, dmxAddress: Int) : Device(
         override val id = "adj-scanner"
         override val channels = 5
 
-        override val metaConfigHolder = ConfigHolder.create<MetaConfig>(id, "meta")
+        override val metaConfigHolder = createConfigHolder<MetaConfig>("meta")
     }
 
     private val oscPan = createOscChannel("pan", 0)
     private val oscTilt = createOscChannel("tilt", 1)
-    private val oscColorWheel = createOscChannel("color-wheel", 2)
+    override val oscColorWheel = createOscChannel("color-wheel", 2)
     private val oscGoboWheel = createOscChannel("gobo-wheel", 3)
     private val oscShutter = createOscChannel("shutter", 4)
 
@@ -32,8 +33,6 @@ class AdjScanner(number: Int, dmxAddress: Int) : Device(
         oscGoboWheel,
         oscShutter
     )
-
-    val adjScannerColorWheel = AdjScannerColorWheelFeatureImpl(oscColorWheel)
 
     fun blackout() {
         oscShutter.sendValue(0)

@@ -1,7 +1,7 @@
 package de.randombyte.lighthub.config
 
 object Configs {
-    val general = ConfigHolder.create<GeneralConfig>(folder = "", name = "general")
+    val general = createConfigHolder<GeneralConfig>(folder = "", name = "general")
 
     private val configs = listOf(general)
 
