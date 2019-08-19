@@ -2,7 +2,7 @@ package de.randombyte.lighthub.qlc
 
 import org.redundent.kotlin.xml.Node
 
-data class WindowsState(
+data class WindowState(
     val visible: Boolean = true,
     val x: Int = 0,
     val y: Int = 0,
@@ -13,8 +13,8 @@ data class WindowsState(
         const val SLIDER_WIDTH = 60
         const val SLIDER_HEIGHT = 200
 
-        val BUTTON = WindowsState()
-        val SLIDER = WindowsState(width = 60, height = 200)
+        val BUTTON = WindowState()
+        val SLIDER = WindowState(width = 60, height = 200)
     }
 
     fun toXml(node: Node) {

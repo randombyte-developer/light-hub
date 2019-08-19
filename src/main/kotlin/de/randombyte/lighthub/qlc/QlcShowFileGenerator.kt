@@ -63,7 +63,7 @@ object QlcShowFileGenerator {
                     var currentWidgetIndex = 0
 
                     "Button"("Caption" to "", "ID" to currentWidgetIndex++) {
-                        WindowsState.BUTTON.copy(x = 0, y = 0).toXml(this)
+                        WindowState.BUTTON.copy(x = 0, y = 0).toXml(this)
                         WidgetAppearance.SUNKEN.toXml(this)
                         "Action" {
                             -"Blackout"
@@ -79,9 +79,9 @@ object QlcShowFileGenerator {
                                 "WidgetStyle" to "Slider",
                                 "InvertedAppearance" to false
                             ) {
-                                WindowsState.SLIDER.copy(
-                                    x = WindowsState.SLIDER_WIDTH * (currentWidgetIndex % 20),
-                                    y = WindowsState.SLIDER_HEIGHT * (currentWidgetIndex / 20)
+                                WindowState.SLIDER.copy(
+                                    x = WindowState.SLIDER_WIDTH * (currentWidgetIndex % 20),
+                                    y = WindowState.SLIDER_HEIGHT * (currentWidgetIndex / 20)
                                 ).toXml(this)
 
                                 WidgetAppearance.DEFAULT.toXml(this)
