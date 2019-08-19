@@ -1,18 +1,18 @@
 package de.randombyte.lighthub.osc.devices
 
-import de.randombyte.lighthub.config.ConfigHolder.Companion.create
-import de.randombyte.lighthub.osc.OscChannelMapping
-import de.randombyte.lighthub.osc.devices.features.Feature
-import de.randombyte.lighthub.osc.devices.features.impl.MasterDimmerFeatureImpl
-import de.randombyte.lighthub.osc.devices.features.impl.RgbwFeatureImpl
-import de.randombyte.lighthub.osc.devices.features.impl.RgbwFeatureImpl.RgbwConfig
+import de.randombyte.lighthub.config.createConfigHolder
+import de.randombyte.lighthub.osc.OscChannelList
+import de.randombyte.lighthub.osc.createOscChannel
+import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeatureImpl
+import de.randombyte.lighthub.osc.devices.features.RgbwFeatureImpl
+import de.randombyte.lighthub.osc.devices.features.StrobeFeatureImpl
 import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
 
 class TsssPar(number: Int, dmxAddress: Int) : Device(
     type = Companion,
     number = number,
     dmxAddress = dmxAddress
-) {
+), RgbwFeatureImpl, MasterDimmerFeatureImpl, StrobeFeatureImpl {
 
     companion object : Type<TsssPar> {
         override val clazz = TsssPar::class
@@ -20,37 +20,46 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
         override val id = "tsss-par"
         override val channels = 8
 
-        override val metaConfigHolder = create<MetaConfig>(id, "meta")
-        val colors = create<RgbwConfig>(id, "colors")
+        override val metaConfigHolder = createConfigHolder<MetaConfig>("meta")
 
-        override val configHolders = listOf(colors)
+        private val OSC_MODE_STROBE_RANGE = 103..255
     }
 
-    private val oscMode = "mode".toOscChannel()
-    private val oscColorMacro = "color-macro".toOscChannel()
-    private val oscSpeed = "speed".toOscChannel()
-    private val oscMasterDimmer = "master-dimmer".toOscChannel()
-    private val oscRed = "red".toOscChannel()
-    private val oscGreen = "green".toOscChannel()
-    private val oscBlue = "blue".toOscChannel()
-    private val oscWhite = "white".toOscChannel()
+    override val configs get() = listOf(colors, strobeSpeeds)
 
-    override val oscChannelMapping = OscChannelMapping(
-        0 to oscMode,
-        1 to oscColorMacro,
-        2 to oscSpeed,
-        3 to oscMasterDimmer,
-        4 to oscRed,
-        5 to oscGreen,
-        6 to oscBlue,
-        7 to oscWhite
+    private val oscMode = createOscChannel("mode", 0)
+    private val oscColorMacro = createOscChannel("color-macro", 1)
+    override val oscSpeed = createOscChannel("speed", 2)
+    override val oscMasterDimmer = createOscChannel("master-dimmer", 3)
+    override val oscRed = createOscChannel("red", 4)
+    override val oscGreen = createOscChannel("green", 5)
+    override val oscBlue = createOscChannel("blue", 6)
+    override val oscWhite = createOscChannel("white", 7)
+
+    override val oscSpeedRange = 0..255
+
+    // this light only strobes if a second channel activates it
+    override var strobeSpeed: Double
+        get() = super.strobeSpeed
+        set(value) {
+            super.strobeSpeed = value
+            oscMode.sendValue(OSC_MODE_STROBE_RANGE.first) // activate strobe
+        }
+
+    // override default behavior because of the second strobe channel
+    override val strobeActivated: Boolean
+        get() = oscMode.lastValue in OSC_MODE_STROBE_RANGE
+
+    override val oscChannelList = OscChannelList(
+        oscMode,
+        oscColorMacro,
+        oscSpeed,
+        oscMasterDimmer,
+        oscRed,
+        oscGreen,
+        oscBlue,
+        oscWhite
     )
-
-    val rgbw = RgbwFeatureImpl(Companion, oscRed, oscGreen, oscBlue, oscWhite)
-    val masterDimmer = MasterDimmerFeatureImpl(oscMasterDimmer)
-
-
-    override val features: List<Feature> = listOf(rgbw, masterDimmer)
 
     fun dimmingMode() {
         oscMode.sendValue(0)

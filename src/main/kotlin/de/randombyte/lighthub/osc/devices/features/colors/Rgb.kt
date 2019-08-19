@@ -28,3 +28,5 @@ open class Rgb(
     open fun plusGreen(delta: Int) = new(red, green + delta, blue)
     open fun plusBlue(delta: Int) = new(red, green, blue + delta)
 }
+
+open class RgbConfig(open val colors: Map<String, Rgb> = emptyMap())

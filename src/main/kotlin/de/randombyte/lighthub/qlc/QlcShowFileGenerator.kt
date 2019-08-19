@@ -2,7 +2,6 @@ package de.randombyte.lighthub.qlc
 
 import de.randombyte.lighthub.osc.QlcPlus
 import de.randombyte.lighthub.osc.devices.Device
-import de.randombyte.lighthub.utils.forEach
 import org.redundent.kotlin.xml.PrintOptions
 import org.redundent.kotlin.xml.xml
 import java.nio.file.Files
@@ -73,7 +72,7 @@ object QlcShowFileGenerator {
                     }
 
                     indexedDevices.forEach { (deviceIndex, device) ->
-                        device.oscChannelMapping.channels.forEach { relativeDmxDeviceChannel, oscChannel ->
+                        device.oscChannelList.channels.forEach { oscChannel ->
                             "Slider"(
                                 "Caption" to "Slider $currentWidgetIndex",
                                 "ID" to currentWidgetIndex,
@@ -96,7 +95,7 @@ object QlcShowFileGenerator {
                                 }
                                 "Level"("LowLimit" to 0, "HighLimit" to 255, "Value" to 0) {
                                     "Channel"("Fixture" to deviceIndex) {
-                                        -relativeDmxDeviceChannel.toString()
+                                        -oscChannel.relativeDmxAddress.toString()
                                     }
                                 }
 

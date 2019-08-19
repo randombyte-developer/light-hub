@@ -1,7 +1,7 @@
 package de.randombyte.lighthub.osc.devices.features
 
 import de.randombyte.lighthub.osc.devices.Device
-import de.randombyte.lighthub.utils.Ranges.intersects
+import de.randombyte.lighthub.utils.intersects
 
 object Devices {
 

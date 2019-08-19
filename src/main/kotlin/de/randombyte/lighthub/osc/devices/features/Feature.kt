@@ -1,3 +1,13 @@
 package de.randombyte.lighthub.osc.devices.features
 
-interface Feature
+import de.randombyte.lighthub.osc.devices.Device
+
+/**
+ * Abilities of devices like setting RGB color or strobing.
+ */
+interface Feature {
+    /**
+     * The [Device.Type] which implements this feature.
+     */
+    val type: Device.Type<*>
+}
