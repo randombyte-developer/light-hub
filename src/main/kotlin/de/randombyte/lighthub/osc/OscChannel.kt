@@ -2,16 +2,9 @@ package de.randombyte.lighthub.osc
 
 import de.randombyte.lighthub.utils.CRC16
 import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
+import de.randombyte.lighthub.utils.coerceIn
 
 open class OscChannel(val path: String, val relativeDmxAddress: Int) {
-
-    companion object {
-        fun coerceValue(value: Int) = if (value in DMX_RANGE) value else {
-            val coercedValue = value.coerceIn(DMX_RANGE)
-            println("[Warning] OscChannel#sendValue(value) value($value) not in DMX range! Coerced to $coercedValue!")
-            coercedValue
-        }
-    }
 
     val qlcChannel = CRC16.checksum(path.toCharArray())
 
@@ -19,7 +12,7 @@ open class OscChannel(val path: String, val relativeDmxAddress: Int) {
         protected set
 
     open fun sendValue(value: Int): Int {
-        val coercedValue = coerceValue(value)
+        val coercedValue = value.coerceIn(DMX_RANGE, "Sending DMX value to OscChannel")
 
         Osc.send(path, coercedValue)
         lastValue = coercedValue
@@ -36,7 +29,7 @@ open class OscChannel(val path: String, val relativeDmxAddress: Int) {
      */
     class OscMultiChannel(vararg val channels: OscChannel) : OscChannel(relativeDmxAddress = -1, path = "") {
         override fun sendValue(value: Int): Int {
-            val coercedValue = coerceValue(value)
+            val coercedValue = value.coerceIn(DMX_RANGE, "Sending DMX value to OscMultiChannel")
             channels.forEach { Osc.send(it.path, coercedValue) }
             lastValue = coercedValue
 

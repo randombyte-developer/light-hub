@@ -20,3 +20,15 @@ object Ranges {
 fun IntRange.intersects(other: IntRange) = this.first in other || this.last in other || other.first in this || other.last in this
 
 val IntRange.length: Int get() = last - first
+
+fun Int.coerceIn(range: IntRange, note: String): Int = if (this in range) this else {
+    val coercedValue = this.coerceIn(range)
+    warn("$note: Value($this) is not in range $range! Coerced to $coercedValue.")
+    coercedValue
+}
+
+fun Double.coerceIn(range: ClosedFloatingPointRange<Double>, note: String): Double = if (this in range) this else {
+    val coercedValue = this.coerceIn(range)
+    warn("$note: Value($this) is not in range $range! Coerced to $coercedValue.")
+    coercedValue
+}

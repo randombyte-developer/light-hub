@@ -3,8 +3,9 @@ package de.randombyte.lighthub.osc.devices.features
 import de.randombyte.lighthub.config.ConfigHolder
 import de.randombyte.lighthub.config.createConfigHolder
 import de.randombyte.lighthub.osc.OscChannel
-import de.randombyte.lighthub.osc.devices.features.StrobeFeature.*
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature.Companion.STROBE_SPEED_RANGE
+import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedConfig
+import de.randombyte.lighthub.utils.coerceIn
 import de.randombyte.lighthub.utils.length
 
 interface StrobeFeature : Feature {
@@ -15,6 +16,7 @@ interface StrobeFeature : Feature {
     val strobeActivated: Boolean
 
     /**
+     * Only accepts values in range of [STROBE_SPEED_RANGE].
      * Only returns meaningful values if [strobeActivated] is true.
      * Setting a strobe speed activates the strobe immediately.
      */
@@ -43,7 +45,7 @@ interface StrobeFeatureImpl : StrobeFeature {
             return (oscSpeed.lastValue - oscSpeedRange.first).toDouble() / oscSpeedRange.length
         }
         set(value) {
-            val dmxValue = (value.coerceIn(STROBE_SPEED_RANGE) * oscSpeedRange.length) + oscSpeedRange.first
+            val dmxValue = (value.coerceIn(STROBE_SPEED_RANGE, "Strobe speed") * oscSpeedRange.length) + oscSpeedRange.first
             oscSpeed.sendValue(dmxValue.toInt())
         }
 
