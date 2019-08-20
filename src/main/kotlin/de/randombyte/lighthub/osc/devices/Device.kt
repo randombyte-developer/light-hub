@@ -27,6 +27,7 @@ abstract class Device(
 
     val addressRange = dmxAddress until dmxAddress + type.channels
 
+    // all OSC channels
     abstract val oscChannelList: OscChannelList
 
     // overwrite if the device can be configured

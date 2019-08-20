@@ -75,7 +75,6 @@ class ThatShow(
     val adjPars = listOf(hexPar1, hexPar2)
 
     val lights = flatten<Device>(ledBars, adjPars, tsssPars)
-    val lightsWithUniqueId = lights.associateBy { it.uniqueId }
 
     val strobeLights = listOf(ledBars, adjPars, tsssPars).flatten()
 
@@ -85,7 +84,7 @@ class ThatShow(
 
     private var mode = AMBIENT_MANUAL
 
-    private var snapshot: MutableMap<String, OscChannelList.Snapshot> = mutableMapOf()
+    private val snapshotManager = SnapshotManager(lights)
 
     fun setController(akai: Akai) {
 
@@ -111,7 +110,7 @@ class ThatShow(
         fun buildStrobeControl(buttonNumber: Int, action: StrobeFeature.() -> Any?) =
             object : Control.Button.TouchButton(buttonNumber) {
                 override fun onDown() {
-                    if (!saveSnapshot()) return
+                    if (!snapshotManager.saveSnapshot()) return
                     strobeLights.forEach {
                         (it as RgbFeature).colors.config.colors[STROBE_COLOR]
                         (it as StrobeFeature).action()
@@ -119,7 +118,7 @@ class ThatShow(
                 }
 
                 override fun onUp() {
-                    restoreSnapshot()
+                    snapshotManager.restoreSnapshot()
                 }
             }
 
@@ -168,19 +167,5 @@ class ThatShow(
                 akai.sendMapping(name = selectedDevice.shortNameForDisplay)
             }
         })
-    }
-
-    /**
-     * @return false if there is already a snapshot, true if saving the snapshot was successful
-     */
-    private fun saveSnapshot(): Boolean {
-        if (snapshot.isNotEmpty()) return false
-        lightsWithUniqueId.forEach { (id, light) -> snapshot[id] = light.oscChannelList.snapshot }
-        return true
-    }
-
-    private fun restoreSnapshot() {
-        snapshot.forEach { (id, snapshot) -> lightsWithUniqueId.getValue(id).oscChannelList.restore(snapshot) }
-        snapshot.clear()
     }
 }

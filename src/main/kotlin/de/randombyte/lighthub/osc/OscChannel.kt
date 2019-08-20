@@ -56,14 +56,5 @@ fun Receiver.createOscChannel(path: String, relativeDmxAddress: Int) = OscChanne
 fun Receiver.createOscDimmedChannel(path: String, relativeDmxAddress: Int, masterDimmer: () -> Int) = OscDimmedChannel("/$oscBasePath/$path", relativeDmxAddress, masterDimmer)
 
 class OscChannelList(vararg val channels: OscChannel) {
-    class Snapshot(val snapshots: List<OscChannel.Snapshot>)
-
-    val snapshot: Snapshot
-        get() = Snapshot(channels.map { it.snapshot })
-
-    fun restore(snapshot: Snapshot) {
-        snapshot.snapshots.forEach { (address, value) ->
-            channels.firstOrNull { it.relativeDmxAddress == address }?.sendValue(value)
-        }
-    }
+    fun getByRelativeDmxAddress(address: Int) = channels.firstOrNull { it.relativeDmxAddress == address }
 }
