@@ -14,6 +14,9 @@ abstract class Device(
     val dmxAddress: Int
 ) : Receiver("${type.id}/$number") {
 
+    /**
+     * Static information about the device which is needed before one can be constructed.
+     */
     interface Type<T : Device> {
         val clazz: KClass<T>
         val constructor: DeviceConstructor<T>
@@ -29,4 +32,6 @@ abstract class Device(
     // overwrite if the device can be configured
     open val configs: List<ConfigHolder<*>> = emptyList()
     fun reloadConfigs() = configs.forEach { it.reload() }
+
+    val shortNameForDisplay = type.metaConfigHolder.config.`short-name` + number
 }

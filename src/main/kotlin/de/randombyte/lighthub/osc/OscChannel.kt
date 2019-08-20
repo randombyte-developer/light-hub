@@ -1,5 +1,6 @@
 package de.randombyte.lighthub.osc
 
+import de.randombyte.lighthub.osc.OscChannel.OscDimmedChannel
 import de.randombyte.lighthub.utils.CRC16
 import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
 import de.randombyte.lighthub.utils.coerceIn
@@ -36,9 +37,23 @@ open class OscChannel(val path: String, val relativeDmxAddress: Int) {
             return coercedValue
         }
     }
+
+    class OscDimmedChannel(path: String, relativeDmxAddress: Int, val masterDimmer: () -> Int) : OscChannel(path, relativeDmxAddress) {
+        override fun sendValue(value: Int): Int {
+            val coercedValue = value.coerceIn(DMX_RANGE, "Sending DMX value to OscDimmedChannel")
+            val dimmedValue = (masterDimmer() / DMX_RANGE.last) * coercedValue
+
+            Osc.send(path, dimmedValue)
+            lastValue = coercedValue
+
+            return coercedValue
+        }
+    }
 }
 
 fun Receiver.createOscChannel(path: String, relativeDmxAddress: Int) = OscChannel("/$oscBasePath/$path", relativeDmxAddress)
+
+fun Receiver.createOscDimmedChannel(path: String, relativeDmxAddress: Int, masterDimmer: () -> Int) = OscDimmedChannel("/$oscBasePath/$path", relativeDmxAddress, masterDimmer)
 
 class OscChannelList(vararg val channels: OscChannel) {
     class Snapshot(val snapshots: List<OscChannel.Snapshot>)

@@ -9,6 +9,7 @@ import de.randombyte.lighthub.osc.devices.HexPar
 import de.randombyte.lighthub.osc.devices.LedBar
 import de.randombyte.lighthub.osc.devices.TsssPar
 import de.randombyte.lighthub.osc.devices.features.Devices
+import de.randombyte.lighthub.osc.devices.features.RgbFeature
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature
 import de.randombyte.lighthub.show.ThatShow.Mode.AMBIENT_MANUAL
 import de.randombyte.lighthub.utils.Ranges
@@ -33,6 +34,7 @@ class ThatShow(
             val (hexPar1, hexPar2) = constructDevicesFromConfig(2, HexPar.Companion)
 
             checkCollisions(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
+            checkStrobeColor(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
 
             return ThatShow(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
         }
@@ -56,6 +58,16 @@ class ThatShow(
                 throw RuntimeException("DMX channels collide: $collision!")
             }
         }
+
+        private fun checkStrobeColor(vararg devices: RgbFeature) {
+            devices.forEach { device ->
+                if (STROBE_COLOR !in device.colors.config.colors.keys) {
+                    throw RuntimeException("Strobe color '$STROBE_COLOR' is missing in ${device.type.id}!")
+                }
+            }
+        }
+
+        private const val STROBE_COLOR = "white"
     }
 
     val ledBars = listOf(ledBar1, ledBar2)
@@ -65,7 +77,7 @@ class ThatShow(
     val lights = flatten<Device>(ledBars, adjPars, tsssPars)
     val lightsWithUniqueId = lights.associateBy { it.uniqueId }
 
-    val strobeLights = flatten<StrobeFeature>(ledBars, adjPars, tsssPars)
+    val strobeLights = listOf(ledBars, adjPars, tsssPars).flatten()
 
     val ambientManual = AmbientManual((ledBars + tsssPars + adjPars) as List<Device>)
 
@@ -96,28 +108,26 @@ class ThatShow(
             }
         })
 
-        // strobe
-        akai.registerControl(object : Control.Button.TouchButton(2) {
-            override fun onDown() {
-                if (!saveSnapshot()) return
-                strobeLights.forEach { it.slowStrobe() }
+        fun buildStrobeControl(buttonNumber: Int, action: StrobeFeature.() -> Any?) =
+            object : Control.Button.TouchButton(buttonNumber) {
+                override fun onDown() {
+                    if (!saveSnapshot()) return
+                    strobeLights.forEach {
+                        (it as RgbFeature).colors.config.colors[STROBE_COLOR]
+                        (it as StrobeFeature).action()
+                    }
+                }
+
+                override fun onUp() {
+                    restoreSnapshot()
+                }
             }
 
-            override fun onUp() {
-                restoreSnapshot()
-            }
-        })
+        // strobe slow
+        akai.registerControl(buildStrobeControl(buttonNumber = 2, action = { slowStrobe() }))
 
-        akai.registerControl(object : Control.Button.TouchButton(3) {
-            override fun onDown() {
-                if (!saveSnapshot()) return
-                strobeLights.forEach { it.fastStrobe() }
-            }
-
-            override fun onUp() {
-                restoreSnapshot()
-            }
-        })
+        // strobe fast
+        akai.registerControl(buildStrobeControl(buttonNumber = 3, action = { fastStrobe() }))
 
         // manual knobs
         akai.registerControl(object : Control.Potentiometer(4) {
@@ -154,11 +164,8 @@ class ThatShow(
         // manual ambient switch
         akai.registerControl(object : Control.Button.SimpleButton(20) {
             override fun onDown() {
-                ledBars.forEach { it.ledOn() }
-                adjPars.forEach { it.dimmingMode() }
-                tsssPars.forEach { it.dimmingMode() }
-                val selectedDeviceName = ambientManual.selectNextDevice()
-                akai.sendMapping(selectedDeviceName)
+                val selectedDevice = ambientManual.selectNextDevice()
+                akai.sendMapping(name = selectedDevice.shortNameForDisplay)
             }
         })
     }

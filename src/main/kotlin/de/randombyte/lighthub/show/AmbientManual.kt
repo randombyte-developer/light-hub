@@ -11,15 +11,13 @@ import de.randombyte.lighthub.osc.devices.features.RgbwauvFeature
 class AmbientManual(val devices: List<Device>) {
 
     private var index = 0
-    private var device = devices[0]
+    var device = devices[0]
+        private set
 
-    /**
-     * @return the short name of the newly selected device/feature
-     */
-    fun selectNextDevice(): String {
+    fun selectNextDevice(): Device {
         index = (index + 1) % devices.size
         device = devices[index]
-        return device.type.metaConfigHolder.config.`short-name` + device.number
+        return device
     }
 
     fun plusRed(delta: Int) {

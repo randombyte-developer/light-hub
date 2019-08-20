@@ -5,6 +5,9 @@ import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
 
 interface MasterDimmerFeature : Feature {
     var masterDimmer: Int
+
+    fun fullIntensity() { masterDimmer = DMX_RANGE.last }
+    fun noLight() { masterDimmer = DMX_RANGE.first }
 }
 
 interface MasterDimmerFeatureImpl : MasterDimmerFeature {
@@ -13,7 +16,4 @@ interface MasterDimmerFeatureImpl : MasterDimmerFeature {
     override var masterDimmer: Int
         get() = oscMasterDimmer.lastValue
         set(value) { oscMasterDimmer.sendValue(value) }
-
-    fun fullIntensity() { masterDimmer = DMX_RANGE.last }
-    fun noLight() { masterDimmer = DMX_RANGE.first }
 }

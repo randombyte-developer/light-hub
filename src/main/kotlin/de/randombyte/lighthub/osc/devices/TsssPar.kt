@@ -22,6 +22,7 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
 
         override val metaConfigHolder = createConfigHolder<MetaConfig>("meta")
 
+        private const val OSC_MODE_DIMMING = 0
         private val OSC_MODE_STROBE_RANGE = 103..255
     }
 
@@ -61,12 +62,8 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
         oscWhite
     )
 
-    fun dimmingMode() {
-        oscMode.sendValue(0)
-        oscMasterDimmer.sendValue(DMX_RANGE.last)
-    }
-
-    fun blackout() {
-        oscMode.sendValue(0)
+    init {
+        oscMode.sendValue(OSC_MODE_DIMMING)
+        fullIntensity()
     }
 }
