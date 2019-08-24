@@ -6,7 +6,6 @@ import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeatureImpl
 import de.randombyte.lighthub.osc.devices.features.RgbwFeatureImpl
 import de.randombyte.lighthub.osc.devices.features.StrobeFeatureImpl
-import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
 
 class TsssPar(number: Int, dmxAddress: Int) : Device(
     type = Companion,

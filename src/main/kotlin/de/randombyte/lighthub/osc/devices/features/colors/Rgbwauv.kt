@@ -1,6 +1,6 @@
 package de.randombyte.lighthub.osc.devices.features.colors
 
-import de.randombyte.lighthub.utils.Ranges
+import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
 
 class Rgbwauv(
     red: Int = 0,
@@ -12,20 +12,21 @@ class Rgbwauv(
 ) : Rgbw(red, green, blue, white) {
 
     init {
-        if (red !in Ranges.DMX_RANGE || green !in Ranges.DMX_RANGE || blue !in Ranges.DMX_RANGE || white !in Ranges.DMX_RANGE || amber !in Ranges.DMX_RANGE || uv !in Ranges.DMX_RANGE)
-            throw IllegalArgumentException("Color components out of range! ($red, $green, $blue, $white, $amber, $uv)")
+        require(red in DMX_RANGE && green in DMX_RANGE && blue in DMX_RANGE && white in DMX_RANGE && amber in DMX_RANGE && uv in DMX_RANGE) {
+            "Color components out of range! ($red, $green, $blue, $white, $amber, $uv)"
+        }
     }
 
     companion object {
         val default: Rgbwauv = new(r = 0, g = 0, b = 0, w = 0, a = 0, uv = 0)
 
         fun new(r: Int, g: Int, b: Int, w: Int, a: Int, uv: Int) = Rgbwauv(
-            red = r.coerceIn(Ranges.DMX_RANGE),
-            green = g.coerceIn(Ranges.DMX_RANGE),
-            blue = b.coerceIn(Ranges.DMX_RANGE),
-            white = w.coerceIn(Ranges.DMX_RANGE),
-            amber = a.coerceIn(Ranges.DMX_RANGE),
-            uv = uv.coerceIn(Ranges.DMX_RANGE)
+            red = r.coerceIn(DMX_RANGE),
+            green = g.coerceIn(DMX_RANGE),
+            blue = b.coerceIn(DMX_RANGE),
+            white = w.coerceIn(DMX_RANGE),
+            amber = a.coerceIn(DMX_RANGE),
+            uv = uv.coerceIn(DMX_RANGE)
         )
 
         fun new(rgbw: Rgbw, a: Int, uv: Int) = new(

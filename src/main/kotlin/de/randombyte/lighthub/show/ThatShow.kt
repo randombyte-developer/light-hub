@@ -2,7 +2,6 @@ package de.randombyte.lighthub.show
 
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.midi.akai.Control
-import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.QlcPlus
 import de.randombyte.lighthub.osc.devices.Device
 import de.randombyte.lighthub.osc.devices.HexPar

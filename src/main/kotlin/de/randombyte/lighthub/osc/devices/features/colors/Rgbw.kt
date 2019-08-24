@@ -1,6 +1,6 @@
 package de.randombyte.lighthub.osc.devices.features.colors
 
-import de.randombyte.lighthub.utils.Ranges
+import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
 
 open class Rgbw(
     red: Int = 0,
@@ -10,18 +10,19 @@ open class Rgbw(
 ) : Rgb(red, green, blue) {
 
     init {
-        if (red !in Ranges.DMX_RANGE || green !in Ranges.DMX_RANGE || blue !in Ranges.DMX_RANGE || white !in Ranges.DMX_RANGE)
-            throw IllegalArgumentException("Color components out of range! ($red, $green, $blue, $white)")
+        require(red in DMX_RANGE && green in DMX_RANGE && blue in DMX_RANGE && white in DMX_RANGE) {
+            "Color components out of range! ($red, $green, $blue, $white)"
+        }
     }
 
     companion object {
         val default: Rgbw = new(r = 0, g = 0, b = 0, w = 0)
 
         fun new(r: Int, g: Int, b: Int, w: Int) = Rgbw(
-            red = r.coerceIn(Ranges.DMX_RANGE),
-            green = g.coerceIn(Ranges.DMX_RANGE),
-            blue = b.coerceIn(Ranges.DMX_RANGE),
-            white = w.coerceIn(Ranges.DMX_RANGE)
+            red = r.coerceIn(DMX_RANGE),
+            green = g.coerceIn(DMX_RANGE),
+            blue = b.coerceIn(DMX_RANGE),
+            white = w.coerceIn(DMX_RANGE)
         )
 
         fun new(rgb: Rgb, w: Int) = new(
