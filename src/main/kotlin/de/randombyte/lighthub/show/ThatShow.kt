@@ -112,7 +112,7 @@ class ThatShow(
                     if (snapshotManager.hasSnapshot) return
                     snapshotManager.saveSnapshot()
                     strobeLights.forEach {
-                        (it as RgbFeature).colors[STROBE_COLOR]
+                        (it as RgbFeature).rgb = it.colors.getValue(STROBE_COLOR) // presence of this color is guaranteed
                         (it as StrobeFeature).action()
                     }
                 }

@@ -41,7 +41,6 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         inDevice.transmitter.receiver = object : Receiver {
             override fun send(message: MidiMessage, timestamp: Long) {
                 val signal = SysEx.parseSysEx(message.message) ?: return
-                println(signal)
                 val control = findControl(signal) ?: return
                 control.update(signal.value)
             }
