@@ -3,9 +3,9 @@ package de.randombyte.lighthub.osc.devices
 import de.randombyte.lighthub.config.createConfigHolder
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
-import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeatureImpl
-import de.randombyte.lighthub.osc.devices.features.RgbwFeatureImpl
-import de.randombyte.lighthub.osc.devices.features.StrobeFeatureImpl
+import de.randombyte.lighthub.osc.devices.features.*
+import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedConfig
+import de.randombyte.lighthub.osc.devices.features.colors.RgbwConfig
 
 class TsssPar(number: Int, dmxAddress: Int) : Device(
     type = Companion,
@@ -13,19 +13,20 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
     dmxAddress = dmxAddress
 ), RgbwFeatureImpl, MasterDimmerFeatureImpl, StrobeFeatureImpl {
 
-    companion object : Type<TsssPar> {
+    companion object : Type<TsssPar>, RgbwFeature.Config, StrobeFeature.Config {
         override val clazz = TsssPar::class
         override val constructor = ::TsssPar
         override val id = "tsss-par"
         override val channels = 8
 
         override val metaConfigHolder = createConfigHolder<MetaConfig>("meta")
+        override val colors = createConfigHolder<RgbwConfig>("colors")
+        override val strobeSpeeds = createConfigHolder<StrobeSpeedConfig>("strobe-speeds")
+        override val configs = listOf(colors, strobeSpeeds)
 
         private const val OSC_MODE_DIMMING = 0
         private val OSC_MODE_STROBE_RANGE = 103..255
     }
-
-    override val configs get() = listOf(colors, strobeSpeeds)
 
     private val oscMode = createOscChannel("mode", 0)
     private val oscColorMacro = createOscChannel("color-macro", 1)

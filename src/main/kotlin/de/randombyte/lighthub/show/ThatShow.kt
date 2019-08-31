@@ -38,7 +38,7 @@ class ThatShow(
             return ThatShow(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
         }
 
-        private inline fun <reified T : Device> constructDevicesFromConfig(amount: Int, type: Device.Type<T>): List<T> {
+        private fun <T : Device> constructDevicesFromConfig(amount: Int, type: Device.Type<T>): List<T> {
             type.metaConfigHolder.reload()
             val addresses = type.metaConfigHolder.config.addresses
             if (addresses.size != amount) {
@@ -60,7 +60,7 @@ class ThatShow(
 
         private fun checkStrobeColor(vararg devices: RgbFeature) {
             devices.forEach { device ->
-                if (STROBE_COLOR !in device.colors.config.colors.keys) {
+                if (STROBE_COLOR !in device.colors.keys) {
                     throw RuntimeException("Strobe color '$STROBE_COLOR' is missing in ${device.type.id}!")
                 }
             }
@@ -109,14 +109,16 @@ class ThatShow(
         fun buildStrobeControl(buttonNumber: Int, action: StrobeFeature.() -> Any?) =
             object : Control.Button.TouchButton(buttonNumber) {
                 override fun onDown() {
-                    if (!snapshotManager.saveSnapshot()) return
+                    if (snapshotManager.hasSnapshot) return
+                    snapshotManager.saveSnapshot()
                     strobeLights.forEach {
-                        (it as RgbFeature).colors.config.colors[STROBE_COLOR]
+                        (it as RgbFeature).colors[STROBE_COLOR]
                         (it as StrobeFeature).action()
                     }
                 }
 
                 override fun onUp() {
+                    if (!snapshotManager.hasSnapshot) return
                     snapshotManager.restoreSnapshot()
                 }
             }

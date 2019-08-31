@@ -23,6 +23,7 @@ abstract class Device(
         val id: String // for internal purposes and config file naming
         val channels: Int // number of dmx channels
         val metaConfigHolder: ConfigHolder<MetaConfig>
+        val configs: List<ConfigHolder<*>> get() = emptyList() // overwrite if the device can be configured
     }
 
     val addressRange = dmxAddress until dmxAddress + type.channels
@@ -30,9 +31,9 @@ abstract class Device(
     // all OSC channels
     abstract val oscChannelList: OscChannelList
 
-    // overwrite if the device can be configured
-    open val configs: List<ConfigHolder<*>> = emptyList()
-    fun reloadConfigs() = configs.forEach { it.reload() }
+    fun reloadConfigs() {
+        type.configs.forEach { it.reload() }
+    }
 
     val shortNameForDisplay = type.metaConfigHolder.config.`short-name` + number
 }

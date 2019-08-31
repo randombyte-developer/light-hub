@@ -4,7 +4,9 @@ import de.randombyte.lighthub.osc.devices.Device
 
 class SnapshotManager(val devices: List<Device>) {
 
-    private var hasSnapshot: Boolean = false
+    var hasSnapshot: Boolean = false
+        private set
+
     private var snapshot: MutableMap<Device, DeviceSnapshot?> = devices.associateWith { null }.toMutableMap()
 
     private class DeviceSnapshot(device: Device) {
@@ -13,15 +15,12 @@ class SnapshotManager(val devices: List<Device>) {
         }
     }
 
-    /**
-     * @return false if there is already a snapshot, true if saving the snapshot was successful
-     */
-    fun saveSnapshot(): Boolean {
-        if (hasSnapshot) return false
+    fun saveSnapshot() {
+        if (hasSnapshot) return
         snapshot.forEach { (device, _) ->
             snapshot[device] = DeviceSnapshot(device)
         }
-        return true
+        hasSnapshot = true
     }
 
     fun restoreSnapshot() {
@@ -32,5 +31,6 @@ class SnapshotManager(val devices: List<Device>) {
             }
             snapshot[device] = null
         }
+        hasSnapshot = false
     }
 }
