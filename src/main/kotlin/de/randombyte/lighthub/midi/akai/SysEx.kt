@@ -1,5 +1,8 @@
 package de.randombyte.lighthub.midi.akai
 
+import de.randombyte.lighthub.midi.Signal
+import de.randombyte.lighthub.midi.akai.Control.Button.TouchButton
+
 object SysEx {
     private val SYSEX_START = ubyteArrayOf(0xF0u, 0x47u, 0x0u, 0x78u)
     private const val SYSEX_END = 0xF7.toByte()
@@ -58,9 +61,8 @@ object SysEx {
     fun createMappingWithName(name: String) =
         MAPPING_START + name.forceLength(length = MAPPING_NAME_LENGTH, filler = " ").toByteArray() + MAPPING_END
 
-    data class Signal constructor(val type: Int, val control: Int, val value: Int)
 
-    fun parseSysEx(rawData: ByteArray): Signal? {
+    fun parseSysExIfNotPad(rawData: ByteArray): Signal? {
         if (rawData.size != 10) return null
         val uData = rawData.toUByteArray()
         if (!uData.containsAtFront(SYSEX_START) || rawData.last() != SYSEX_END) return null
@@ -70,7 +72,13 @@ object SysEx {
             return null
         }
 
-        return Signal(uData[4].toInt(), uData[7].toInt(), uData[8].toInt())
+        val type = uData[4].toInt()
+        val control = uData[7].toInt()
+        val value = uData[8].toInt()
+
+        if (type == TouchButton.SYSEX_TYPE && control in Akai.SYSEX_PAD_NUMBERS) return null
+
+        return Signal(type, control, value)
     }
 
     private fun UByteArray.containsAtFront(data: UByteArray): Boolean {

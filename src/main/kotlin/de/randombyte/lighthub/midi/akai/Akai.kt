@@ -1,6 +1,8 @@
 package de.randombyte.lighthub.midi.akai
 
 import de.randombyte.lighthub.midi.MidiHandler
+import de.randombyte.lighthub.midi.Signal
+import de.randombyte.lighthub.midi.akai.Control.Button.TouchButton
 import javax.sound.midi.*
 
 /**
@@ -10,6 +12,11 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
 
     companion object {
         const val NAME = "MPD26"
+
+        val MIDI_PAD_NUMBERS = 36..51
+        val SYSEX_PAD_NUMBERS = 0..15
+        private const val MIDI_ON = 0x90.toByte()
+        private const val MIDI_OFF = 0x80.toByte()
 
         fun findBestMatch(): Akai? = try {
             val devices = MidiSystem.getMidiDeviceInfo().map { MidiSystem.getMidiDevice(it) }
@@ -40,7 +47,13 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
     private fun setupListener() {
         inDevice.transmitter.receiver = object : Receiver {
             override fun send(message: MidiMessage, timestamp: Long) {
-                val signal = SysEx.parseSysEx(message.message) ?: return
+                val data = message.message
+                val signal = when (data.size) {
+                    3 -> parseNormalMidiIfPad(data)
+                    10 -> SysEx.parseSysExIfNotPad(message.message)
+                    else -> return
+                } ?: return
+
                 val control = findControl(signal) ?: return
                 control.update(signal.value)
             }
@@ -51,7 +64,20 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         }
     }
 
-    private fun findControl(signal: SysEx.Signal) = controls.find { control ->
+    /**
+     * If normal midi signals are detected, use those for the touch buttons because these messages are faster than the
+     * SysEx ones. Sometimes SysEx only sends zeros when you are really fast. Because of that we use normal midi
+     * messages for those instead. But we will still return a [Signal] with the values a SysEx message would have.
+     */
+    private fun parseNormalMidiIfPad(data: ByteArray): Signal? {
+        if (data.size != 3) return null
+        if (data[1].toInt() !in MIDI_PAD_NUMBERS) return null
+        if (data[0] != MIDI_ON && data[0] != MIDI_OFF) return null
+
+        return Signal(type = TouchButton.SYSEX_TYPE, control = data[1].toInt() - MIDI_PAD_NUMBERS.first, value = data[2].toInt())
+    }
+
+    private fun findControl(signal: Signal) = controls.find { control ->
         control.type == signal.type && control.number == signal.control
     }
 

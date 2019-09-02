@@ -31,14 +31,25 @@ sealed class Control(val type: Int, val number: Int) {
 
         open fun onDown() {}
 
-        abstract class SimpleButton(number: Int) : Button(0x40, number)
+        abstract class SimpleButton(number: Int) : Button(SYSEX_TYPE, number) {
+            companion object {
+                const val SYSEX_TYPE = 0x40
+            }
+        }
 
-        abstract class TouchButton(number: Int) : Button(0x43, number)
+        abstract class TouchButton(number: Int) : Button(SYSEX_TYPE, number)
+        {
+            companion object {
+                const val SYSEX_TYPE = 0x43
+            }
+        }
     }
 
-    abstract class Potentiometer(number: Int) : Control(0x41, number) {
+    abstract class Potentiometer(number: Int) : Control(SYSEX_TYPE, number) {
 
         companion object {
+            const val SYSEX_TYPE = 0x41
+
             private const val FULL_WAY = 127
             private const val FULL_WAY_PLUS_ONE = FULL_WAY + 1
             private const val HALF_WAY = FULL_WAY / 2
