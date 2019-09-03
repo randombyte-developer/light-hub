@@ -31,7 +31,7 @@ open class OscChannel(val path: String, val relativeDmxAddress: Int) {
     class OscMultiChannel(vararg val channels: OscChannel) : OscChannel(relativeDmxAddress = -1, path = "") {
         override fun sendValue(value: Int): Int {
             val coercedValue = value.coerceIn(DMX_RANGE, "Sending DMX value to OscMultiChannel")
-            channels.forEach { Osc.send(it.path, coercedValue) }
+            channels.forEach { it.sendValue(coercedValue) }
             lastValue = coercedValue
 
             return coercedValue
@@ -55,6 +55,4 @@ fun Receiver.createOscChannel(path: String, relativeDmxAddress: Int) = OscChanne
 
 fun Receiver.createOscDimmedChannel(path: String, relativeDmxAddress: Int, masterDimmer: () -> Int) = OscDimmedChannel("/$oscBasePath/$path", relativeDmxAddress, masterDimmer)
 
-class OscChannelList(vararg val channels: OscChannel) {
-    fun getByRelativeDmxAddress(address: Int) = channels.firstOrNull { it.relativeDmxAddress == address }
-}
+class OscChannelList(vararg val channels: OscChannel)

@@ -10,8 +10,8 @@ class SnapshotManager(val devices: List<Device>) {
     private var snapshot: MutableMap<Device, DeviceSnapshot?> = devices.associateWith { null }.toMutableMap()
 
     private class DeviceSnapshot(device: Device) {
-        val channels = device.oscChannelList.channels.map {
-            it.relativeDmxAddress to it.lastValue
+        val channelValues = device.oscChannelList.channels.mapIndexed { index, channel ->
+            index to channel.lastValue
         }
     }
 
@@ -26,8 +26,8 @@ class SnapshotManager(val devices: List<Device>) {
     fun restoreSnapshot() {
         if (!hasSnapshot) return
         snapshot.forEach { (device, deviceSnapshot) ->
-            deviceSnapshot!!.channels.forEach { (address, value) ->
-                device.oscChannelList.getByRelativeDmxAddress(address)!!.sendValue(value)
+            deviceSnapshot!!.channelValues.forEach { (listIndex, value) ->
+                device.oscChannelList.channels[listIndex].sendValue(value)
             }
             snapshot[device] = null
         }

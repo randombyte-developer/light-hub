@@ -35,6 +35,8 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
     private val oscMode = createOscChannel("mode", 0)
     private val oscShutter = createOscChannel("shutter", 1)
 
+    // don't expose these channels, because snapshots only handle the channels which are present in [oscChannelList],
+    // which are [oscRed], [oscGreen], [oscBlue]. Any changes to the separate channels are not detected in the [OscMultiChannel]s
     private val oscRed1 = createOscDimmedChannel("red-1", 2)
     private val oscGreen1 = createOscDimmedChannel("green-1", 3)
     private val oscBlue1 = createOscDimmedChannel("blue-1", 4)
@@ -67,15 +69,9 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
     override val oscChannelList = OscChannelList(
         oscMode,
         oscShutter,
-        oscRed1,
-        oscGreen1,
-        oscBlue1,
-        oscRed2,
-        oscGreen2,
-        oscBlue2,
-        oscRed3,
-        oscGreen3,
-        oscBlue3
+        oscRed,
+        oscGreen,
+        oscBlue
     )
 
     init {
