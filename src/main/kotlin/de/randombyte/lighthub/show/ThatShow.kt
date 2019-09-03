@@ -7,9 +7,7 @@ import de.randombyte.lighthub.osc.devices.Device
 import de.randombyte.lighthub.osc.devices.HexPar
 import de.randombyte.lighthub.osc.devices.LedBar
 import de.randombyte.lighthub.osc.devices.TsssPar
-import de.randombyte.lighthub.osc.devices.features.Devices
-import de.randombyte.lighthub.osc.devices.features.RgbFeature
-import de.randombyte.lighthub.osc.devices.features.StrobeFeature
+import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.show.ThatShow.Mode.AMBIENT_MANUAL
 import de.randombyte.lighthub.utils.Ranges
 import de.randombyte.lighthub.utils.flatten
@@ -111,9 +109,14 @@ class ThatShow(
                 override fun onDown() {
                     if (snapshotManager.hasSnapshot) return
                     snapshotManager.saveSnapshot()
-                    strobeLights.forEach {
-                        (it as RgbFeature).rgb = it.colors.getValue(STROBE_COLOR) // presence of this color is guaranteed
-                        (it as StrobeFeature).action()
+                    strobeLights.forEach { light ->
+                        // presence of this color is guaranteed
+                        when (light) {
+                            is RgbwauvFeature -> light.rgbwauv = light.colors.getValue(STROBE_COLOR)
+                            is RgbwFeature -> light.rgbw = light.colors.getValue(STROBE_COLOR)
+                            is RgbFeature -> light.rgb = light.colors.getValue(STROBE_COLOR)
+                        }
+                        (light as StrobeFeature).action()
                     }
                 }
 
