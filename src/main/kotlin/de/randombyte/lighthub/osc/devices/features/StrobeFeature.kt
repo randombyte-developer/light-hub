@@ -25,10 +25,14 @@ interface StrobeFeature : Feature {
 
     val strobeSpeeds get() = (type as Config).strobeSpeeds.config
     interface Config {
-        val strobeSpeeds: ConfigHolder<StrobeSpeedConfig>
+        val strobeSpeeds: ConfigHolder<StrobeSpeedsConfig>
     }
 
-    class StrobeSpeedConfig(val slow: Double = 0.5, val fast: Double = 0.9)
+    class StrobeSpeedsConfig(val slow: Double = 0.5, val fast: Double = 0.9) {
+        companion object {
+            const val FILE_NAME = "strobe-speeds"
+        }
+    }
 }
 
 interface StrobeFeatureImpl : StrobeFeature {

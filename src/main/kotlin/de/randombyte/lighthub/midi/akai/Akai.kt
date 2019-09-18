@@ -32,6 +32,8 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
 
     private val controls: MutableList<Control> = mutableListOf()
 
+    private val signalsCache: MutableList<Signal> = mutableListOf()
+
     override fun open(): Boolean {
         if (!super.open()) return false
         enableSpecialMode()
@@ -54,8 +56,10 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
                     else -> return
                 } ?: return
 
-                val control = findControl(signal) ?: return
-                control.update(signal.value)
+                signalsCache.add(signal)
+
+                /*val control = findControl(signal) ?: return
+                control.update(signal.value)*/
             }
 
             override fun close() {

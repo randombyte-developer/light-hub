@@ -1,5 +1,6 @@
 package de.randombyte.lighthub.show
 
+import de.randombyte.lighthub.Ticker
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.midi.akai.Control
 import de.randombyte.lighthub.osc.QlcPlus
@@ -9,12 +10,16 @@ import de.randombyte.lighthub.osc.devices.LedBar
 import de.randombyte.lighthub.osc.devices.TsssPar
 import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.show.ThatShow.Mode.AMBIENT_MANUAL
+import de.randombyte.lighthub.show.flows.colorchanger.ColorChanger
 import de.randombyte.lighthub.utils.Ranges
 import de.randombyte.lighthub.utils.flatten
+import de.randombyte.lighthub.utils.requireInstanceOf
+import kotlin.time.ExperimentalTime
 
 /**
  * One specific show with this many lights and the [Akai] as the controller.
  */
+@ExperimentalTime
 class ThatShow(
     val ledBar1: LedBar,
     val ledBar2: LedBar,
@@ -32,6 +37,7 @@ class ThatShow(
 
             checkCollisions(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
             checkStrobeColor(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
+            checkColorCategories(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
 
             return ThatShow(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
         }
@@ -64,6 +70,20 @@ class ThatShow(
             }
         }
 
+        private fun checkColorCategories(vararg devices: RgbFeature) {
+            devices.forEach { device ->
+                device.colorCategories.all.forEach { (categoryId, colorsIds) ->
+                    colorsIds.forEach { colorId ->
+                        if (colorId !in device.colors.keys) {
+                            throw RuntimeException(
+                                "[${device.type.id}] Color '$colorId' is defined in the color category '$categoryId' " +
+                                        "but is missing in the color definitions of the device!")
+                        }
+                    }
+                }
+            }
+        }
+
         private const val STROBE_COLOR = "white"
     }
 
@@ -71,9 +91,12 @@ class ThatShow(
     val tsssPars = listOf(tsssPar1, tsssPar2)
     val adjPars = listOf(hexPar1, hexPar2)
 
+    val colorLights = flatten<ColorFeature>(ledBars, adjPars, tsssPars)
+
     val lights = flatten<Device>(ledBars, adjPars, tsssPars)
 
-    val strobeLights = listOf(ledBars, adjPars, tsssPars).flatten()
+    val strobeLights = flatten(ledBars, adjPars, tsssPars)
+        .requireInstanceOf<StrobeFeature, DimmableComponentsColorFeature>()
 
     val ambientManual = AmbientManual((ledBars + tsssPars + adjPars) as List<Device>)
 
@@ -81,7 +104,13 @@ class ThatShow(
 
     private var mode = AMBIENT_MANUAL
 
-    private val snapshotManager = SnapshotManager(lights)
+    private var beforeStrobeSnapshot: ShowSnapshot? = null
+
+    private val colorChanger = ColorChanger(this)
+
+    init {
+        Ticker.register(colorChanger)
+    }
 
     fun setController(akai: Akai) {
 
@@ -107,22 +136,18 @@ class ThatShow(
         fun buildStrobeControl(buttonNumber: Int, action: StrobeFeature.() -> Any?) =
             object : Control.Button.TouchButton(buttonNumber) {
                 override fun onDown() {
-                    if (snapshotManager.hasSnapshot) return
-                    snapshotManager.saveSnapshot()
+                    if (beforeStrobeSnapshot != null) return // already a snapshot present?
+                    beforeStrobeSnapshot = ShowSnapshot(lights)
+
                     strobeLights.forEach { light ->
                         // presence of this color is guaranteed
-                        when (light) {
-                            is RgbwauvFeature -> light.rgbwauv = light.colors.getValue(STROBE_COLOR)
-                            is RgbwFeature -> light.rgbw = light.colors.getValue(STROBE_COLOR)
-                            is RgbFeature -> light.rgb = light.colors.getValue(STROBE_COLOR)
-                        }
+                        (light as ColorFeature).setColor(light.colors.getValue(STROBE_COLOR))
                         (light as StrobeFeature).action()
                     }
                 }
 
                 override fun onUp() {
-                    if (!snapshotManager.hasSnapshot) return
-                    snapshotManager.restoreSnapshot()
+                    beforeStrobeSnapshot?.restore()
                 }
             }
 

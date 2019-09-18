@@ -37,6 +37,14 @@ open class Rgbw(
     override fun plusGreen(delta: Int) = new(red, green + delta, blue, white)
     override fun plusBlue(delta: Int) = new(red, green, blue + delta, white)
     open fun plusWhite(delta: Int) = new(red, green, blue, white + delta)
+
+    override fun transformComponents(other: DimmableComponentsColor, transformer: (current: Int, other: Int) -> Int): Rgbw {
+        require(other is Rgbw) { "'other' color needs to be at least Rgbw too!" }
+        return new(
+            rgb = super.transformComponents(other, transformer),
+            w = transformer(white, other.white)
+        )
+    }
 }
 
 open class RgbwConfig(override val colors: Map<String, Rgbw> = emptyMap()) : RgbConfig()

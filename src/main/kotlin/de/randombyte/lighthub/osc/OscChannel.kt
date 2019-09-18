@@ -21,10 +21,6 @@ open class OscChannel(val path: String, val relativeDmxAddress: Int) {
         return coercedValue
     }
 
-    data class Snapshot(val relativeDmxAddress: Int, val value: Int)
-
-    val snapshot: Snapshot get() = Snapshot(relativeDmxAddress = relativeDmxAddress, value = lastValue)
-
     /**
      * Bundles many [channels] to one [OscChannel].
      */

@@ -14,4 +14,8 @@ open class MetaConfig(
         val mode: String = "",
         val name: String = ""
     )
+
+    companion object {
+        const val FILE_NAME = "meta"
+    }
 }

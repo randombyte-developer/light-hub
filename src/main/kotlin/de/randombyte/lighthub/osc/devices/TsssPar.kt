@@ -4,8 +4,10 @@ import de.randombyte.lighthub.config.createConfigHolder
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.*
-import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedConfig
+import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedsConfig
+import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.RgbwConfig
+import de.randombyte.lighthub.show.flows.colorchanger.ColorCategoriesConfig
 
 class TsssPar(number: Int, dmxAddress: Int) : Device(
     type = Companion,
@@ -19,10 +21,11 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
         override val id = "tsss-par"
         override val channels = 8
 
-        override val metaConfigHolder = createConfigHolder<MetaConfig>("meta")
-        override val colors = createConfigHolder<RgbwConfig>("colors")
-        override val strobeSpeeds = createConfigHolder<StrobeSpeedConfig>("strobe-speeds")
-        override val configs = listOf(colors, strobeSpeeds)
+        override val metaConfigHolder = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
+        override val colors = createConfigHolder<RgbwConfig>(Color.Config.FILE_NAME)
+        override val colorCategoriesConfig = createConfigHolder<ColorCategoriesConfig>(ColorCategoriesConfig.FILE_NAME)
+        override val strobeSpeeds = createConfigHolder<StrobeSpeedsConfig>(StrobeSpeedsConfig.FILE_NAME)
+        override val configs = listOf(colors, colorCategoriesConfig, strobeSpeeds)
 
         private const val OSC_MODE_DIMMING = 0
         private val OSC_MODE_STROBE_RANGE = 103..255

@@ -1,13 +1,15 @@
 package de.randombyte.lighthub
 
-import de.randombyte.lighthub.config.Configs
+import de.randombyte.lighthub.config.GlobalConfigs
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.qlc.QlcShowFileGenerator
 import de.randombyte.lighthub.show.ThatShow
 import java.nio.file.Paths
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 fun main(args: Array<String>) {
-    Configs.reload()
+    GlobalConfigs.reload()
 
     if (args.getOrNull(0) == "gen-qlc") {
         val path = Paths.get("LightHubShow.qxw").toAbsolutePath()
@@ -20,6 +22,7 @@ fun main(args: Array<String>) {
     LightHub.run()
 }
 
+@ExperimentalTime
 object LightHub {
     fun run() {
         val akai = Akai.findBestMatch() ?: throw RuntimeException("Midi unavailable!")
@@ -28,5 +31,7 @@ object LightHub {
 
         val show = ThatShow.createFromConfig()
         show.setController(akai)
+
+        Ticker.runBlocking()
     }
 }

@@ -6,8 +6,10 @@ import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.createOscDimmedChannel
 import de.randombyte.lighthub.osc.devices.features.*
-import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedConfig
+import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedsConfig
+import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.RgbConfig
+import de.randombyte.lighthub.show.flows.colorchanger.ColorCategoriesConfig
 import de.randombyte.lighthub.utils.Ranges
 import de.randombyte.lighthub.utils.coerceIn
 
@@ -23,10 +25,11 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
         override val id = "led-bar"
         override val channels = 11
 
-        override val metaConfigHolder = createConfigHolder<MetaConfig>( "meta")
-        override val colors = createConfigHolder<RgbConfig>("colors")
-        override val strobeSpeeds = createConfigHolder<StrobeSpeedConfig>("strobe-speeds")
-        override val configs = listOf(colors, strobeSpeeds)
+        override val metaConfigHolder = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
+        override val colors = createConfigHolder<RgbConfig>(Color.Config.FILE_NAME)
+        override val colorCategoriesConfig = createConfigHolder<ColorCategoriesConfig>(ColorCategoriesConfig.FILE_NAME)
+        override val strobeSpeeds = createConfigHolder<StrobeSpeedsConfig>(StrobeSpeedsConfig.FILE_NAME)
+        override val configs = listOf(colors, colorCategoriesConfig, strobeSpeeds)
 
         private const val OSC_MODE_DIMMING = 41
         private const val OSC_SHUTTER_LED_ON = 0

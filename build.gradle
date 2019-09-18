@@ -1,20 +1,16 @@
 plugins {
-    id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.3.50'
-    id 'com.github.johnrengelman.shadow' version '2.0.4'
+    id "java"
+    id "org.jetbrains.kotlin.jvm" version "1.3.50"
+    id "com.github.johnrengelman.shadow" version "2.0.4"
 }
 
-group 'de.randombyte'
-version '1.0.0'
+group "de.randombyte"
+version "1.0.0"
 
 sourceCompatibility = 1.8
 
 repositories {
     jcenter()
-    maven {
-        name = 'sponge'
-        url = 'https://repo.spongepowered.org/maven'
-    }
 }
 
 configurations {
@@ -23,24 +19,25 @@ configurations {
 }
 
 dependencies {
-    shadow 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-    shadow 'com.illposed.osc:javaosc-core:0.6'
-    shadow 'org.redundent:kotlin-xml-builder:1.5.1'
-    shadow 'io.github.config4k:config4k:0.4.1'
+    shadow "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    shadow "com.illposed.osc:javaosc-core:0.6"
+    shadow "org.redundent:kotlin-xml-builder:1.5.1"
+    shadow "io.github.config4k:config4k:0.4.1"
 }
 
 shadowJar {
     manifest {
-        attributes 'Main-Class': 'de.randombyte.lighthub.LightHubKt'
+        attributes "Main-Class": "de.randombyte.lighthub.LightHubKt"
     }
     
     configurations = [project.configurations.shadow]
 
-    classifier = null // Remove '-all' suffix from output file name
+    classifier = null // Remove "-all" suffix from output file name
 }
 build.dependsOn shadowJar
 
 compileKotlin.kotlinOptions {
-    jvmTarget = '1.8'
-    freeCompilerArgs += '-Xuse-experimental=kotlin.ExperimentalUnsignedTypes'
+    jvmTarget = "1.8"
+    freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
+    freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalTime"
 }

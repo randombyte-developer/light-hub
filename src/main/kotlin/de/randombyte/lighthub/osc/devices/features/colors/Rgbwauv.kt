@@ -45,6 +45,15 @@ class Rgbwauv(
     override fun plusWhite(delta: Int) = new(red, green, blue, white + delta, amber, uv)
     fun plusAmber(delta: Int) = new(red, green, blue, white, amber + delta, uv)
     fun plusUv(delta: Int) = new(red, green, blue, white, amber, uv + delta)
+
+    override fun transformComponents(other: DimmableComponentsColor, transformer: (current: Int, other: Int) -> Int): Rgbwauv {
+        require(other is Rgbwauv) { "'other' color needs to be at least Rgbwauv too!" }
+        return new(
+            super.transformComponents(other, transformer),
+            transformer(amber, other.amber),
+            transformer(uv, other.uv)
+        )
+    }
 }
 
 class RgbwauvConfig(override val colors: Map<String, Rgbwauv> = emptyMap()) : RgbwConfig()

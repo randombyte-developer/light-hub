@@ -20,7 +20,7 @@ abstract class Device(
     interface Type<T : Device> {
         val clazz: KClass<T>
         val constructor: DeviceConstructor<T>
-        val id: String // for internal purposes and config file naming
+        val id: String // for internal purposes, config file naming and logging
         val channels: Int // number of dmx channels
         val metaConfigHolder: ConfigHolder<MetaConfig>
         val configs: List<ConfigHolder<*>> get() = emptyList() // overwrite if the device can be configured

@@ -21,26 +21,26 @@ class AmbientManual(val devices: List<Device>) {
     }
 
     fun plusRed(delta: Int) {
-        (device as? RgbFeature)?.run { rgb = rgb.plusRed(delta) }
+        (device as? RgbFeature)?.run { setColor(getColor().plusRed(delta)) }
     }
 
     fun plusGreen(delta: Int) {
-        (device as? RgbFeature)?.run { rgb = rgb.plusGreen(delta) }
+        (device as? RgbFeature)?.run { setColor(getColor().plusGreen(delta)) }
     }
 
     fun plusBlue(delta: Int) {
-        (device as? RgbFeature)?.run { rgb = rgb.plusBlue(delta) }
+        (device as? RgbFeature)?.run { setColor(getColor().plusBlue(delta)) }
     }
 
     fun plusWhite(delta: Int) {
-        (device as? RgbwFeature)?.run { rgbw = rgbw.plusWhite(delta) }
+        (device as? RgbwFeature)?.run { setColor(getColor().plusWhite(delta)) }
     }
 
     fun plusAmber(delta: Int) {
-        (device as? RgbwauvFeature)?.run { rgbwauv = rgbwauv.plusAmber(delta) }
+        (device as? RgbwauvFeature)?.run { setColor(getColor().plusAmber(delta)) }
     }
 
     fun plusUv(delta: Int) {
-        (device as? RgbwauvFeature)?.run { rgbwauv = rgbwauv.plusUv(delta) }
+        (device as? RgbwauvFeature)?.run { setColor(getColor().plusUv(delta)) }
     }
 }
