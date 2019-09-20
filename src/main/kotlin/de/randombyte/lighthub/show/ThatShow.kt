@@ -1,7 +1,7 @@
 package de.randombyte.lighthub.show
 
-import de.randombyte.lighthub.Ticker
 import de.randombyte.lighthub.midi.akai.Akai
+import de.randombyte.lighthub.midi.akai.Akai.ControlName.*
 import de.randombyte.lighthub.midi.akai.Control
 import de.randombyte.lighthub.osc.QlcPlus
 import de.randombyte.lighthub.osc.devices.Device
@@ -10,7 +10,12 @@ import de.randombyte.lighthub.osc.devices.LedBar
 import de.randombyte.lighthub.osc.devices.TsssPar
 import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.show.ThatShow.Mode.AMBIENT_MANUAL
-import de.randombyte.lighthub.show.flows.colorchanger.ColorChanger
+import de.randombyte.lighthub.show.flows.Flow
+import de.randombyte.lighthub.show.flows.FlowTicker
+import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
+import de.randombyte.lighthub.show.flows.strobe.StrobeFlow
+import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Fast
+import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Slow
 import de.randombyte.lighthub.utils.Ranges
 import de.randombyte.lighthub.utils.flatten
 import de.randombyte.lighthub.utils.requireInstanceOf
@@ -104,25 +109,39 @@ class ThatShow(
 
     private var mode = AMBIENT_MANUAL
 
-    private var beforeStrobeSnapshot: ShowSnapshot? = null
+    private val colorChanger = ColorChangerFlow(colorLights)
+    private val strobeFlow = StrobeFlow(strobeLights)
 
-    private val colorChanger = ColorChanger(this)
+    private lateinit var lastFlowBeforeOrNextAfterStrobe: Flow<*>
+    fun activateFlow(flow: Flow<*>) {
+        if (flow != strobeFlow) {
+            lastFlowBeforeOrNextAfterStrobe = flow
+        }
+        FlowTicker.activate(flow)
+    }
 
     init {
-        Ticker.register(colorChanger)
+        activateFlow(colorChanger)
     }
 
     fun setController(akai: Akai) {
 
+        // todo: better
+        FlowTicker.activate(object : Flow<Any>(emptyList()) {
+            override fun onTick() {
+                akai.processCachedSignals()
+            }
+        })
+
         // master dimmer
-        akai.registerControl(object : Control.Potentiometer(6) {
+        akai.registerControl(MasterDimmer, object : Control.Potentiometer(6) {
             override fun onUpdate() {
                 QlcPlus.oscMasterDimmer.sendValue(Ranges.mapMidiToDmx(value))
             }
         })
 
         // blackout
-        akai.registerControl(object : Control.Button.TouchButton(0) {
+        akai.registerControl(Blackout, object : Control.Button.TouchButton(0) {
             override fun onDown() {
                 QlcPlus.oscBlackout.sendValue(1)
             }
@@ -133,64 +152,68 @@ class ThatShow(
             }
         })
 
-        fun buildStrobeControl(buttonNumber: Int, action: StrobeFeature.() -> Any?) =
-            object : Control.Button.TouchButton(buttonNumber) {
-                override fun onDown() {
-                    if (beforeStrobeSnapshot != null) return // already a snapshot present?
-                    beforeStrobeSnapshot = ShowSnapshot(lights)
-
-                    strobeLights.forEach { light ->
-                        // presence of this color is guaranteed
-                        (light as ColorFeature).setColor(light.colors.getValue(STROBE_COLOR))
-                        (light as StrobeFeature).action()
-                    }
-                }
-
-                override fun onUp() {
-                    beforeStrobeSnapshot?.restore()
-                }
+        // strobe slow
+        akai.registerControl(SlowStrobe, object : Control.Button.TouchButton(2) {
+            override fun onDown() {
+                strobeFlow.speed = Slow
+                activateFlow(strobeFlow)
             }
 
-        // strobe slow
-        akai.registerControl(buildStrobeControl(buttonNumber = 2, action = { slowStrobe() }))
+            override fun onUp() {
+                // if not the other strobe button is pressed
+                if (akai.getControlByName(FastStrobe)?.value?.isPressed != true) {
+                    activateFlow(lastFlowBeforeOrNextAfterStrobe)
+                }
+            }
+        })
 
-        // strobe fast
-        akai.registerControl(buildStrobeControl(buttonNumber = 3, action = { fastStrobe() }))
+        akai.registerControl(FastStrobe, object : Control.Button.TouchButton(3) {
+            override fun onDown() {
+                strobeFlow.speed = Fast
+                activateFlow(strobeFlow)
+            }
+
+            override fun onUp() {
+                if (akai.getControlByName(SlowStrobe)?.value?.isPressed != true) {
+                    activateFlow(lastFlowBeforeOrNextAfterStrobe)
+                }
+            }
+        })
 
         // manual knobs
-        akai.registerControl(object : Control.Potentiometer(4) {
+        akai.registerControl(Knob1, object : Control.Potentiometer(4) {
             override fun onUpdate() {
                 if (mode == AMBIENT_MANUAL) ambientManual.plusRed(direction)
             }
         })
-        akai.registerControl(object : Control.Potentiometer(2) {
+        akai.registerControl(Knob2, object : Control.Potentiometer(2) {
             override fun onUpdate() {
                 if (mode == AMBIENT_MANUAL) ambientManual.plusGreen(direction)
             }
         })
-        akai.registerControl(object : Control.Potentiometer(0) {
+        akai.registerControl(Knob3, object : Control.Potentiometer(0) {
             override fun onUpdate() {
                 if (mode == AMBIENT_MANUAL) ambientManual.plusBlue(direction)
             }
         })
-        akai.registerControl(object : Control.Potentiometer(5) {
+        akai.registerControl(Knob4, object : Control.Potentiometer(5) {
             override fun onUpdate() {
                 if (mode == AMBIENT_MANUAL) ambientManual.plusWhite(direction)
             }
         })
-        akai.registerControl(object : Control.Potentiometer(3) {
+        akai.registerControl(Knob5, object : Control.Potentiometer(3) {
             override fun onUpdate() {
                 if (mode == AMBIENT_MANUAL) ambientManual.plusAmber(direction)
             }
         })
-        akai.registerControl(object : Control.Potentiometer(1) {
+        akai.registerControl(Knob6, object : Control.Potentiometer(1) {
             override fun onUpdate() {
                 if (mode == AMBIENT_MANUAL) ambientManual.plusUv(direction)
             }
         })
 
         // manual ambient switch
-        akai.registerControl(object : Control.Button.SimpleButton(20) {
+        akai.registerControl(AmbientManualSwitch, object : Control.Button.SimpleButton(20) {
             override fun onDown() {
                 val selectedDevice = ambientManual.selectNextDevice()
                 akai.sendMapping(name = selectedDevice.shortNameForDisplay)

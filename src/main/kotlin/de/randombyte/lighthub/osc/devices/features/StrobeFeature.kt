@@ -22,6 +22,7 @@ interface StrobeFeature : Feature {
 
     fun slowStrobe()
     fun fastStrobe()
+    fun noStrobe()
 
     val strobeSpeeds get() = (type as Config).strobeSpeeds.config
     interface Config {
@@ -39,6 +40,7 @@ interface StrobeFeatureImpl : StrobeFeature {
     val oscSpeed: OscChannel
 
     val oscSpeedRange: IntRange
+    val oscNoStrobe: Int
 
     override val strobeActivated: Boolean
         get() = oscSpeed.lastValue in oscSpeedRange
@@ -58,5 +60,9 @@ interface StrobeFeatureImpl : StrobeFeature {
 
     override fun fastStrobe() {
         strobeSpeed = strobeSpeeds.fast
+    }
+
+    override fun noStrobe() {
+        oscSpeed.sendValue(oscNoStrobe)
     }
 }

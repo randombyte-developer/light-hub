@@ -3,6 +3,7 @@ package de.randombyte.lighthub.midi.akai
 import de.randombyte.lighthub.midi.MidiHandler
 import de.randombyte.lighthub.midi.Signal
 import de.randombyte.lighthub.midi.akai.Control.Button.TouchButton
+import java.util.concurrent.ConcurrentLinkedQueue
 import javax.sound.midi.*
 
 /**
@@ -30,9 +31,13 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         }
     }
 
-    private val controls: MutableList<Control> = mutableListOf()
+    enum class ControlName {
+        Blackout, MasterDimmer, SlowStrobe, FastStrobe, Knob1, Knob2, Knob3, Knob4, Knob5, Knob6, AmbientManualSwitch
+    }
 
-    private val signalsCache: MutableList<Signal> = mutableListOf()
+    private val controls: MutableMap<ControlName, Control> = mutableMapOf()
+
+    private val signalsCache: ConcurrentLinkedQueue<Signal> = ConcurrentLinkedQueue<Signal>()
 
     override fun open(): Boolean {
         if (!super.open()) return false
@@ -42,9 +47,11 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         return true
     }
 
-    fun registerControl(control: Control) {
-        controls += control
+    fun registerControl(controlName: ControlName, control: Control) {
+        controls[controlName] = control
     }
+
+    fun getControlByName(controlName: ControlName) = controls[controlName]
 
     private fun setupListener() {
         inDevice.transmitter.receiver = object : Receiver {
@@ -57,14 +64,21 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
                 } ?: return
 
                 signalsCache.add(signal)
-
-                /*val control = findControl(signal) ?: return
-                control.update(signal.value)*/
             }
 
             override fun close() {
                 println("Closing")
             }
+        }
+    }
+
+    fun processCachedSignals() {
+        var signal: Signal? = signalsCache.poll()
+
+        while (signal != null) {
+            val control = findControl(signal)
+            control?.update(signal.value)
+            signal = signalsCache.poll()
         }
     }
 
@@ -81,7 +95,7 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         return Signal(type = TouchButton.SYSEX_TYPE, control = data[1].toInt() - MIDI_PAD_NUMBERS.first, value = data[2].toInt())
     }
 
-    private fun findControl(signal: Signal) = controls.find { control ->
+    private fun findControl(signal: Signal) = controls.values.find { control ->
         control.type == signal.type && control.number == signal.control
     }
 

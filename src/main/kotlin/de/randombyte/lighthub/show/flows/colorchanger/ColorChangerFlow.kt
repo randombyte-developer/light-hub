@@ -2,19 +2,29 @@ package de.randombyte.lighthub.show.flows.colorchanger
 
 import de.randombyte.lighthub.osc.devices.features.ColorFeature
 import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature
-import de.randombyte.lighthub.show.ThatShow
+import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeature
+import de.randombyte.lighthub.osc.devices.features.StrobeFeature
 import de.randombyte.lighthub.show.flows.Flow
 import kotlin.math.roundToInt
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
-class ColorChanger(show: ThatShow) : Flow(show) {
+class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices) {
 
-    private var ticksUntilColorChange = 0
+    private var ticksUntilColorChange = 1
     private var colorGoals: Map<ColorFeature, String> = mapOf()
+
+    override fun onResume() {
+        forceColorChangeOnThisTick()
+        usedDevices.forEach { device ->
+            (device as? MasterDimmerFeature)?.fullIntensity()
+            (device as? StrobeFeature)?.noStrobe()
+        }
+    }
 
     override fun onTick() {
         colorGoals.forEach { (device, targetColorId) ->
+            if (device !in usedDevices) return@forEach
             if (device !is DimmableComponentsColorFeature) return // todo: support other devices
 
             val targetColor = device.colors.getValue(targetColorId)
@@ -27,15 +37,19 @@ class ColorChanger(show: ThatShow) : Flow(show) {
         ticksUntilColorChange--
         if (ticksUntilColorChange <= 0) {
             colorGoals = createNewColorGoals()
-            ticksUntilColorChange = 50 // Akai.getTempoFader
+            ticksUntilColorChange = 20 // todo: monitor tempo fader
         }
     }
 
     private fun almostLinearTransform(current: Int, goal: Int, ticksUntilColorChange: Int) =
         current + ((goal - current) / ticksUntilColorChange.toDouble()).roundToInt()
 
-    private fun createNewColorGoals() = show.colorLights.map { device ->
+    private fun createNewColorGoals() = usedDevices.map { device ->
          device to device.colorCategories.warm.random()
     }.toMap()
+
+    private fun forceColorChangeOnThisTick() {
+        ticksUntilColorChange = 1
+    }
 }
 

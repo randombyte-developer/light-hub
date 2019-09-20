@@ -41,13 +41,18 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
     override val oscWhite = createOscChannel("white", 7)
 
     override val oscSpeedRange = 0..255
+    override val oscNoStrobe = 0 // doesn't matter because of the custom implementation of strobing below
 
     // this light only strobes if a second channel activates it
     override var strobeSpeed: Double
         get() = super.strobeSpeed
         set(value) {
             super.strobeSpeed = value
-            oscMode.sendValue(OSC_MODE_STROBE_RANGE.first) // activate strobe
+            if (value > 0) {
+                oscMode.sendValue(OSC_MODE_STROBE_RANGE.first) // activate strobe
+            } else {
+                oscMode.sendValue(OSC_MODE_DIMMING)
+            }
         }
 
     // override default behavior because of the second strobe channel
@@ -65,8 +70,10 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
         oscWhite
     )
 
-    init {
-        oscMode.sendValue(OSC_MODE_DIMMING)
-        fullIntensity()
-    }
+    override var masterDimmer: Int
+        get() = super.masterDimmer
+        set(value) {
+            super.masterDimmer = value
+            oscMode.sendValue(OSC_MODE_DIMMING)
+        }
 }

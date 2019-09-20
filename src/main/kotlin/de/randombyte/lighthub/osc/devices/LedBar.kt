@@ -61,6 +61,7 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
 
     override val oscSpeed = oscShutter
     override val oscSpeedRange = 161..255
+    override val oscNoStrobe = 0
 
     override var masterDimmer: Int = Ranges.DMX_RANGE.last
         set(value) {

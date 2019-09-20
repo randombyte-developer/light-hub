@@ -1,0 +1,43 @@
+package de.randombyte.lighthub.show.flows
+
+import java.util.concurrent.TimeUnit
+import kotlin.time.ExperimentalTime
+import kotlin.time.MonoClock
+import kotlin.time.seconds
+
+@ExperimentalTime
+object FlowTicker {
+
+    private const val SLEEP_TIME_MILLIS = 10L
+    private const val TICKS_PER_SECOND = 20
+    private val DURATION_PER_TICK = (1.0 / TICKS_PER_SECOND).seconds
+
+    private var clockMark = MonoClock.markNow()
+    private val flows = mutableSetOf<Flow<*>>()
+
+    /**
+     * Adds the [activatingFlow] to the running/ticking flows. Adds all devices to this Flow which it is
+     * designed to use. All devices used in this [activatingFlow] are removed from the other [flows]. This ensures that
+     * no two [Flow]s try to use one device at a time.
+     */
+    fun activate(activatingFlow: Flow<*>) {
+        flows += activatingFlow // add to Set<Flow>
+
+        activatingFlow.useAllDevices()
+        flows.filter { it != activatingFlow }.forEach { otherFlow ->
+            otherFlow.usedDevices.removeAll { device -> device in activatingFlow.usedDevices }
+        }
+        activatingFlow.onResume()
+    }
+
+    fun runBlocking() {
+        while (true) {
+            if (clockMark.elapsedNow() > DURATION_PER_TICK) {
+                flows.forEach { it.onTick() }
+                clockMark = MonoClock.markNow()
+            }
+
+            TimeUnit.MILLISECONDS.sleep(SLEEP_TIME_MILLIS)
+        }
+    }
+}
