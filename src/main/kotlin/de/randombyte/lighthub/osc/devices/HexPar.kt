@@ -41,7 +41,8 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
     private val oscShutter = createOscChannel("shutter", 7)
     private val oscProgram = createOscChannel("program-selection", 8)
     private val oscMacro = createOscChannel("macro", 9)
-    override val oscSpeed = createOscChannel("speed", 10)
+    private val oscProgramSpeed = createOscChannel("speed", 10)
+    override val oscSpeed = oscShutter
     private val oscDimmerCurve = createOscChannel("dimmer-curve", 11)
 
     override val oscSpeedRange = 64..95
@@ -58,7 +59,7 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
         oscShutter,
         oscProgram,
         oscMacro,
-        oscSpeed,
+        oscProgramSpeed,
         oscDimmerCurve
     )
 
