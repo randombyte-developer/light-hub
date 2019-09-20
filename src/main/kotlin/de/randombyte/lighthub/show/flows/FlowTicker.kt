@@ -8,8 +8,9 @@ import kotlin.time.seconds
 @ExperimentalTime
 object FlowTicker {
 
+    const val TICKS_PER_SECOND = 20
+
     private const val SLEEP_TIME_MILLIS = 10L
-    private const val TICKS_PER_SECOND = 20
     private val DURATION_PER_TICK = (1.0 / TICKS_PER_SECOND).seconds
 
     private var clockMark = MonoClock.markNow()

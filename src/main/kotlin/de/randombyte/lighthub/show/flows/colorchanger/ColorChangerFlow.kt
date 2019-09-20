@@ -11,7 +11,8 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices) {
 
-    private var ticksUntilColorChange = 1
+    var tempo = 50 // todo: config
+    var ticksUntilColorChange = 1
     private var colorGoals: Map<ColorFeature, String> = mapOf()
 
     override fun onResume() {
@@ -37,7 +38,7 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
         ticksUntilColorChange--
         if (ticksUntilColorChange <= 0) {
             colorGoals = createNewColorGoals()
-            ticksUntilColorChange = 20 // todo: monitor tempo fader
+            ticksUntilColorChange = tempo
         }
     }
 
@@ -48,7 +49,7 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
          device to device.colorCategories.warm.random()
     }.toMap()
 
-    private fun forceColorChangeOnThisTick() {
+    fun forceColorChangeOnThisTick() {
         ticksUntilColorChange = 1
     }
 }

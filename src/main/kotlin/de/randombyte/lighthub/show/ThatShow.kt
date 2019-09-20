@@ -93,6 +93,8 @@ class ThatShow(
         private const val STROBE_COLOR = "white"
     }
 
+    lateinit var akai: Akai
+
     val ledBars = listOf(ledBar1, ledBar2)
     val tsssPars = listOf(tsssPar1, tsssPar2)
     val adjPars = listOf(hexPar1, hexPar2)
@@ -111,10 +113,10 @@ class ThatShow(
     private var mode = AMBIENT_MANUAL
 
     private val blackoutFlow = BlackoutFlow(lights as List<MasterDimmerFeature>)
-    private val colorChanger = ColorChangerFlow(colorLights)
+    private val colorChangeFlow = ColorChangerFlow(colorLights)
     private val strobeFlow = StrobeFlow(strobeLights)
 
-    private val longTermFlows = listOf(colorChanger)
+    private val longTermFlows = listOf(colorChangeFlow)
 
     private lateinit var currentLongTermFlow: Flow<*>
     fun activateFlow(flow: Flow<*>) {
@@ -125,11 +127,13 @@ class ThatShow(
     }
 
     init {
-        FlowTicker.registerFlows(blackoutFlow, colorChanger, strobeFlow)
-        activateFlow(colorChanger)
+        FlowTicker.registerFlows(blackoutFlow, colorChangeFlow, strobeFlow)
+        activateFlow(colorChangeFlow)
     }
 
     fun setController(akai: Akai) {
+
+        this.akai = akai
 
         // todo: better
         FlowTicker.activate(object : Flow<Any>(emptyList()) {
@@ -152,6 +156,18 @@ class ThatShow(
 
             override fun onUp() {
                 activateFlow(currentLongTermFlow)
+            }
+        })
+
+        akai.registerControl(ColorChangeTempoFader, object : Control.Potentiometer(11) {
+            override fun onUpdate() {
+                // todo: better with config
+                val min = (FlowTicker.TICKS_PER_SECOND * 0.25).toInt()
+                val max = (FlowTicker.TICKS_PER_SECOND * 10).toInt()
+                val tempo = akai.getControlByName(ColorChangeTempoFader)!!.value.coerceIn(min..max)
+
+                colorChangeFlow.tempo = tempo
+                colorChangeFlow.ticksUntilColorChange = tempo
             }
         })
 
