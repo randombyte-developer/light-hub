@@ -15,6 +15,10 @@ object FlowTicker {
     private var clockMark = MonoClock.markNow()
     private val flows = mutableSetOf<Flow<*>>()
 
+    fun registerFlows(vararg flows: Flow<*>) {
+        this.flows.addAll(flows)
+    }
+
     /**
      * Adds the [activatingFlow] to the running/ticking flows. Adds all devices to this Flow which it is
      * designed to use. All devices used in this [activatingFlow] are removed from the other [flows]. This ensures that

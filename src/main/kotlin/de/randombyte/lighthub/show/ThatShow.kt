@@ -12,6 +12,7 @@ import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.show.ThatShow.Mode.AMBIENT_MANUAL
 import de.randombyte.lighthub.show.flows.Flow
 import de.randombyte.lighthub.show.flows.FlowTicker
+import de.randombyte.lighthub.show.flows.blackout.BlackoutFlow
 import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Fast
@@ -109,18 +110,22 @@ class ThatShow(
 
     private var mode = AMBIENT_MANUAL
 
+    private val blackoutFlow = BlackoutFlow(lights as List<MasterDimmerFeature>)
     private val colorChanger = ColorChangerFlow(colorLights)
     private val strobeFlow = StrobeFlow(strobeLights)
 
-    private lateinit var lastFlowBeforeOrNextAfterStrobe: Flow<*>
+    private val longTermFlows = listOf(colorChanger)
+
+    private lateinit var currentLongTermFlow: Flow<*>
     fun activateFlow(flow: Flow<*>) {
-        if (flow != strobeFlow) {
-            lastFlowBeforeOrNextAfterStrobe = flow
+        if (flow in longTermFlows) {
+            currentLongTermFlow = flow
         }
         FlowTicker.activate(flow)
     }
 
     init {
+        FlowTicker.registerFlows(blackoutFlow, colorChanger, strobeFlow)
         activateFlow(colorChanger)
     }
 
@@ -140,19 +145,16 @@ class ThatShow(
             }
         })
 
-        // blackout
         akai.registerControl(Blackout, object : Control.Button.TouchButton(0) {
             override fun onDown() {
-                QlcPlus.oscBlackout.sendValue(1)
+                activateFlow(blackoutFlow)
             }
 
             override fun onUp() {
-                // simulate a "flash" button, the real QLC+ is actually a toggle button
-                QlcPlus.oscBlackout.sendValue(1)
+                activateFlow(currentLongTermFlow)
             }
         })
 
-        // strobe slow
         akai.registerControl(SlowStrobe, object : Control.Button.TouchButton(2) {
             override fun onDown() {
                 strobeFlow.speed = Slow
@@ -162,7 +164,7 @@ class ThatShow(
             override fun onUp() {
                 // if not the other strobe button is pressed
                 if (akai.getControlByName(FastStrobe)?.value?.isPressed != true) {
-                    activateFlow(lastFlowBeforeOrNextAfterStrobe)
+                    activateFlow(currentLongTermFlow)
                 }
             }
         })
@@ -175,7 +177,7 @@ class ThatShow(
 
             override fun onUp() {
                 if (akai.getControlByName(SlowStrobe)?.value?.isPressed != true) {
-                    activateFlow(lastFlowBeforeOrNextAfterStrobe)
+                    activateFlow(currentLongTermFlow)
                 }
             }
         })
