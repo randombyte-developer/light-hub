@@ -171,6 +171,12 @@ class ThatShow(
             }
         })
 
+        akai.registerControl(ColorChangeInstant, object : Control.Button.TouchButton(12) {
+            override fun onDown() {
+                colorChangeFlow.forceColorChangeOnThisTick()
+            }
+        })
+
         akai.registerControl(SlowStrobe, object : Control.Button.TouchButton(2) {
             override fun onDown() {
                 strobeFlow.speed = Slow
@@ -197,7 +203,7 @@ class ThatShow(
                 }
             }
         })
-
+/*
         // manual knobs
         akai.registerControl(Knob1, object : Control.Potentiometer(4) {
             override fun onUpdate() {
@@ -236,6 +242,6 @@ class ThatShow(
                 val selectedDevice = ambientManual.selectNextDevice()
                 akai.sendMapping(name = selectedDevice.shortNameForDisplay)
             }
-        })
+        })*/
     }
 }
