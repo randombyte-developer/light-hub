@@ -93,8 +93,6 @@ class ThatShow(
         private const val STROBE_COLOR = "white"
     }
 
-    lateinit var akai: Akai
-
     val ledBars = listOf(ledBar1, ledBar2)
     val tsssPars = listOf(tsssPar1, tsssPar2)
     val adjPars = listOf(hexPar1, hexPar2)
@@ -132,11 +130,7 @@ class ThatShow(
     }
 
     fun setController(akai: Akai) {
-
-        this.akai = akai
-
-        // todo: better
-        FlowTicker.activate(object : Flow<Any>(emptyList()) {
+        FlowTicker.activate(object : Flow<Any>(assignedDevices = emptyList()) {
             override fun onTick() {
                 akai.processCachedSignals()
             }
