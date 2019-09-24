@@ -1,6 +1,7 @@
 package de.randombyte.lighthub.osc.devices
 
 import de.randombyte.lighthub.config.createConfigHolder
+import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.OscChannel.OscMultiChannel
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
@@ -23,9 +24,8 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
         override val clazz = LedBar::class
         override val constructor = ::LedBar
         override val id = "led-bar"
-        override val channels = 11
 
-        override val metaConfigHolder = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
+        override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colors = createConfigHolder<RgbConfig>(Color.Config.FILE_NAME)
         override val colorCategoriesConfig = createConfigHolder<ColorCategoriesConfig>(ColorCategoriesConfig.FILE_NAME)
         override val strobeSpeeds = createConfigHolder<StrobeSpeedsConfig>(StrobeSpeedsConfig.FILE_NAME)

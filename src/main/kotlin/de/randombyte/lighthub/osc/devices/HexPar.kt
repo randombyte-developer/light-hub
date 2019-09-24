@@ -1,6 +1,7 @@
 package de.randombyte.lighthub.osc.devices
 
 import de.randombyte.lighthub.config.createConfigHolder
+import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.*
@@ -19,9 +20,8 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
         override val clazz = HexPar::class
         override val constructor = ::HexPar
         override val id = "hex-par"
-        override val channels = 12
 
-        override val metaConfigHolder = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
+        override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colors = createConfigHolder<RgbwauvConfig>(Color.Config.FILE_NAME)
         override val colorCategoriesConfig = createConfigHolder<ColorCategoriesConfig>(ColorCategoriesConfig.FILE_NAME)
         override val strobeSpeeds = createConfigHolder<StrobeSpeedsConfig>(StrobeSpeedsConfig.FILE_NAME)

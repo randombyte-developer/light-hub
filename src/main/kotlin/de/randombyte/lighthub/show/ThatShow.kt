@@ -3,10 +3,10 @@ package de.randombyte.lighthub.show
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.midi.akai.Akai.ControlName.*
 import de.randombyte.lighthub.midi.akai.Control
-import de.randombyte.lighthub.osc.QlcPlus
-import de.randombyte.lighthub.osc.devices.Device
+import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.devices.HexPar
 import de.randombyte.lighthub.osc.devices.LedBar
+import de.randombyte.lighthub.osc.devices.QlcPlus
 import de.randombyte.lighthub.osc.devices.TsssPar
 import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.show.ThatShow.Mode.AMBIENT_MANUAL
@@ -14,6 +14,7 @@ import de.randombyte.lighthub.show.flows.Flow
 import de.randombyte.lighthub.show.flows.FlowTicker
 import de.randombyte.lighthub.show.flows.blackout.BlackoutFlow
 import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
+import de.randombyte.lighthub.show.flows.manualcolor.ManualColorFlow
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Fast
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Slow
@@ -49,15 +50,15 @@ class ThatShow(
         }
 
         private fun <T : Device> constructDevicesFromConfig(amount: Int, type: Device.Type<T>): List<T> {
-            type.metaConfigHolder.reload()
-            val addresses = type.metaConfigHolder.config.addresses
+            type.metaConfig.reload()
+            type.reloadConfigs()
+
+            val addresses = type.metaConfig.config.addresses
             if (addresses.size != amount) {
                 throw RuntimeException("Exactly $amount addresses are needed for ${type.id}! ${addresses.size} addresses are set.")
             }
 
             val devices = addresses.mapIndexed { index, address -> type.constructor(index, address) }
-            devices.forEach { it.reloadConfigs() }
-
             return devices
         }
 
@@ -104,7 +105,8 @@ class ThatShow(
     val strobeLights = flatten(ledBars, adjPars, tsssPars)
         .requireInstanceOf<StrobeFeature, DimmableComponentsColorFeature>()
 
-    val ambientManual = AmbientManual((ledBars + tsssPars + adjPars) as List<Device>)
+    val ambientManual =
+        ManualColorFlow((ledBars + tsssPars + adjPars) as List<Device>)
 
     enum class Mode { AMBIENT_MANUAL }
 
@@ -125,7 +127,6 @@ class ThatShow(
     }
 
     init {
-        FlowTicker.registerFlows(blackoutFlow, colorChangeFlow, strobeFlow)
         activateFlow(colorChangeFlow)
     }
 

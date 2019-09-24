@@ -2,20 +2,21 @@ package de.randombyte.lighthub.config
 
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigRenderOptions
-import de.randombyte.lighthub.Constants
-import de.randombyte.lighthub.osc.devices.Device
-import de.randombyte.lighthub.osc.devices.features.Feature
+import de.randombyte.lighthub.osc.Device
 import io.github.config4k.ClassContainer
 import io.github.config4k.TypeReference
 import io.github.config4k.readers.SelectReader
 import io.github.config4k.toConfig
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Paths
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
+val CONFIG_PATH = Paths.get("config")
+
 /**
- * Caches a config file.
+ * Loads, saves and caches a config file.
  */
 open class ConfigHolder<T : Any>(val clazz: KClass<T>, val name: String, val file: File) {
 
@@ -44,12 +45,10 @@ open class ConfigHolder<T : Any>(val clazz: KClass<T>, val name: String, val fil
 }
 
 inline fun <reified T : Any> createConfigHolder(folder: String, name: String): ConfigHolder<T> {
-    val configPath = Constants.CONFIG_PATH.resolve(folder)
+    val configPath = CONFIG_PATH.resolve(folder)
     if (Files.notExists(configPath)) Files.createDirectories(configPath)
 
     return ConfigHolder(T::class, name, configPath.resolve("$name.conf").toFile())
 }
 
 inline fun <reified T : Any> Device.Type<*>.createConfigHolder(name: String): ConfigHolder<T> = createConfigHolder(id, name)
-
-inline fun <reified T : Any> Feature.createConfigHolder(name: String): ConfigHolder<T> = type.createConfigHolder(name)

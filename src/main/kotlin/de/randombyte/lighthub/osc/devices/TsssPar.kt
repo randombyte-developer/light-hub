@@ -1,6 +1,7 @@
 package de.randombyte.lighthub.osc.devices
 
 import de.randombyte.lighthub.config.createConfigHolder
+import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.*
@@ -19,9 +20,8 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
         override val clazz = TsssPar::class
         override val constructor = ::TsssPar
         override val id = "tsss-par"
-        override val channels = 8
 
-        override val metaConfigHolder = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
+        override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colors = createConfigHolder<RgbwConfig>(Color.Config.FILE_NAME)
         override val colorCategoriesConfig = createConfigHolder<ColorCategoriesConfig>(ColorCategoriesConfig.FILE_NAME)
         override val strobeSpeeds = createConfigHolder<StrobeSpeedsConfig>(StrobeSpeedsConfig.FILE_NAME)

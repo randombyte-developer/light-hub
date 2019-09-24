@@ -1,6 +1,6 @@
-package de.randombyte.lighthub.show
+package de.randombyte.lighthub.show.flows.manualcolor
 
-import de.randombyte.lighthub.osc.devices.Device
+import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.devices.features.RgbFeature
 import de.randombyte.lighthub.osc.devices.features.RgbwFeature
 import de.randombyte.lighthub.osc.devices.features.RgbwauvFeature
@@ -8,7 +8,7 @@ import de.randombyte.lighthub.osc.devices.features.RgbwauvFeature
 /**
  * Set the color of each device separately.
  */
-class AmbientManual(val devices: List<Device>) {
+class ManualColorFlow(val devices: List<Device>) {
 
     private var index = 0
     var device = devices[0]

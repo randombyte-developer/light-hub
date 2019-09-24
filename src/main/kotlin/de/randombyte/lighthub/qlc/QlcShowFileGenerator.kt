@@ -1,7 +1,7 @@
 package de.randombyte.lighthub.qlc
 
-import de.randombyte.lighthub.osc.QlcPlus
-import de.randombyte.lighthub.osc.devices.Device
+import de.randombyte.lighthub.osc.Device
+import de.randombyte.lighthub.osc.devices.QlcPlus
 import org.redundent.kotlin.xml.PrintOptions
 import org.redundent.kotlin.xml.xml
 import java.nio.file.Files
@@ -42,7 +42,7 @@ object QlcShowFileGenerator {
                 }
 
                 indexedDevices.forEach { (index, device) ->
-                    val qlcMeta = device.type.metaConfigHolder.config.qlcMeta
+                    val qlcMeta = device.type.metaConfig.config.qlcMeta
                     "Fixture" {
                         "Manufacturer" { -qlcMeta.manufacturer }
                         "Model" { -qlcMeta.model }
@@ -51,7 +51,7 @@ object QlcShowFileGenerator {
                         "Universe" { -"0" }
                         "ID" { -index.toString() }
                         "Address" { -(device.dmxAddress - 1).toString() }
-                        "Channels" { -device.type.channels.toString() }
+                        "Channels" { -device.channelsCount.toString() }
                     }
                 }
             }

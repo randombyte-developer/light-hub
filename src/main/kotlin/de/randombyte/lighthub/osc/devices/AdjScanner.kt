@@ -1,6 +1,7 @@
 package de.randombyte.lighthub.osc.devices
 
 import de.randombyte.lighthub.config.createConfigHolder
+import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.AdjScannerColorWheelFeatureImpl
@@ -15,9 +16,8 @@ class AdjScanner(number: Int, dmxAddress: Int) : Device(
         override val clazz = AdjScanner::class
         override val constructor = ::AdjScanner
         override val id = "adj-scanner"
-        override val channels = 5
 
-        override val metaConfigHolder = createConfigHolder<MetaConfig>("meta")
+        override val metaConfig = createConfigHolder<MetaConfig>("meta")
     }
 
     private val oscPan = createOscChannel("pan", 0)
