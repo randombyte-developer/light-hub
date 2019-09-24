@@ -1,6 +1,5 @@
 package de.randombyte.lighthub.qlc
 
-import de.randombyte.lighthub.osc.OscChannel
 import de.randombyte.lighthub.osc.QlcPlus
 import de.randombyte.lighthub.osc.devices.Device
 import org.redundent.kotlin.xml.PrintOptions
@@ -64,11 +63,7 @@ object QlcShowFileGenerator {
                     var currentWidgetIndex = 0
 
                     indexedDevices.forEach { (deviceIndex, device) ->
-                        val oscChannels = device.oscChannelList.channels.flatMap {
-                            // todo: better
-                            (it as? OscChannel.OscMultiChannel)?.channels?.toList() ?: listOf(it)
-                        }
-                        oscChannels.forEach { oscChannel ->
+                        device.oscChannelList.allNestedChannels.forEach { oscChannel ->
                             "Slider"(
                                 "Caption" to "Slider $currentWidgetIndex",
                                 "ID" to currentWidgetIndex,
