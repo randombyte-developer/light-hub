@@ -4,7 +4,7 @@ import de.randombyte.lighthub.config.GlobalConfigs
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.qlc.QlcShowFileGenerator
 import de.randombyte.lighthub.show.ThatShow
-import de.randombyte.lighthub.show.flows.FlowTicker
+import de.randombyte.lighthub.show.tickables.Ticker
 import java.nio.file.Paths
 import kotlin.time.ExperimentalTime
 
@@ -33,6 +33,6 @@ object LightHub {
         val show = ThatShow.createFromConfig()
         show.setController(akai)
 
-        FlowTicker.runBlocking()
+        Ticker.runBlocking()
     }
 }

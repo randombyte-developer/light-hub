@@ -24,6 +24,7 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
         override val clazz = LedBar::class
         override val constructor = ::LedBar
         override val id = "led-bar"
+        override val channelsCount = 11
 
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colors = createConfigHolder<RgbConfig>(Color.Config.FILE_NAME)

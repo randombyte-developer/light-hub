@@ -20,6 +20,7 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
         override val clazz = TsssPar::class
         override val constructor = ::TsssPar
         override val id = "tsss-par"
+        override val channelsCount = 8
 
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colors = createConfigHolder<RgbwConfig>(Color.Config.FILE_NAME)

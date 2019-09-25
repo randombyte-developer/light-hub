@@ -20,6 +20,7 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
         override val clazz = HexPar::class
         override val constructor = ::HexPar
         override val id = "hex-par"
+        override val channelsCount = 12
 
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colors = createConfigHolder<RgbwauvConfig>(Color.Config.FILE_NAME)

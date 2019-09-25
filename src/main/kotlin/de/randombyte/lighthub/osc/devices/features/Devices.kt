@@ -7,8 +7,8 @@ object Devices {
 
     class Collision(val deviceA: Device, val deviceB: Device) {
         override fun toString() =
-            "${deviceA.type.id}(channels=${deviceA.channelsCount}) starting at ${deviceA.dmxAddress} " +
-                    "collides with ${deviceB.type.id}(channels=${deviceB.channelsCount}) starting at ${deviceB.dmxAddress}"
+            "${deviceA.type.id}(channels=${deviceA.type.channelsCount}) starting at ${deviceA.dmxAddress} " +
+                    "collides with ${deviceB.type.id}(channels=${deviceB.type.channelsCount}) starting at ${deviceB.dmxAddress}"
     }
 
     /**

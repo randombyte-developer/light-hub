@@ -16,6 +16,7 @@ class AdjScanner(number: Int, dmxAddress: Int) : Device(
         override val clazz = AdjScanner::class
         override val constructor = ::AdjScanner
         override val id = "adj-scanner"
+        override val channelsCount = 5
 
         override val metaConfig = createConfigHolder<MetaConfig>("meta")
     }

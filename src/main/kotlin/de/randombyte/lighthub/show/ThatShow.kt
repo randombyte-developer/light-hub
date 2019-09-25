@@ -9,15 +9,16 @@ import de.randombyte.lighthub.osc.devices.LedBar
 import de.randombyte.lighthub.osc.devices.QlcPlus
 import de.randombyte.lighthub.osc.devices.TsssPar
 import de.randombyte.lighthub.osc.devices.features.*
-import de.randombyte.lighthub.show.ThatShow.Mode.AMBIENT_MANUAL
 import de.randombyte.lighthub.show.flows.Flow
-import de.randombyte.lighthub.show.flows.FlowTicker
+import de.randombyte.lighthub.show.flows.FlowManager
 import de.randombyte.lighthub.show.flows.blackout.BlackoutFlow
 import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
-import de.randombyte.lighthub.show.flows.manualcolor.ManualColorFlow
+import de.randombyte.lighthub.show.flows.manualcolor.ManualDeviceControl
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Fast
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Slow
+import de.randombyte.lighthub.show.tickables.Tickable
+import de.randombyte.lighthub.show.tickables.Ticker
 import de.randombyte.lighthub.utils.Ranges
 import de.randombyte.lighthub.utils.flatten
 import de.randombyte.lighthub.utils.requireInstanceOf
@@ -42,6 +43,7 @@ class ThatShow(
             val (tsssPar1, tsssPar2) = constructDevicesFromConfig(2, TsssPar.Companion)
             val (hexPar1, hexPar2) = constructDevicesFromConfig(2, HexPar.Companion)
 
+            checkChannels(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
             checkCollisions(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
             checkStrobeColor(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
             checkColorCategories(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
@@ -62,17 +64,24 @@ class ThatShow(
             return devices
         }
 
+        private fun checkChannels(vararg devices: Device) {
+            devices.forEach { device ->
+                require(device.type.channelsCount == device.oscChannelList.allNestedChannels.size) {
+                    "[${device.type.id}] ${device.type.channelsCount} channels are defined, but " +
+                            "actually ${device.oscChannelList.allNestedChannels.size} are implemented!"
+                }
+            }
+        }
+
         private fun checkCollisions(vararg devices: Device) {
             val collision = Devices.checkCollision(devices.toList())
-            if (collision != null) {
-                throw RuntimeException("DMX channels collide: $collision!")
-            }
+            require(collision == null) { "DMX channels collide: $collision!" }
         }
 
         private fun checkStrobeColor(vararg devices: RgbFeature) {
             devices.forEach { device ->
-                if (STROBE_COLOR !in device.colors.keys) {
-                    throw RuntimeException("Strobe color '$STROBE_COLOR' is missing in ${device.type.id}!")
+                require(device.colorCategories.strobe.isNotBlank()) {
+                    "[${device.type.id}] Strobe color is not set in the color categories config!"
                 }
             }
         }
@@ -81,10 +90,9 @@ class ThatShow(
             devices.forEach { device ->
                 device.colorCategories.all.forEach { (categoryId, colorsIds) ->
                     colorsIds.forEach { colorId ->
-                        if (colorId !in device.colors.keys) {
-                            throw RuntimeException(
-                                "[${device.type.id}] Color '$colorId' is defined in the color category '$categoryId' " +
-                                        "but is missing in the color definitions of the device!")
+                        require(colorId in device.colors.keys) {
+                            "[${device.type.id}] Color '$colorId' is defined in the color category '$categoryId' " +
+                                    "but is missing in the color definitions of the device!"
                         }
                     }
                 }
@@ -105,12 +113,7 @@ class ThatShow(
     val strobeLights = flatten(ledBars, adjPars, tsssPars)
         .requireInstanceOf<StrobeFeature, DimmableComponentsColorFeature>()
 
-    val ambientManual =
-        ManualColorFlow((ledBars + tsssPars + adjPars) as List<Device>)
-
-    enum class Mode { AMBIENT_MANUAL }
-
-    private var mode = AMBIENT_MANUAL
+    val manualDeviceControl = ManualDeviceControl((ledBars + tsssPars + adjPars) as List<Device>)
 
     private val blackoutFlow = BlackoutFlow(lights as List<MasterDimmerFeature>)
     private val colorChangeFlow = ColorChangerFlow(colorLights)
@@ -123,15 +126,19 @@ class ThatShow(
         if (flow in longTermFlows) {
             currentLongTermFlow = flow
         }
-        FlowTicker.activate(flow)
+        FlowManager.requestDevices(flow)
     }
 
     init {
+        FlowManager.manualDeviceControl = manualDeviceControl
+        Ticker.register(manualDeviceControl)
+
         activateFlow(colorChangeFlow)
     }
 
     fun setController(akai: Akai) {
-        FlowTicker.activate(object : Flow<Any>(assignedDevices = emptyList()) {
+        // todo: better
+        Ticker.register(object : Tickable {
             override fun onTick() {
                 akai.processCachedSignals()
             }
@@ -157,8 +164,8 @@ class ThatShow(
         akai.registerControl(ColorChangeTempoFader, object : Control.Potentiometer(11) {
             override fun onUpdate() {
                 // todo: better with config
-                val min = (FlowTicker.TICKS_PER_SECOND * 0.25).toInt()
-                val max = (FlowTicker.TICKS_PER_SECOND * 10).toInt()
+                val min = (Ticker.TICKS_PER_SECOND * 0.25).toInt()
+                val max = (Ticker.TICKS_PER_SECOND * 10).toInt()
                 val tempo = akai.getControlByName(ColorChangeTempoFader)!!.value.coerceIn(min..max)
 
                 colorChangeFlow.tempo = tempo
@@ -198,45 +205,63 @@ class ThatShow(
                 }
             }
         })
-/*
+
         // manual knobs
         akai.registerControl(Knob1, object : Control.Potentiometer(4) {
             override fun onUpdate() {
-                if (mode == AMBIENT_MANUAL) ambientManual.plusRed(direction)
+                manualDeviceControl.onKnob1ChangeValue(this)
             }
         })
         akai.registerControl(Knob2, object : Control.Potentiometer(2) {
             override fun onUpdate() {
-                if (mode == AMBIENT_MANUAL) ambientManual.plusGreen(direction)
+                manualDeviceControl.onKnob2ChangeValue(this)
             }
         })
         akai.registerControl(Knob3, object : Control.Potentiometer(0) {
             override fun onUpdate() {
-                if (mode == AMBIENT_MANUAL) ambientManual.plusBlue(direction)
+                manualDeviceControl.onKnob3ChangeValue(this)
             }
         })
         akai.registerControl(Knob4, object : Control.Potentiometer(5) {
             override fun onUpdate() {
-                if (mode == AMBIENT_MANUAL) ambientManual.plusWhite(direction)
+                manualDeviceControl.onKnob4ChangeValue(this)
             }
         })
         akai.registerControl(Knob5, object : Control.Potentiometer(3) {
             override fun onUpdate() {
-                if (mode == AMBIENT_MANUAL) ambientManual.plusAmber(direction)
+                manualDeviceControl.onKnob5ChangeValue(this)
             }
         })
         akai.registerControl(Knob6, object : Control.Potentiometer(1) {
             override fun onUpdate() {
-                if (mode == AMBIENT_MANUAL) ambientManual.plusUv(direction)
+                manualDeviceControl.onKnob6ChangeValue(this)
             }
         })
 
-        // manual ambient switch
-        akai.registerControl(AmbientManualSwitch, object : Control.Button.SimpleButton(20) {
+        akai.registerControl(ManualControlNext, object : Control.Button.SimpleButton(16) {
             override fun onDown() {
-                val selectedDevice = ambientManual.selectNextDevice()
-                akai.sendMapping(name = selectedDevice.shortNameForDisplay)
+                manualDeviceControl.onSelectPreviousDevice()
+                akai.sendMapping(name = manualDeviceControl.device.shortNameForDisplay)
             }
-        })*/
+        })
+
+        akai.registerControl(ManualControlPrevious, object : Control.Button.SimpleButton(17) {
+            override fun onDown() {
+                manualDeviceControl.onSelectNextDevice()
+                akai.sendMapping(name = manualDeviceControl.device.shortNameForDisplay)
+            }
+        })
+
+        akai.registerControl(ManualControlClaim, object : Control.Button.SimpleButton(18) {
+            override fun onDown() {
+                manualDeviceControl.onClaimDevice()
+            }
+        })
+
+        akai.registerControl(ManualControlFree, object : Control.Button.SimpleButton(19) {
+            override fun onDown() {
+                manualDeviceControl.onFreeDevice()
+            }
+        })
     }
 }

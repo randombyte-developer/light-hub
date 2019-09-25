@@ -51,7 +51,7 @@ object QlcShowFileGenerator {
                         "Universe" { -"0" }
                         "ID" { -index.toString() }
                         "Address" { -(device.dmxAddress - 1).toString() }
-                        "Channels" { -device.channelsCount.toString() }
+                        "Channels" { -device.type.channelsCount.toString() }
                     }
                 }
             }

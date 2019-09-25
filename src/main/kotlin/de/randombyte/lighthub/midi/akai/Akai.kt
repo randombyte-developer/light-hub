@@ -31,8 +31,10 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         }
     }
 
+    // todo: better, nesting?
     enum class ControlName {
-        Blackout, MasterDimmer, SlowStrobe, FastStrobe, Knob1, Knob2, Knob3, Knob4, Knob5, Knob6, AmbientManualSwitch,
+        Blackout, MasterDimmer, SlowStrobe, FastStrobe,
+        Knob1, Knob2, Knob3, Knob4, Knob5, Knob6, ManualControlNext, ManualControlPrevious, ManualControlClaim, ManualControlFree,
         ColorChangeTempoFader, ColorChangeInstant
     }
 

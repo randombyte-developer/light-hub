@@ -32,6 +32,7 @@ abstract class Device(
         val clazz: KClass<T>
         val constructor: DeviceConstructor<T>
         val id: String // for internal purposes, config file naming and logging
+        val channelsCount: Int
         val metaConfig: ConfigHolder<MetaConfig>
         val configs: List<ConfigHolder<*>> get() = emptyList() // overwrite if the device can be configured
 
@@ -40,8 +41,7 @@ abstract class Device(
         }
     }
 
-    val channelsCount get() = oscChannelList.channels.size
-    val addressRange = dmxAddress until dmxAddress + channelsCount
+    val addressRange = dmxAddress until dmxAddress + type.channelsCount
 
     val shortNameForDisplay = type.metaConfig.config.`short-name` + number
 }
