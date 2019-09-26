@@ -2,6 +2,7 @@ package de.randombyte.lighthub
 
 import de.randombyte.lighthub.config.GlobalConfigs
 import de.randombyte.lighthub.midi.akai.Akai
+import de.randombyte.lighthub.osc.Devices
 import de.randombyte.lighthub.qlc.QlcShowFileGenerator
 import de.randombyte.lighthub.show.ThatShow
 import de.randombyte.lighthub.show.tickables.Ticker
@@ -14,8 +15,8 @@ fun main(args: Array<String>) {
 
     if (args.getOrNull(0) == "gen-qlc") {
         val path = Paths.get("LightHubShow.qxw").toAbsolutePath()
-        val show = ThatShow.createFromConfig()
-        QlcShowFileGenerator.generate(path, show.lights)
+        val lights = Devices.createDevicesFromConfig()
+        QlcShowFileGenerator.generate(path, lights)
         println("Generated file: $path")
         return
     }
@@ -30,9 +31,7 @@ object LightHub {
 
         if (!akai.open()) throw RuntimeException("Midi unavailable!")
 
-        val show = ThatShow.createFromConfig()
-        show.setController(akai)
-
+        val show = ThatShow.createShow(akai)
         Ticker.runBlocking()
     }
 }

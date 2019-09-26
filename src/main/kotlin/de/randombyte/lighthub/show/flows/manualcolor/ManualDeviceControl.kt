@@ -14,18 +14,24 @@ import kotlin.time.ExperimentalTime
  * The ManualControlFlow can claim Devices for itself. Flows can't use these claimed Devices then.
  */
 @ExperimentalTime
-class ManualDeviceControl(val devices: List<Device>) : Tickable {
+class ManualDeviceControl(val devices: List<Device>, val sendDisplayName: (String) -> Unit) : Tickable {
 
     private var index = 0
     var device = devices[0]
         private set
 
-    // todo: name in display for claimed devices
-
     fun onSelectNextDevice() = selectDevice(indexOffset = +1)
     fun onSelectPreviousDevice() = selectDevice(indexOffset = -1)
-    fun onClaimDevice() { FlowManager.claimDevice(device) }
-    fun onFreeDevice() { FlowManager.freeDevice(device) }
+
+    fun onClaimDevice() {
+        FlowManager.claimDevice(device)
+        sendDeviceName()
+    }
+
+    fun onFreeDevice() {
+        FlowManager.freeDevice(device)
+        sendDeviceName()
+    }
 
     fun onKnob1ChangeValue(control: Control.Potentiometer) {
         if (!device.isClaimed) return
@@ -66,5 +72,11 @@ class ManualDeviceControl(val devices: List<Device>) : Tickable {
     private fun selectDevice(indexOffset: Int) {
         index = Math.floorMod(index + indexOffset, devices.size)
         device = devices[index]
+
+        sendDeviceName()
+    }
+
+    private fun sendDeviceName() {
+        sendDisplayName((if (device.isClaimed) "#" else "") + device.shortNameForDisplay)
     }
 }
