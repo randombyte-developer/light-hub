@@ -102,6 +102,7 @@ class ThatShow(
         private const val STROBE_COLOR = "white"
     }
 
+    // Device lists
     val ledBars = listOf(ledBar1, ledBar2)
     val tsssPars = listOf(tsssPar1, tsssPar2)
     val adjPars = listOf(hexPar1, hexPar2)
@@ -113,6 +114,7 @@ class ThatShow(
     val strobeLights = flatten(ledBars, adjPars, tsssPars)
         .requireInstanceOf<StrobeFeature, DimmableComponentsColorFeature>()
 
+    // Flows and Tickables
     val manualDeviceControl = ManualDeviceControl((ledBars + tsssPars + adjPars) as List<Device>)
 
     private val blackoutFlow = BlackoutFlow(lights as List<MasterDimmerFeature>)
@@ -130,10 +132,10 @@ class ThatShow(
     }
 
     init {
-        FlowManager.manualDeviceControl = manualDeviceControl
         Ticker.register(manualDeviceControl)
-
-        activateFlow(colorChangeFlow)
+        Ticker.register(blackoutFlow)
+        Ticker.register(colorChangeFlow)
+        Ticker.register(strobeFlow)
     }
 
     fun setController(akai: Akai) {
@@ -173,11 +175,17 @@ class ThatShow(
             }
         })
 
-        akai.registerControl(ColorChangeInstant, object : Control.Button.TouchButton(12) {
+        akai.registerControl(ColorChangeActivate, object : Control.Button.TouchButton(12) {
+            override fun onDown() {
+                activateFlow(colorChangeFlow)
+            }
+        })
+
+        /*akai.registerControl(ColorChangeInstant, object : Control.Button.TouchButton(13) {
             override fun onDown() {
                 colorChangeFlow.forceColorChangeOnThisTick()
             }
-        })
+        })*/
 
         akai.registerControl(SlowStrobe, object : Control.Button.TouchButton(2) {
             override fun onDown() {

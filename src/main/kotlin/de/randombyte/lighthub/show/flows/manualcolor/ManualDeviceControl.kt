@@ -5,6 +5,8 @@ import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.devices.features.RgbFeature
 import de.randombyte.lighthub.osc.devices.features.RgbwFeature
 import de.randombyte.lighthub.osc.devices.features.RgbwauvFeature
+import de.randombyte.lighthub.show.flows.FlowManager
+import de.randombyte.lighthub.show.flows.isClaimed
 import de.randombyte.lighthub.show.tickables.Tickable
 import kotlin.time.ExperimentalTime
 
@@ -18,48 +20,45 @@ class ManualDeviceControl(val devices: List<Device>) : Tickable {
     var device = devices[0]
         private set
 
-    var claimedDevices = emptyList<Device>()
-        private set
-
     // todo: name in display for claimed devices
 
     fun onSelectNextDevice() = selectDevice(indexOffset = +1)
     fun onSelectPreviousDevice() = selectDevice(indexOffset = -1)
-    fun onClaimDevice() { claimedDevices += device }
-    fun onFreeDevice() { claimedDevices -= device }
+    fun onClaimDevice() { FlowManager.claimDevice(device) }
+    fun onFreeDevice() { FlowManager.freeDevice(device) }
 
     fun onKnob1ChangeValue(control: Control.Potentiometer) {
-        if (device !in claimedDevices) return
+        if (!device.isClaimed) return
 
         (device as? RgbFeature)?.run { setColor(getColor().plusRed(control.direction)) }
     }
 
     fun onKnob2ChangeValue(control: Control.Potentiometer) {
-        if (device !in claimedDevices) return
+        if (!device.isClaimed) return
 
         (device as? RgbFeature)?.run { setColor(getColor().plusGreen(control.direction)) }
     }
 
     fun onKnob3ChangeValue(control: Control.Potentiometer) {
-        if (device !in claimedDevices) return
+        if (!device.isClaimed) return
 
         (device as? RgbFeature)?.run { setColor(getColor().plusBlue(control.direction)) }
     }
 
     fun onKnob4ChangeValue(control: Control.Potentiometer) {
-        if (device !in claimedDevices) return
+        if (!device.isClaimed) return
 
         (device as? RgbwFeature)?.run { setColor(getColor().plusWhite(control.direction)) }
     }
 
     fun onKnob5ChangeValue(control: Control.Potentiometer) {
-        if (device !in claimedDevices) return
+        if (!device.isClaimed) return
 
         (device as? RgbwauvFeature)?.run { setColor(getColor().plusAmber(control.direction)) }
     }
 
     fun onKnob6ChangeValue(control: Control.Potentiometer) {
-        if (device !in claimedDevices) return
+        if (!device.isClaimed) return
 
         (device as? RgbwauvFeature)?.run { setColor(getColor().plusUv(control.direction)) }
     }

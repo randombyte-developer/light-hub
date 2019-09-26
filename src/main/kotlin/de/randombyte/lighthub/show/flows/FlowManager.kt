@@ -2,7 +2,6 @@ package de.randombyte.lighthub.show.flows
 
 import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.show.flows.manualcolor.ManualDeviceControl
-import de.randombyte.lighthub.show.tickables.Ticker
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
@@ -10,8 +9,9 @@ object FlowManager {
 
     private val flows = mutableSetOf<Flow<*>>()
 
-    // special handling with exclusive rights to claim Devices
-    lateinit var manualDeviceControl: ManualDeviceControl
+    // when a Device is claimed, it can only be used by ManualDeviceControl
+    var claimedDevices = emptyList<Device>()
+        private set
 
     /**
      * Adds all Devices to this Flow which it is designed to use, except the ones exclusively claimed
@@ -19,12 +19,11 @@ object FlowManager {
      * other [flows] (except the exclusive ones). This ensures that no two [Flow]s try to use one device at a time.
      */
     fun requestDevices(flow: Flow<*>) {
-        Ticker.register(flow) // register it in one go for convenience
         flows += flow // add operation on Set<Flow>
 
         // offer Devices to new Flow
         flow.usedDevices.clear()
-        flow.offerDevices { !it.isExclusivelyUsedInManualControlFlow }
+        flow.offerDevices { !it.isClaimed }
 
         // remove used Devices from other Flows
         flows
@@ -36,5 +35,15 @@ object FlowManager {
         flow.onResume()
     }
 
-    val Device.isExclusivelyUsedInManualControlFlow get() = this in manualDeviceControl.claimedDevices
+    fun claimDevice(device: Device) {
+        claimedDevices += device
+        flows.forEach { it.usedDevices.remove(device) }
+    }
+
+    fun freeDevice(device: Device) {
+        claimedDevices -= device
+    }
 }
+
+@ExperimentalTime
+val Device.isClaimed get() = this in FlowManager.claimedDevices
