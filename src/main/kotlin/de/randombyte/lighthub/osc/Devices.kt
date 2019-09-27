@@ -1,5 +1,6 @@
 package de.randombyte.lighthub.osc
 
+import de.randombyte.lighthub.osc.devices.HexClone
 import de.randombyte.lighthub.osc.devices.HexPar
 import de.randombyte.lighthub.osc.devices.LedBar
 import de.randombyte.lighthub.osc.devices.TsssPar
@@ -11,13 +12,14 @@ object Devices {
         val (ledBar1, ledBar2) = createDeviceFromConfig(2, LedBar.Companion)
         val (tsssPar1, tsssPar2) = createDeviceFromConfig(2, TsssPar.Companion)
         val (hexPar1, hexPar2) = createDeviceFromConfig(2, HexPar.Companion)
+        val (hexClone1, hexClone2) = createDeviceFromConfig(2, HexClone.Companion)
 
-        checkChannels(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
-        checkCollisions(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
-        checkStrobeColor(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
-        checkColorCategories(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
+        checkChannels(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2, hexClone1, hexClone2)
+        checkCollisions(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2, hexClone1, hexClone2)
+        checkStrobeColor(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2, hexClone1, hexClone2)
+        checkColorCategories(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2, hexClone1, hexClone2)
 
-        return listOf(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2)
+        return listOf(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2, hexClone1, hexClone2)
     }
 
     private fun <T : Device> createDeviceFromConfig(amount: Int, type: Device.Type<T>): List<T> {

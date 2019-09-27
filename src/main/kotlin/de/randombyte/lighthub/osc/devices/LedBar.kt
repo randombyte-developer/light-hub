@@ -60,7 +60,7 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
     override val oscGreen = oscGreens
     override val oscBlue = oscBlues
 
-    override val oscSpeed = oscShutter
+    override val oscStrobeSpeed = oscShutter
     override val oscSpeedRange = 161..255
     override val oscNoStrobe = 0
 

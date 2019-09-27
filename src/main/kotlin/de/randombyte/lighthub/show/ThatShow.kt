@@ -5,11 +5,7 @@ import de.randombyte.lighthub.midi.akai.Akai.ControlName.*
 import de.randombyte.lighthub.midi.akai.Control
 import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.Devices
-import de.randombyte.lighthub.osc.devices.HexPar
-import de.randombyte.lighthub.osc.devices.LedBar
-import de.randombyte.lighthub.osc.devices.QlcPlus
-import de.randombyte.lighthub.osc.devices.TsssPar
-import de.randombyte.lighthub.osc.devices.features.ColorFeature
+import de.randombyte.lighthub.osc.devices.*
 import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature
 import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeature
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature
@@ -39,7 +35,9 @@ class ThatShow(
     val tsssPar1: TsssPar,
     val tsssPar2: TsssPar,
     val hexPar1: HexPar,
-    val hexPar2: HexPar
+    val hexPar2: HexPar,
+    val hexClone1: HexClone,
+    val hexClone2: HexClone
 ) {
 
     companion object {
@@ -54,7 +52,9 @@ class ThatShow(
                 devices[2] as TsssPar,
                 devices[3] as TsssPar,
                 devices[4] as HexPar,
-                devices[5] as HexPar
+                devices[5] as HexPar,
+                devices[6] as HexClone,
+                devices[7] as HexClone
             )
         }
     }
@@ -62,21 +62,17 @@ class ThatShow(
     // Device lists
     val ledBars = listOf(ledBar1, ledBar2)
     val tsssPars = listOf(tsssPar1, tsssPar2)
-    val adjPars = listOf(hexPar1, hexPar2)
+    val hexPars = listOf(hexPar1, hexPar2)
+    val hexClones = listOf(hexClone1, hexClone2)
 
-    val colorLights = flatten<ColorFeature>(ledBars, adjPars, tsssPars)
-
-    val lights = flatten<Device>(ledBars, adjPars, tsssPars)
-
-    val strobeLights = flatten(ledBars, adjPars, tsssPars)
-        .requireInstanceOf<StrobeFeature, DimmableComponentsColorFeature>()
+    val lights = flatten<Device>(ledBars, tsssPars, hexPars, hexClones)
 
     // Flows and Tickables
-    val manualDeviceControl = ManualDeviceControl((ledBars + tsssPars + adjPars) as List<Device>, sendDisplayName = akai::sendMapping)
+    val manualDeviceControl = ManualDeviceControl(lights, sendDisplayName = akai::sendMapping)
 
     private val blackoutFlow = BlackoutFlow(lights as List<MasterDimmerFeature>)
-    private val colorChangeFlow = ColorChangerFlow(colorLights)
-    private val strobeFlow = StrobeFlow(strobeLights)
+    private val colorChangeFlow = ColorChangerFlow(flatten(ledBars, tsssPars, hexPars, hexClones))
+    private val strobeFlow = StrobeFlow(flatten(ledBars, tsssPars, hexPars, hexClones).requireInstanceOf<StrobeFeature, DimmableComponentsColorFeature>())
 
     private val longTermFlows = listOf(colorChangeFlow)
 
@@ -91,6 +87,7 @@ class ThatShow(
     init {
         registerTickables()
         registerControls()
+        activateFlow(colorChangeFlow)
     }
 
     fun registerTickables() {
@@ -210,14 +207,12 @@ class ThatShow(
         akai.registerControl(ManualControlNext, object : Control.Button.SimpleButton(16) {
             override fun onDown() {
                 manualDeviceControl.onSelectPreviousDevice()
-                akai.sendMapping(name = manualDeviceControl.device.shortNameForDisplay)
             }
         })
 
         akai.registerControl(ManualControlPrevious, object : Control.Button.SimpleButton(17) {
             override fun onDown() {
                 manualDeviceControl.onSelectNextDevice()
-                akai.sendMapping(name = manualDeviceControl.device.shortNameForDisplay)
             }
         })
 

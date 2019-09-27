@@ -37,21 +37,21 @@ interface StrobeFeature : Feature {
 }
 
 interface StrobeFeatureImpl : StrobeFeature {
-    val oscSpeed: OscChannel
+    val oscStrobeSpeed: OscChannel
 
     val oscSpeedRange: IntRange
     val oscNoStrobe: Int
 
     override val strobeActivated: Boolean
-        get() = oscSpeed.lastValue in oscSpeedRange
+        get() = oscStrobeSpeed.lastValue in oscSpeedRange
 
     override var strobeSpeed: Double
         get() {
-            return (oscSpeed.lastValue - oscSpeedRange.first).toDouble() / oscSpeedRange.length
+            return (oscStrobeSpeed.lastValue - oscSpeedRange.first).toDouble() / oscSpeedRange.length
         }
         set(value) {
             val dmxValue = (value.coerceIn(STROBE_SPEED_RANGE, "Strobe speed") * oscSpeedRange.length) + oscSpeedRange.first
-            oscSpeed.sendValue(dmxValue.toInt())
+            oscStrobeSpeed.sendValue(dmxValue.toInt())
         }
 
     override fun slowStrobe() {
@@ -63,6 +63,6 @@ interface StrobeFeatureImpl : StrobeFeature {
     }
 
     override fun noStrobe() {
-        oscSpeed.sendValue(oscNoStrobe)
+        oscStrobeSpeed.sendValue(oscNoStrobe)
     }
 }

@@ -34,7 +34,7 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
 
     private val oscMode = createOscChannel("mode", 0)
     private val oscColorMacro = createOscChannel("color-macro", 1)
-    override val oscSpeed = createOscChannel("speed", 2)
+    override val oscStrobeSpeed = createOscChannel("speed", 2)
     override val oscMasterDimmer = createOscChannel("master-dimmer", 3)
     override val oscRed = createOscChannel("red", 4)
     override val oscGreen = createOscChannel("green", 5)
@@ -63,7 +63,7 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
     override val oscChannelList = OscChannelList(
         oscMode,
         oscColorMacro,
-        oscSpeed,
+        oscStrobeSpeed,
         oscMasterDimmer,
         oscRed,
         oscGreen,
