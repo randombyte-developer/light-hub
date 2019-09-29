@@ -1,5 +1,6 @@
 package de.randombyte.lighthub.show.flows.colorchanger
 
+import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.show.flows.Flow
 import de.randombyte.lighthub.utils.multipleOf
@@ -45,13 +46,21 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
         ticksSinceLastBeat = 0
 
         usedDevices.forEach { device ->
-            if (beat.multipleOf(device.colorAutoPatterns.`change-every-n-beats`)) {
-                changeColor(device)
+            val rawDevice = device as Device
+
+            with(device.colorAutoPatterns) {
+                val specificDeviceOffset = `change-beats-offset` * rawDevice.number
+                if ((beat + specificDeviceOffset.toUInt()).multipleOf(`change-every-n-beats`)) {
+                    changeColor(device)
+                }
             }
 
             if (device is RotationFeature) {
-                if (beat.multipleOf(device.rotationAutoPatterns.`change-every-n-beats`)) {
-                    changeRotation(device)
+                with(device.rotationAutoPatterns) {
+                    val specificDeviceOffset = `change-beats-offset` * rawDevice.number
+                    if ((beat + specificDeviceOffset.toUInt()).multipleOf(`change-every-n-beats`)) {
+                        changeRotation(device)
+                    }
                 }
             }
         }
