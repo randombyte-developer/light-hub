@@ -7,6 +7,7 @@ import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.createOscDimmedChannel
 import de.randombyte.lighthub.osc.devices.features.*
+import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature.DimmableComponentsColorAutoPatternsConfig
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedsConfig
 import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.RgbConfig
@@ -29,8 +30,9 @@ class LedBar(number: Int, dmxAddress: Int) : Device(
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colors = createConfigHolder<RgbConfig>(Color.Config.FILE_NAME)
         override val colorCategoriesConfig = createConfigHolder<ColorCategoriesConfig>(ColorCategoriesConfig.FILE_NAME)
+        override val colorAutoPatterns = createConfigHolder<DimmableComponentsColorAutoPatternsConfig>(DimmableComponentsColorAutoPatternsConfig.FILE_NAME)
         override val strobeSpeeds = createConfigHolder<StrobeSpeedsConfig>(StrobeSpeedsConfig.FILE_NAME)
-        override val configs = listOf(colors, colorCategoriesConfig, strobeSpeeds)
+        override val configs = listOf(colors, colorCategoriesConfig, colorAutoPatterns, strobeSpeeds)
 
         private const val OSC_MODE_DIMMING = 41
         private const val OSC_SHUTTER_LED_ON = 0

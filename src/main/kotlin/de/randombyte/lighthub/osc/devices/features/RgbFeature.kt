@@ -13,9 +13,9 @@ interface RgbFeature : DimmableComponentsColorFeature {
     // configs
     override val colors get() = (type as Config).colors.config.colors
     override val colorCategories get() = (type as Config).colorCategoriesConfig.config
-    interface Config {
-        val colors: ConfigHolder<RgbConfig>
-        val colorCategoriesConfig: ConfigHolder<ColorCategoriesConfig>
+    interface Config : DimmableComponentsColorFeature.Config {
+        override val colors: ConfigHolder<out RgbConfig>
+        override val colorCategoriesConfig: ConfigHolder<out ColorCategoriesConfig>
     }
 }
 

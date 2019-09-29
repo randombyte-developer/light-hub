@@ -41,4 +41,4 @@ open class Rgb(
     }
 }
 
-open class RgbConfig(override val colors: Map<String, Rgb> = emptyMap()) : Color.Config()
+open class RgbConfig(override val colors: Map<String, Rgb> = emptyMap()) : DimmableComponentsColor.Config()

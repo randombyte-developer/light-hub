@@ -102,7 +102,7 @@ class ThatShow(
         Ticker.register(strobeFlow)
 
         Ticker.register(object : Tickable {
-            override fun onTick() {
+            override fun onTick(tick: ULong) {
                 akai.processCachedSignals()
             }
         })
@@ -131,10 +131,8 @@ class ThatShow(
                 // todo: better with config
                 val min = (Ticker.TICKS_PER_SECOND * 0.25).toInt()
                 val max = (Ticker.TICKS_PER_SECOND * 10).toInt()
-                val tempo = akai.getControlByName(ColorChangeTempoFader)!!.value.coerceIn(min..max)
 
-                colorChangeFlow.tempo = tempo
-                colorChangeFlow.ticksUntilNewGoals = tempo
+                Ticker.bpm = (akai.getControlByName(ColorChangeTempoFader)!!.value) * 1
             }
         })
 

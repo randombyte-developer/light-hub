@@ -15,6 +15,12 @@ object Ticker {
 
     private var clockMark = MonoClock.markNow()
 
+    private var tick = 0uL
+    private var beat = 0uL
+
+    var bpm = 120
+    private val ticksPerBeat get() = (TICKS_PER_SECOND * 60 / bpm).toULong()
+
     private val tickables = mutableSetOf<Tickable>()
 
     fun register(tickable: Tickable) {
@@ -24,7 +30,17 @@ object Ticker {
     fun runBlocking() {
         while (true) {
             if (clockMark.elapsedNow() > DURATION_PER_TICK) {
-                tickables.forEach { it.onTick() }
+
+                tick++
+                val isOnBeat = bpm > 0 && tick.rem(ticksPerBeat) == 0uL
+                if (isOnBeat) beat++
+
+                tickables.forEach {
+                    it.onTick(tick)
+                    if (isOnBeat) {
+                        it.onBeat(beat)
+                    }
+                }
                 clockMark = MonoClock.markNow()
             }
 

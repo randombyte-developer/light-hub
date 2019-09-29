@@ -13,9 +13,9 @@ interface RgbwauvFeature : RgbwFeature {
     // configs
     override val colors get() = (type as Config).colors.config.colors
     override val colorCategories get() = (type as Config).colorCategoriesConfig.config
-    interface Config {
-        val colors: ConfigHolder<RgbwauvConfig>
-        val colorCategoriesConfig: ConfigHolder<ColorCategoriesConfig>
+    interface Config : RgbwFeature.Config {
+        override val colors: ConfigHolder<RgbwauvConfig>
+        override val colorCategoriesConfig: ConfigHolder<ColorCategoriesConfig>
     }
 }
 

@@ -3,15 +3,26 @@ package de.randombyte.lighthub.osc.devices.features
 import de.randombyte.lighthub.config.ConfigHolder
 import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.show.flows.colorchanger.ColorCategoriesConfig
+import de.randombyte.lighthub.show.tickables.AutoPatternsConfig
 
 interface ColorFeature : Feature {
     fun getColor(): Color
     fun setColor(color: Color)
 
-    val colors get() = (type as Config).colors.config.colors
+    open class ColorAutoPatternsConfig(
+        val changeBeatPhase: Int = 4,
+        val changeBeatOffset: Int = 0
+    ) : AutoPatternsConfig() {
+        companion object {
+            const val FILE_NAME = "color-auto-pattern"
+        }
+    }
+
+    val colors: Map<String, Color>
     val colorCategories get() = (type as Config).colorCategoriesConfig.config
+    val colorAutoPatterns get() = (type as Config).colorAutoPatterns.config
     interface Config {
-        val colors: ConfigHolder<Color.Config>
-        val colorCategoriesConfig: ConfigHolder<ColorCategoriesConfig>
+        val colorCategoriesConfig: ConfigHolder<out ColorCategoriesConfig>
+        val colorAutoPatterns: ConfigHolder<out ColorAutoPatternsConfig>
     }
 }
