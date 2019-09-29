@@ -17,27 +17,41 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
         usedDevices.forEach { device ->
             (device as? MasterDimmerFeature)?.fullIntensity()
             (device as? StrobeFeature)?.noStrobe()
+
+            // instantly change color, no transition
+            device.setColor(device.colors.getValue(device.colorCategories.warm.random()))
+            // delete all goals to prevent the instant change from being overwritten with old goals
+            dimmableColorGoals.clear()
+            if (device is RotationFeature) changeRotation(device)
         }
+    }
+
+    private fun changeColor(device: ColorFeature) {
+        when (device) {
+            is DimmableComponentsColorFeature -> {
+                dimmableColorGoals[device] = device.colorCategories.warm.random()
+            }
+            is FixedColorFeature -> {
+                device.setColor(device.colors.getValue(device.colorCategories.warm.random()))
+            }
+        }
+    }
+
+    private fun changeRotation(device: RotationFeature) {
+        device.rotationSpeed = device.rotationSpeeds.normal.random()
     }
 
     override fun onBeat(beat: ULong) {
         ticksSinceLastBeat = 0
 
         usedDevices.forEach { device ->
-            if (beat.multipleOf(device.colorAutoPatterns.changeBeatPhase)) {
-                when (device) {
-                    is DimmableComponentsColorFeature -> {
-                        dimmableColorGoals[device] = device.colorCategories.warm.random()
-                    }
-                    is FixedColorFeature -> {
-                        device.setColor(device.colors.getValue(device.colorCategories.warm.random()))
-                    }
-                }
+            if (beat.multipleOf(device.colorAutoPatterns.`change-every-n-beats`)) {
+                changeColor(device)
             }
 
             if (device is RotationFeature) {
-                if (beat.multipleOf(device.rotationAutoPatterns.changeBeatPhase)) {
-                    device.rotationSpeed = device.rotationSpeeds.normal.random()
+                if (beat.multipleOf(device.rotationAutoPatterns.`change-every-n-beats`)) {
+                    changeRotation(device)
                 }
             }
         }
@@ -47,7 +61,7 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
         dimmableColorGoals.forEach { (device, targetColorId) ->
             if (device !in usedDevices) return@forEach
 
-            val ticksUntilColorChanged = device.colorAutoPatterns.changeTicksDuration - ticksSinceLastBeat
+            val ticksUntilColorChanged = device.colorAutoPatterns.`change-ticks-duration` - ticksSinceLastBeat
             if (ticksUntilColorChanged <= 0) {
                 // the color has changed and the transition is already done
                 return@forEach

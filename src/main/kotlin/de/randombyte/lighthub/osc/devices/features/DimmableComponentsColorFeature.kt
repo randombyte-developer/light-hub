@@ -8,10 +8,10 @@ interface DimmableComponentsColorFeature : ColorFeature {
     override fun getColor(): DimmableComponentsColor
 
     class DimmableComponentsColorAutoPatternsConfig(
-        changeBeatPhase: Int = 4,
-        changeBeatOffset: Int = 0,
-        val changeTicksDuration: Int = 10
-    ) : ColorFeature.ColorAutoPatternsConfig(changeBeatPhase, changeBeatOffset) {
+        `change-every-n-beats`: Int = 4,
+        `change-beats-offset`: Int = 0,
+        val `change-ticks-duration`: Int = 10
+    ) : ColorFeature.ColorAutoPatternsConfig(`change-every-n-beats`, `change-beats-offset`) {
         companion object {
             const val FILE_NAME = "color-auto-pattern"
         }

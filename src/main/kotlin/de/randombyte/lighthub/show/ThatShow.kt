@@ -1,5 +1,6 @@
 package de.randombyte.lighthub.show
 
+import de.randombyte.lighthub.config.GlobalConfigs
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.midi.akai.Akai.ControlName.*
 import de.randombyte.lighthub.midi.akai.Control
@@ -128,11 +129,11 @@ class ThatShow(
 
         akai.registerControl(ColorChangeTempoFader, object : Control.Potentiometer(11) {
             override fun onUpdate() {
-                // todo: better with config
-                val min = (Ticker.TICKS_PER_SECOND * 0.25).toInt()
-                val max = (Ticker.TICKS_PER_SECOND * 10).toInt()
-
-                Ticker.bpm = (akai.getControlByName(ColorChangeTempoFader)!!.value) * 1
+                Ticker.bpm = Ranges.mapRange(
+                    from = Ranges.MIDI_RANGE,
+                    to = GlobalConfigs.general.config.run { `bpm-fader-min`..`bpm-fader-max` },
+                    value = akai.getControlByName(ColorChangeTempoFader)!!.value
+                )
             }
         })
 

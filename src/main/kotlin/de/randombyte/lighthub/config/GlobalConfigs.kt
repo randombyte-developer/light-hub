@@ -7,5 +7,12 @@ object GlobalConfigs {
 
     fun reload() {
         configs.forEach { it.reload() }
+        checkConfigs()
+    }
+
+    private fun checkConfigs() {
+        require(!general.config.run { `bpm-fader-min`..`bpm-fader-max` }.isEmpty()) {
+            "[general] BPM fader min must be smaller than max!"
+        }
     }
 }
