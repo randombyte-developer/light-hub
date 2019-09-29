@@ -16,7 +16,7 @@ class StrobeFlow(devices: List<StrobeFeature>) : Flow<StrobeFeature>(devices) {
 
     override fun onResume() {
         usedDevices.forEach { device ->
-            (device as? ColorFeature)?.setColor(device.colors.getValue(device.colorCategories.strobe))
+            (device as ColorFeature).setColor(device.colors.getValue(device.colorCategories.strobe))
             (device as? MasterDimmerFeature)?.fullIntensity()
 
             // todo better

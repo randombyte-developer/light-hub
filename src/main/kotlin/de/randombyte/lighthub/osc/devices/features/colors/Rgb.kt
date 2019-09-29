@@ -25,6 +25,8 @@ open class Rgb(
             )
     }
 
+    override val components = listOf(::red, ::green, ::blue)
+
     open fun plusRed(delta: Int) = new(red + delta, green, blue)
     open fun plusGreen(delta: Int) = new(red, green + delta, blue)
     open fun plusBlue(delta: Int) = new(red, green, blue + delta)

@@ -33,6 +33,8 @@ open class Rgbw(
         )
     }
 
+    override val components = listOf(::red, ::green, ::blue, ::white)
+
     override fun plusRed(delta: Int) = new(red + delta, green, blue, white)
     override fun plusGreen(delta: Int) = new(red, green + delta, blue, white)
     override fun plusBlue(delta: Int) = new(red, green, blue + delta, white)

@@ -39,6 +39,8 @@ class Rgbwauv(
         )
     }
 
+    override val components = listOf(::red, ::green, ::blue, ::white, ::amber, ::uv)
+
     override fun plusRed(delta: Int) = new(red + delta, green, blue, white, amber, uv)
     override fun plusGreen(delta: Int) = new(red, green + delta, blue, white, amber, uv)
     override fun plusBlue(delta: Int) = new(red, green, blue + delta, white, amber, uv)

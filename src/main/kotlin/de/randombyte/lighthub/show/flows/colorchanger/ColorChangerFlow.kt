@@ -1,9 +1,6 @@
 package de.randombyte.lighthub.show.flows.colorchanger
 
-import de.randombyte.lighthub.osc.devices.features.ColorFeature
-import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature
-import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeature
-import de.randombyte.lighthub.osc.devices.features.StrobeFeature
+import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.show.flows.Flow
 import kotlin.math.roundToInt
 import kotlin.time.ExperimentalTime
@@ -12,8 +9,10 @@ import kotlin.time.ExperimentalTime
 class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices) {
 
     var tempo = 50 // todo: config
-    var ticksUntilColorChange = 1
+    var ticksUntilNewGoals = 1
+
     private var colorGoals: Map<ColorFeature, String> = mapOf()
+    private var rotationGoals: Map<RotationFeature, Int> = mapOf()
 
     override fun onResume() {
         forceColorChangeOnThisTick()
@@ -26,19 +25,30 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
     override fun onTick() {
         colorGoals.forEach { (device, targetColorId) ->
             if (device !in usedDevices) return@forEach
-            if (device !is DimmableComponentsColorFeature) return // todo: support other devices
 
-            val targetColor = device.colors.getValue(targetColorId)
-            val intermediateColor = device.getColor().transformComponents(targetColor) { current, other ->
-                almostLinearTransform(current, other, ticksUntilColorChange)
+            when (device) {
+                is DimmableComponentsColorFeature -> {
+                    val targetColor = device.colors.getValue(targetColorId)
+                    val intermediateColor = device.getColor().transformComponents(targetColor) { current, other ->
+                        almostLinearTransform(current, other, ticksUntilNewGoals)
+                    }
+                    device.setColor(intermediateColor)
+                }
+                is FixedColorFeature -> {
+                    device.setColor(device.colors.getValue(targetColorId))
+                }
             }
-            device.setColor(intermediateColor)
         }
 
-        ticksUntilColorChange--
-        if (ticksUntilColorChange <= 0) {
+        rotationGoals.forEach { (device, targetRotation) ->
+            device.rotationSpeed = targetRotation
+        }
+
+        ticksUntilNewGoals--
+        if (ticksUntilNewGoals <= 0) {
             colorGoals = createNewColorGoals()
-            ticksUntilColorChange = tempo
+            rotationGoals = createNewRotationGoals()
+            ticksUntilNewGoals = tempo
         }
     }
 
@@ -46,11 +56,15 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
         current + ((goal - current) / ticksUntilColorChange.toDouble()).roundToInt()
 
     private fun createNewColorGoals() = usedDevices.map { device ->
-         device to device.colorCategories.warm.random()
+         device to device.colorCategories.warm.random() // todo: warm/cold
+    }.toMap()
+
+    private fun createNewRotationGoals() = usedDevices.filterIsInstance<RotationFeature>().map { device ->
+        device to device.rotationSpeeds.normal.random()
     }.toMap()
 
     fun forceColorChangeOnThisTick() {
-        ticksUntilColorChange = 1
+        ticksUntilNewGoals = 1
     }
 }
 

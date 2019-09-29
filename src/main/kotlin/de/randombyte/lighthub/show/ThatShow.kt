@@ -6,7 +6,7 @@ import de.randombyte.lighthub.midi.akai.Control
 import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.Devices
 import de.randombyte.lighthub.osc.devices.*
-import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature
+import de.randombyte.lighthub.osc.devices.features.ColorFeature
 import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeature
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature
 import de.randombyte.lighthub.show.flows.Flow
@@ -37,7 +37,9 @@ class ThatShow(
     val hexPar1: HexPar,
     val hexPar2: HexPar,
     val hexClone1: HexClone,
-    val hexClone2: HexClone
+    val hexClone2: HexClone,
+    val quadPhase1: QuadPhase,
+    val quadPhase2: QuadPhase
 ) {
 
     companion object {
@@ -54,7 +56,9 @@ class ThatShow(
                 devices[4] as HexPar,
                 devices[5] as HexPar,
                 devices[6] as HexClone,
-                devices[7] as HexClone
+                devices[7] as HexClone,
+                devices[8] as QuadPhase,
+                devices[9] as QuadPhase
             )
         }
     }
@@ -64,15 +68,16 @@ class ThatShow(
     val tsssPars = listOf(tsssPar1, tsssPar2)
     val hexPars = listOf(hexPar1, hexPar2)
     val hexClones = listOf(hexClone1, hexClone2)
+    val quadPhases = listOf(quadPhase1, quadPhase2)
 
-    val lights = flatten<Device>(ledBars, tsssPars, hexPars, hexClones)
+    val lights = flatten<Device>(ledBars, tsssPars, hexPars, hexClones, quadPhases)
 
     // Flows and Tickables
     val manualDeviceControl = ManualDeviceControl(lights, sendDisplayName = akai::sendMapping)
 
     private val blackoutFlow = BlackoutFlow(lights as List<MasterDimmerFeature>)
-    private val colorChangeFlow = ColorChangerFlow(flatten(ledBars, tsssPars, hexPars, hexClones))
-    private val strobeFlow = StrobeFlow(flatten(ledBars, tsssPars, hexPars, hexClones).requireInstanceOf<StrobeFeature, DimmableComponentsColorFeature>())
+    private val colorChangeFlow = ColorChangerFlow(flatten(ledBars, tsssPars, hexPars, hexClones, quadPhases))
+    private val strobeFlow = StrobeFlow(flatten(ledBars, tsssPars, hexPars, hexClones, quadPhases).requireInstanceOf<StrobeFeature, ColorFeature>())
 
     private val longTermFlows = listOf(colorChangeFlow)
 
@@ -129,7 +134,7 @@ class ThatShow(
                 val tempo = akai.getControlByName(ColorChangeTempoFader)!!.value.coerceIn(min..max)
 
                 colorChangeFlow.tempo = tempo
-                colorChangeFlow.ticksUntilColorChange = tempo
+                colorChangeFlow.ticksUntilNewGoals = tempo
             }
         })
 
@@ -138,12 +143,6 @@ class ThatShow(
                 activateFlow(colorChangeFlow)
             }
         })
-
-        /*akai.registerControl(ColorChangeInstant, object : Control.Button.TouchButton(13) {
-            override fun onDown() {
-                colorChangeFlow.forceColorChangeOnThisTick()
-            }
-        })*/
 
         akai.registerControl(SlowStrobe, object : Control.Button.TouchButton(2) {
             override fun onDown() {
