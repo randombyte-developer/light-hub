@@ -10,7 +10,7 @@ import kotlin.time.seconds
 object Ticker {
     val TICKS_PER_SECOND = GlobalConfigs.general.config.`animation-tick-frequency`
 
-    private const val SLEEP_TIME_MILLIS = 10L
+    private const val SLEEP_TIME_MILLIS = 3L
     private val DURATION_PER_TICK = (1.0 / TICKS_PER_SECOND).seconds
 
     private var clockMark = MonoClock.markNow()

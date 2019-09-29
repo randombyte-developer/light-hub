@@ -109,11 +109,13 @@ class ThatShow(
         })
     }
 
-    fun registerControls() {
+    private fun registerControls() {
         // master dimmer
         akai.registerControl(MasterDimmer, object : Control.Potentiometer(6) {
             override fun onUpdate() {
                 QlcPlus.oscMasterDimmer.sendValue(Ranges.mapMidiToDmx(value))
+                val percent = ((value.toDouble() / Ranges.MIDI_RANGE.last) * 100).toInt()
+                akai.sendMapping("$percent%")
             }
         })
 
@@ -129,11 +131,27 @@ class ThatShow(
 
         akai.registerControl(ColorChangeTempoFader, object : Control.Potentiometer(11) {
             override fun onUpdate() {
-                Ticker.bpm = Ranges.mapRange(
+                val bpm = Ranges.mapRange(
                     from = Ranges.MIDI_RANGE,
                     to = GlobalConfigs.general.config.run { `bpm-fader-min`..`bpm-fader-max` },
-                    value = akai.getControlByName(ColorChangeTempoFader)!!.value
+                    value = value
                 )
+
+                Ticker.bpm = bpm
+                akai.sendMapping("$bpm BPM")
+            }
+        })
+
+        akai.registerControl(ColorChangeTransitionTicksFader, object : Control.Potentiometer(10) {
+            override fun onUpdate() {
+                val ticks = Ranges.mapRange(
+                    from = Ranges.MIDI_RANGE,
+                    to = GlobalConfigs.general.config.run { `transition-ticks-fader-min`..`transition-ticks-fader-max` },
+                    value = value
+                )
+
+                colorChangeFlow.ticksTransitionDuration = ticks
+                akai.sendMapping("$ticks Ticks")
             }
         })
 

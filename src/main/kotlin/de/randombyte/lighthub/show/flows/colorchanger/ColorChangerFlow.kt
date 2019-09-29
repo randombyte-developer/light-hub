@@ -10,7 +10,9 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices) {
 
-    var ticksSinceLastBeat = 0
+    var ticksTransitionDuration = 10
+
+    private var ticksSinceLastBeat = 0
 
     private var dimmableColorGoals = mutableMapOf<DimmableComponentsColorFeature, String>()
 
@@ -70,7 +72,7 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
         dimmableColorGoals.forEach { (device, targetColorId) ->
             if (device !in usedDevices) return@forEach
 
-            val ticksUntilColorChanged = device.colorAutoPatterns.`change-ticks-duration` - ticksSinceLastBeat
+            val ticksUntilColorChanged = ticksTransitionDuration - ticksSinceLastBeat
             if (ticksUntilColorChanged <= 0) {
                 // the color has changed and the transition is already done
                 return@forEach

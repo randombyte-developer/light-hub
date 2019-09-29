@@ -35,7 +35,7 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
     enum class ControlName {
         Blackout, MasterDimmer, SlowStrobe, FastStrobe,
         Knob1, Knob2, Knob3, Knob4, Knob5, Knob6, ManualControlNext, ManualControlPrevious, ManualControlClaim, ManualControlFree,
-        ColorChangeTempoFader, ColorChangeActivate
+        ColorChangeTempoFader, ColorChangeTransitionTicksFader, ColorChangeActivate
     }
 
     private val controls: MutableMap<ControlName, Control> = mutableMapOf()
@@ -46,7 +46,7 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         if (!super.open()) return false
         enableSpecialMode()
         setupListener()
-        sendMapping("QLC+")
+        sendMapping("LightHub")
         return true
     }
 
