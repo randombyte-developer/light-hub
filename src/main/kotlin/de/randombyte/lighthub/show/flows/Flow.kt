@@ -19,7 +19,21 @@ open class Flow<T>(val assignedDevices: List<T>, val usedDevices: MutableList<T>
         require(assignedDevices.all { it is Device }) { "List 'assignedDevices' must only contain objects of type Device!" }
     }
 
-    open fun onResume() {}
+    open fun onResume() {
+        usedDevices.forEach { onDeviceResume(it) }
+    }
+
+    override fun onTick(tick: ULong) {
+        usedDevices.forEach { onDeviceTick(tick, it) }
+    }
+
+    override fun onBeat(beat: ULong) {
+        usedDevices.forEach { onDeviceBeat(beat, it) }
+    }
+
+    open fun onDeviceResume(device: T) {}
+    open fun onDeviceTick(tick: ULong, device: T) {}
+    open fun onDeviceBeat(beat: ULong, device: T) {}
 
     fun offerDevices(canBeUsed: (Device) -> Boolean) {
         usedDevices.addAll(assignedDevices.filter { canBeUsed(it as Device) })

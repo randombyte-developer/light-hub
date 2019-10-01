@@ -7,14 +7,14 @@ import de.randombyte.lighthub.midi.akai.Control
 import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.Devices
 import de.randombyte.lighthub.osc.devices.*
-import de.randombyte.lighthub.osc.devices.features.ColorFeature
 import de.randombyte.lighthub.osc.devices.features.ShutterFeature
-import de.randombyte.lighthub.osc.devices.features.StrobeFeature
 import de.randombyte.lighthub.show.flows.Flow
 import de.randombyte.lighthub.show.flows.FlowManager
 import de.randombyte.lighthub.show.flows.blackout.BlackoutFlow
 import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
 import de.randombyte.lighthub.show.flows.manualcolor.ManualDeviceControl
+import de.randombyte.lighthub.show.flows.pantilt.PanTiltFlow
+import de.randombyte.lighthub.show.flows.rotation.RotationFlow
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Fast
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Slow
@@ -22,7 +22,6 @@ import de.randombyte.lighthub.show.tickables.Tickable
 import de.randombyte.lighthub.show.tickables.Ticker
 import de.randombyte.lighthub.utils.Ranges
 import de.randombyte.lighthub.utils.flatten
-import de.randombyte.lighthub.utils.requireInstanceOf
 import kotlin.time.ExperimentalTime
 
 /**
@@ -87,7 +86,9 @@ class ThatShow(
 
     private val blackoutFlow = BlackoutFlow(lights as List<ShutterFeature>)
     private val colorChangeFlow = ColorChangerFlow(flatten(ledBars, tsssPars, hexPars, hexClones, quadPhases, scanners))
-    private val strobeFlow = StrobeFlow(flatten(ledBars, tsssPars, hexPars, hexClones, quadPhases).requireInstanceOf<StrobeFeature, ColorFeature>())
+    private val rotationFlow = RotationFlow(quadPhases)
+    private val panTiltFlow = PanTiltFlow(scanners)
+    private val strobeFlow = StrobeFlow(flatten(ledBars, tsssPars, hexPars, hexClones, quadPhases, scanners))
 
     private val longTermFlows = listOf(colorChangeFlow)
 
@@ -105,11 +106,16 @@ class ThatShow(
         activateFlow(colorChangeFlow)
     }
 
-    fun registerTickables() {
+    private fun registerTickables() {
         Ticker.register(manualDeviceControl)
         Ticker.register(blackoutFlow)
         Ticker.register(colorChangeFlow)
+        Ticker.register(rotationFlow)
+        Ticker.register(panTiltFlow)
         Ticker.register(strobeFlow)
+
+        FlowManager.registerIndependentFlow(rotationFlow)
+        FlowManager.registerIndependentFlow(panTiltFlow)
 
         Ticker.register(object : Tickable {
             override fun onTick(tick: ULong) {
@@ -176,6 +182,8 @@ class ThatShow(
         akai.registerControl(ColorChangeActivate, object : Control.Button.TouchButton(12) {
             override fun onDown() {
                 activateFlow(colorChangeFlow)
+                activateFlow(rotationFlow)
+                activateFlow(panTiltFlow)
             }
         })
 
@@ -183,7 +191,6 @@ class ThatShow(
             override fun onDown() {
                 strobeFlow.speed = Slow
                 activateFlow(strobeFlow)
-                scanners.forEach { it.noLight() }
             }
 
             override fun onUp() {
@@ -198,7 +205,6 @@ class ThatShow(
             override fun onDown() {
                 strobeFlow.speed = Fast
                 activateFlow(strobeFlow)
-                scanners.forEach { it.noLight() }
             }
 
             override fun onUp() {

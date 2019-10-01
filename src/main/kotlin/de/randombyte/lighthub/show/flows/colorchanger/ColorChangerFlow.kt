@@ -5,7 +5,6 @@ import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.show.flows.Flow
 import de.randombyte.lighthub.utils.multipleOf
 import kotlin.math.roundToInt
-import kotlin.random.Random
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
@@ -26,8 +25,6 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
             device.setColor(device.colors.getValue(device.colorCategories.warm.random()))
             // delete all goals to prevent the instant change from being overwritten with old goals
             dimmableColorGoals.clear()
-            if (device is RotationFeature) changeRotation(device)
-            if (device is PanTiltFeature) changePanTilt(device)
         }
     }
 
@@ -42,48 +39,14 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
         }
     }
 
-    private fun changeRotation(device: RotationFeature) {
-        device.rotationSpeed = device.rotationSpeeds.normal.random()
-    }
-
-    private fun changePanTilt(device: PanTiltFeature) {
-        val position = with (device.panTiltAutoPatterns) {
-            PanTiltFeature.Position(
-                pan = Random.nextInt(from = `pan-min`, until = `pan-max` + 1),
-                tilt = Random.nextInt(from = `tilt-min`, until = `tilt-max` + 1)
-            )
-        }
-        device.position = position
-    }
-
     override fun onBeat(beat: ULong) {
         ticksSinceLastBeat = 0
 
         usedDevices.forEach { device ->
-            val rawDevice = device as Device
-
             with(device.colorAutoPatterns) {
-                val specificDeviceOffset = `change-beats-offset` * rawDevice.number
+                val specificDeviceOffset = `change-beats-offset` * (device as Device).number
                 if ((beat + specificDeviceOffset.toUInt()).multipleOf(`change-every-n-beats`)) {
                     changeColor(device)
-                }
-            }
-
-            if (device is RotationFeature) {
-                with(device.rotationAutoPatterns) {
-                    val specificDeviceOffset = `change-beats-offset` * rawDevice.number
-                    if ((beat + specificDeviceOffset.toUInt()).multipleOf(`change-every-n-beats`)) {
-                        changeRotation(device)
-                    }
-                }
-            }
-
-            if (device is PanTiltFeature) {
-                with(device.panTiltAutoPatterns) {
-                    val specificDeviceOffset = `change-beats-offset` * rawDevice.number
-                    if ((beat + specificDeviceOffset.toUInt()).multipleOf(`change-every-n-beats`)) {
-                        changePanTilt(device)
-                    }
                 }
             }
         }
