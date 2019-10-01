@@ -72,14 +72,14 @@ class ThatShow(
     }
 
     // Device lists
-    val ledBars = listOf(ledBar1, ledBar2)
-    val tsssPars = listOf(tsssPar1, tsssPar2)
-    val hexPars = listOf(hexPar1, hexPar2)
-    val hexClones = listOf(hexClone1, hexClone2)
-    val quadPhases = listOf(quadPhase1, quadPhase2)
-    val scanners = listOf(scanner1, scanner2, scanner3, scanner4)
+    private val ledBars = listOf(ledBar1, ledBar2)
+    private val tsssPars = listOf(tsssPar1, tsssPar2)
+    private val hexPars = listOf(hexPar1, hexPar2)
+    private val hexClones = listOf(hexClone1, hexClone2)
+    private val quadPhases = listOf(quadPhase1, quadPhase2)
+    private val scanners = listOf(scanner1, scanner2, scanner3, scanner4)
 
-    val lights = flatten<Device>(ledBars, tsssPars, hexPars, hexClones, quadPhases, scanners)
+    private val lights = flatten<Device>(ledBars, tsssPars, hexPars, hexClones, quadPhases, scanners)
 
     // Flows and Tickables
     val manualDeviceControl = ManualDeviceControl(lights, sendDisplayName = akai::sendMapping)
@@ -214,7 +214,7 @@ class ThatShow(
             }
         })
 
-        // manual knobs
+        // manual control
         akai.registerControl(Knob1, object : Control.Potentiometer(4) {
             override fun onUpdate() {
                 manualDeviceControl.onKnob1ChangeValue(this)
@@ -267,6 +267,53 @@ class ThatShow(
         akai.registerControl(ManualControlFree, object : Control.Button.SimpleButton(19) {
             override fun onDown() {
                 manualDeviceControl.onFreeDevice()
+            }
+        })
+
+        // master toggle
+        akai.registerControl(HexParsMasterToggle, object : Control.Button.SimpleButton(9) {
+            override fun onDown() {
+                hexPars.forEach { device ->
+                    device.noLight()
+                    FlowManager.toggleClaimOnDevice(device as Device)
+                }
+            }
+        })
+
+        akai.registerControl(OtherParsMasterToggle, object : Control.Button.SimpleButton(10) {
+            override fun onDown() {
+                flatten<ShutterFeature>(hexClones + tsssPars).forEach { device ->
+                    device.noLight()
+                    FlowManager.toggleClaimOnDevice(device as Device)
+                }
+            }
+        })
+
+        akai.registerControl(LedBarsMasterToggle, object : Control.Button.SimpleButton(11) {
+            override fun onDown() {
+                ledBars.forEach { device ->
+                    device.noLight()
+                    FlowManager.toggleClaimOnDevice(device as Device)
+                }
+            }
+        })
+
+        akai.registerControl(QuadsMasterToggle, object : Control.Button.SimpleButton(12) {
+            override fun onDown() {
+                quadPhases.forEach { device ->
+                    device.noLight()
+                    device.rotationSpeed = 0
+                    FlowManager.toggleClaimOnDevice(device as Device)
+                }
+            }
+        })
+
+        akai.registerControl(ScannerMasterToggle, object : Control.Button.SimpleButton(13) {
+            override fun onDown() {
+                scanners.forEach { device ->
+                    device.noLight()
+                    FlowManager.toggleClaimOnDevice(device as Device)
+                }
             }
         })
     }

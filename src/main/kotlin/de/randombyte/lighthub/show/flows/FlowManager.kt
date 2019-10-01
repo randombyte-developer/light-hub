@@ -60,6 +60,10 @@ object FlowManager {
         claimedDevices -= device
     }
 
+    fun toggleClaimOnDevice(device: Device) {
+        if (device.isClaimed) freeDevice(device) else claimDevice(device)
+    }
+
     private val Flow<*>.isIndependent get() = this in independentFlows
 }
 
