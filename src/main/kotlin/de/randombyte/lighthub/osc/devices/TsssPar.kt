@@ -73,10 +73,7 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
         oscWhite
     )
 
-    override var masterDimmer: Int
-        get() = super.masterDimmer
-        set(value) {
-            super.masterDimmer = value
-            oscMode.sendValue(OSC_MODE_DIMMING)
-        }
+    init {
+        oscMode.sendValue(OSC_MODE_DIMMING)
+    }
 }

@@ -41,11 +41,11 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
     override val oscAmber = createOscChannel("amber", 4)
     override val oscUv = createOscChannel("uv", 5)
     override val oscMasterDimmer = createOscChannel("master-dimmer", 6)
-    private val oscShutter = createOscChannel("shutter", 7)
+    private val oscLed = createOscChannel("led-shutter", 7)
     private val oscProgram = createOscChannel("program-selection", 8)
     private val oscMacro = createOscChannel("macro", 9)
     private val oscProgramSpeed = createOscChannel("speed", 10)
-    override val oscStrobeSpeed = oscShutter
+    override val oscStrobeSpeed = oscLed
     private val oscDimmerCurve = createOscChannel("dimmer-curve", 11)
 
     override val oscSpeedRange = 64..95
@@ -59,18 +59,15 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
         oscAmber,
         oscUv,
         oscMasterDimmer,
-        oscShutter,
+        oscLed,
         oscProgram,
         oscMacro,
         oscProgramSpeed,
         oscDimmerCurve
     )
 
-    override var masterDimmer: Int
-        get() = super.masterDimmer
-        set(value) {
-            super.masterDimmer = value
-            oscProgram.sendValue(OSC_PROGRAM_DIMMING_MODE)
-            oscShutter.sendValue(OSC_SHUTTER_LED_ON)
-        }
+    init {
+        oscProgram.sendValue(OSC_PROGRAM_DIMMING_MODE)
+        oscLed.sendValue(OSC_SHUTTER_LED_ON)
+    }
 }

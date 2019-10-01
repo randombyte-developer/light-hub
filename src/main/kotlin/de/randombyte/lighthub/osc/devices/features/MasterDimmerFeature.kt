@@ -1,17 +1,14 @@
 package de.randombyte.lighthub.osc.devices.features
 
 import de.randombyte.lighthub.osc.OscChannel
-import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
 
-interface MasterDimmerFeature : Feature {
+interface MasterDimmerFeature : ShutterFeature {
     var masterDimmer: Int
-
-    fun fullIntensity() { masterDimmer = DMX_RANGE.last }
-    fun noLight() { masterDimmer = DMX_RANGE.first }
 }
 
-interface MasterDimmerFeatureImpl : MasterDimmerFeature {
+interface MasterDimmerFeatureImpl : MasterDimmerFeature, ShutterFeatureImpl {
     val oscMasterDimmer: OscChannel
+    override val oscShutter get() = oscMasterDimmer // to preserve the ShutterFeature functions
 
     override var masterDimmer: Int
         get() = oscMasterDimmer.lastValue

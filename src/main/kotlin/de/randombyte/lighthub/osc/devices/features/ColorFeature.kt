@@ -10,9 +10,9 @@ interface ColorFeature : Feature {
     fun setColor(color: Color)
 
     open class ColorAutoPatternsConfig(
-        val `change-every-n-beats`: Int = 4,
-        val `change-beats-offset`: Int = 0
-    ) : AutoPatternsConfig() {
+        `change-every-n-beats`: Int = 4,
+        `change-beats-offset`: Int = 0
+    ) : AutoPatternsConfig(`change-every-n-beats`, `change-beats-offset`) {
         companion object {
             const val FILE_NAME = "color-auto-pattern"
         }

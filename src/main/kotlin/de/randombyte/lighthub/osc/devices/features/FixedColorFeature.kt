@@ -11,7 +11,7 @@ interface FixedColorFeature : ColorFeature {
 interface FixedColorFeatureImpl : FixedColorFeature {
     val oscColorSelection: OscChannel
 
-    override fun getColor() = colors.values.first() { oscColorSelection.lastValue in it.dmxRange }
+    override fun getColor() = colors.values.first { oscColorSelection.lastValue in it.dmxRange }
 
     override fun setColor(color: Color) {
         if (color is FixedColor) oscColorSelection.sendValue(color.dmxRange.first)

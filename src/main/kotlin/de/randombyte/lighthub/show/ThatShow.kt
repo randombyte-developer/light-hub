@@ -8,7 +8,7 @@ import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.Devices
 import de.randombyte.lighthub.osc.devices.*
 import de.randombyte.lighthub.osc.devices.features.ColorFeature
-import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeature
+import de.randombyte.lighthub.osc.devices.features.ShutterFeature
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature
 import de.randombyte.lighthub.show.flows.Flow
 import de.randombyte.lighthub.show.flows.FlowManager
@@ -40,7 +40,11 @@ class ThatShow(
     val hexClone1: HexClone,
     val hexClone2: HexClone,
     val quadPhase1: QuadPhase,
-    val quadPhase2: QuadPhase
+    val quadPhase2: QuadPhase,
+    val scanner1: Scanner,
+    val scanner2: Scanner,
+    val scanner3: Scanner,
+    val scanner4: Scanner
 ) {
 
     companion object {
@@ -59,7 +63,11 @@ class ThatShow(
                 devices[6] as HexClone,
                 devices[7] as HexClone,
                 devices[8] as QuadPhase,
-                devices[9] as QuadPhase
+                devices[9] as QuadPhase,
+                devices[10] as Scanner,
+                devices[11] as Scanner,
+                devices[12] as Scanner,
+                devices[13] as Scanner
             )
         }
     }
@@ -70,14 +78,15 @@ class ThatShow(
     val hexPars = listOf(hexPar1, hexPar2)
     val hexClones = listOf(hexClone1, hexClone2)
     val quadPhases = listOf(quadPhase1, quadPhase2)
+    val scanners = listOf(scanner1, scanner2, scanner3, scanner4)
 
-    val lights = flatten<Device>(ledBars, tsssPars, hexPars, hexClones, quadPhases)
+    val lights = flatten<Device>(ledBars, tsssPars, hexPars, hexClones, quadPhases, scanners)
 
     // Flows and Tickables
     val manualDeviceControl = ManualDeviceControl(lights, sendDisplayName = akai::sendMapping)
 
-    private val blackoutFlow = BlackoutFlow(lights as List<MasterDimmerFeature>)
-    private val colorChangeFlow = ColorChangerFlow(flatten(ledBars, tsssPars, hexPars, hexClones, quadPhases))
+    private val blackoutFlow = BlackoutFlow(lights as List<ShutterFeature>)
+    private val colorChangeFlow = ColorChangerFlow(flatten(ledBars, tsssPars, hexPars, hexClones, quadPhases, scanners))
     private val strobeFlow = StrobeFlow(flatten(ledBars, tsssPars, hexPars, hexClones, quadPhases).requireInstanceOf<StrobeFeature, ColorFeature>())
 
     private val longTermFlows = listOf(colorChangeFlow)
@@ -112,7 +121,16 @@ class ThatShow(
     private fun registerControls() {
         // master dimmer
         akai.registerControl(MasterDimmer, object : Control.Potentiometer(6) {
+            private var blackedOutBecauseOfMasterDimmer = false
+
             override fun onUpdate() {
+                if (value == 0) {
+                    activateFlow(blackoutFlow)
+                    blackedOutBecauseOfMasterDimmer = true
+                } else if (blackedOutBecauseOfMasterDimmer) {
+                    activateFlow(currentLongTermFlow)
+                    blackedOutBecauseOfMasterDimmer = false
+                }
                 QlcPlus.oscMasterDimmer.sendValue(Ranges.mapMidiToDmx(value))
                 val percent = ((value.toDouble() / Ranges.MIDI_RANGE.last) * 100).toInt()
                 akai.sendMapping("$percent%")
@@ -165,6 +183,7 @@ class ThatShow(
             override fun onDown() {
                 strobeFlow.speed = Slow
                 activateFlow(strobeFlow)
+                scanners.forEach { it.noLight() }
             }
 
             override fun onUp() {
@@ -179,6 +198,7 @@ class ThatShow(
             override fun onDown() {
                 strobeFlow.speed = Fast
                 activateFlow(strobeFlow)
+                scanners.forEach { it.noLight() }
             }
 
             override fun onUp() {

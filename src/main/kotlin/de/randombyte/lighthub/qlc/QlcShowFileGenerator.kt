@@ -10,7 +10,7 @@ import java.nio.file.Path
 object QlcShowFileGenerator {
 
     const val VC_WIDTH = 1920
-    const val VC_HEIGHT = 1080
+    const val VC_HEIGHT = 2080
 
     fun generate(path: Path, devices: List<Device>) {
         Files.createDirectories(path.parent)

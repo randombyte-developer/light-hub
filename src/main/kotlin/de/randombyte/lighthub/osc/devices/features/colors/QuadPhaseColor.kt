@@ -19,9 +19,10 @@ sealed class QuadPhaseColor(id: String, dmxRange: IntRange) : FixedColor(id, dmx
     object RedGreenBlueWhite : QuadPhaseColor("rgbw", 238..255)
 
     companion object {
-        val colors = listOf(Red, Green, Blue, White, RedGreen, RedBlue, RedWhite, GreenBlue, GreenWhite, BlueWhite, RedGreenBlue, RedGreenWhite, RedBlueWhite, GreenBlueWhite, RedGreenBlueWhite)
-            .map { it.id to it }
-            .toMap()
+        val colors = listOf(
+            Red, Green, Blue, White, RedGreen, RedBlue, RedWhite, GreenBlue, GreenWhite, BlueWhite, RedGreenBlue,
+            RedGreenWhite, RedBlueWhite, GreenBlueWhite, RedGreenBlueWhite
+        ).map { it.id to it }.toMap()
     }
 
     class Config(override val colors: Map<String, QuadPhaseColor> = emptyMap()) : Color.Config()

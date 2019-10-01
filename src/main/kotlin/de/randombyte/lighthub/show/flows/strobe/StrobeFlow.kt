@@ -1,7 +1,8 @@
 package de.randombyte.lighthub.show.flows.strobe
 
 import de.randombyte.lighthub.osc.devices.features.ColorFeature
-import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeature
+import de.randombyte.lighthub.osc.devices.features.RotationFeature
+import de.randombyte.lighthub.osc.devices.features.ShutterFeature
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature
 import de.randombyte.lighthub.show.flows.Flow
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Fast
@@ -17,7 +18,8 @@ class StrobeFlow(devices: List<StrobeFeature>) : Flow<StrobeFeature>(devices) {
     override fun onResume() {
         usedDevices.forEach { device ->
             (device as ColorFeature).setColor(device.colors.getValue(device.colorCategories.strobe))
-            (device as? MasterDimmerFeature)?.fullIntensity()
+            (device as? ShutterFeature)?.fullIntensity()
+            (device as? RotationFeature)?.rotationSpeed = (device as RotationFeature).rotationSpeeds.none
 
             // todo better
             when (speed) {
