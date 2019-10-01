@@ -9,7 +9,7 @@ import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeatur
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedsConfig
 import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.RgbwauvConfig
-import de.randombyte.lighthub.show.flows.colorchanger.ColorCategoriesConfig
+import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
 
 class HexPar(number: Int, dmxAddress: Int) : Device(
     type = Companion,
@@ -25,10 +25,10 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
 
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colors = createConfigHolder<RgbwauvConfig>(Color.Config.FILE_NAME)
-        override val colorCategoriesConfig = createConfigHolder<ColorCategoriesConfig>(ColorCategoriesConfig.FILE_NAME)
+        override val colorSetsConfig = createConfigHolder<ColorSetsConfig>(ColorSetsConfig.FILE_NAME)
         override val colorAutoPatterns = createConfigHolder<DimmableComponentsColorAutoPatternsConfig>(DimmableComponentsColorAutoPatternsConfig.FILE_NAME)
         override val strobeSpeeds = createConfigHolder<StrobeSpeedsConfig>(StrobeSpeedsConfig.FILE_NAME)
-        override val configs = listOf(colors, colorCategoriesConfig, colorAutoPatterns, strobeSpeeds)
+        override val configs = listOf(colors, colorSetsConfig, colorAutoPatterns, strobeSpeeds)
 
         private const val OSC_PROGRAM_DIMMING_MODE = 0
         private const val OSC_SHUTTER_LED_ON = 32

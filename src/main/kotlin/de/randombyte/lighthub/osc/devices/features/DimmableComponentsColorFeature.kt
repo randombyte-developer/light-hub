@@ -2,7 +2,7 @@ package de.randombyte.lighthub.osc.devices.features
 
 import de.randombyte.lighthub.config.ConfigHolder
 import de.randombyte.lighthub.osc.devices.features.colors.DimmableComponentsColor
-import de.randombyte.lighthub.show.flows.colorchanger.ColorCategoriesConfig
+import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
 
 interface DimmableComponentsColorFeature : ColorFeature {
     override fun getColor(): DimmableComponentsColor
@@ -17,11 +17,11 @@ interface DimmableComponentsColorFeature : ColorFeature {
     }
 
     override val colors get() = (type as Config).colors.config.colors
-    override val colorCategories get() = (type as Config).colorCategoriesConfig.config
+    override val colorSets get() = (type as Config).colorSetsConfig.config
     override val colorAutoPatterns get() = (type as Config).colorAutoPatterns.config
     interface Config : ColorFeature.Config {
         val colors: ConfigHolder<out DimmableComponentsColor.Config>
-        override val colorCategoriesConfig: ConfigHolder<out ColorCategoriesConfig>
+        override val colorSetsConfig: ConfigHolder<out ColorSetsConfig>
         override val colorAutoPatterns: ConfigHolder<out DimmableComponentsColorAutoPatternsConfig>
     }
 }

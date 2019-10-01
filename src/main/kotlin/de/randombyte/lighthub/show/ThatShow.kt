@@ -12,6 +12,7 @@ import de.randombyte.lighthub.show.flows.Flow
 import de.randombyte.lighthub.show.flows.FlowManager
 import de.randombyte.lighthub.show.flows.blackout.BlackoutFlow
 import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
+import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
 import de.randombyte.lighthub.show.flows.manualcolor.ManualDeviceControl
 import de.randombyte.lighthub.show.flows.pantilt.PanTiltFlow
 import de.randombyte.lighthub.show.flows.rotation.RotationFlow
@@ -179,14 +180,30 @@ class ThatShow(
             }
         })
 
-        akai.registerControl(ColorChangeActivate, object : Control.Button.TouchButton(12) {
-            override fun onDown() {
-                activateFlow(colorChangeFlow)
-                activateFlow(rotationFlow)
-                activateFlow(panTiltFlow)
-            }
-        })
+        // color changer
+        fun registerColorControl(controlName: Akai.ControlName, padNumber: Int, colorSetSelector: ColorSetsConfig.() -> List<String>) {
+            akai.registerControl(controlName, object : Control.Button.TouchButton(padNumber) {
+                override fun onDown() {
+                    colorChangeFlow.colorSetSelector = colorSetSelector
+                    activateFlow(colorChangeFlow)
 
+                    // todo: separate control for rotation and pantilt
+                    activateFlow(rotationFlow)
+                    activateFlow(panTiltFlow)
+                }
+            })
+        }
+
+        registerColorControl(Set1, 12) { `set-1` }
+        registerColorControl(Set2, 13) { `set-2` }
+        registerColorControl(Set3, 14) { `set-3` }
+        registerColorControl(Set4, 15) { `set-4` }
+        registerColorControl(Set5, 8) { `set-5` }
+        registerColorControl(Set6, 9) { `set-6` }
+        registerColorControl(Set7, 10) { `set-7` }
+        registerColorControl(Set8, 11) { `set-8` }
+
+        // strobe
         akai.registerControl(SlowStrobe, object : Control.Button.TouchButton(2) {
             override fun onDown() {
                 strobeFlow.speed = Slow
@@ -215,36 +232,20 @@ class ThatShow(
         })
 
         // manual control
-        akai.registerControl(Knob1, object : Control.Potentiometer(4) {
-            override fun onUpdate() {
-                manualDeviceControl.onKnob1ChangeValue(this)
-            }
-        })
-        akai.registerControl(Knob2, object : Control.Potentiometer(2) {
-            override fun onUpdate() {
-                manualDeviceControl.onKnob2ChangeValue(this)
-            }
-        })
-        akai.registerControl(Knob3, object : Control.Potentiometer(0) {
-            override fun onUpdate() {
-                manualDeviceControl.onKnob3ChangeValue(this)
-            }
-        })
-        akai.registerControl(Knob4, object : Control.Potentiometer(5) {
-            override fun onUpdate() {
-                manualDeviceControl.onKnob4ChangeValue(this)
-            }
-        })
-        akai.registerControl(Knob5, object : Control.Potentiometer(3) {
-            override fun onUpdate() {
-                manualDeviceControl.onKnob5ChangeValue(this)
-            }
-        })
-        akai.registerControl(Knob6, object : Control.Potentiometer(1) {
-            override fun onUpdate() {
-                manualDeviceControl.onKnob6ChangeValue(this)
-            }
-        })
+        fun registerManualControlKnob(controlName: Akai.ControlName, knobNumber: Int, action: ManualDeviceControl.(Control.Potentiometer) -> Unit) {
+            akai.registerControl(controlName, object : Control.Potentiometer(knobNumber) {
+                override fun onUpdate() {
+                    manualDeviceControl.action(this)
+                }
+            })
+        }
+
+        registerManualControlKnob(Knob1, 4) { onKnob1ChangeValue(it) }
+        registerManualControlKnob(Knob2, 2) { onKnob2ChangeValue(it) }
+        registerManualControlKnob(Knob3, 0) { onKnob3ChangeValue(it) }
+        registerManualControlKnob(Knob4, 5) { onKnob4ChangeValue(it) }
+        registerManualControlKnob(Knob5, 3) { onKnob5ChangeValue(it) }
+        registerManualControlKnob(Knob6, 1) { onKnob6ChangeValue(it) }
 
         akai.registerControl(ManualControlNext, object : Control.Button.SimpleButton(16) {
             override fun onDown() {
@@ -271,50 +272,22 @@ class ThatShow(
         })
 
         // master toggle
-        akai.registerControl(HexParsMasterToggle, object : Control.Button.SimpleButton(9) {
-            override fun onDown() {
-                hexPars.forEach { device ->
-                    device.noLight()
-                    FlowManager.toggleClaimOnDevice(device as Device)
-                }
-            }
-        })
 
-        akai.registerControl(OtherParsMasterToggle, object : Control.Button.SimpleButton(10) {
-            override fun onDown() {
-                flatten<ShutterFeature>(hexClones + tsssPars).forEach { device ->
-                    device.noLight()
-                    FlowManager.toggleClaimOnDevice(device as Device)
+        fun registerMasterToggleControl(controlName: Akai.ControlName, buttonNumber: Int, devices: List<Device>) {
+            akai.registerControl(controlName, object : Control.Button.SimpleButton(buttonNumber) {
+                override fun onDown() {
+                    devices.forEach { device ->
+                        (device as ShutterFeature).noLight()
+                        FlowManager.toggleClaimOnDevice(device)
+                    }
                 }
-            }
-        })
+            })
+        }
 
-        akai.registerControl(LedBarsMasterToggle, object : Control.Button.SimpleButton(11) {
-            override fun onDown() {
-                ledBars.forEach { device ->
-                    device.noLight()
-                    FlowManager.toggleClaimOnDevice(device as Device)
-                }
-            }
-        })
-
-        akai.registerControl(QuadsMasterToggle, object : Control.Button.SimpleButton(12) {
-            override fun onDown() {
-                quadPhases.forEach { device ->
-                    device.noLight()
-                    device.rotationSpeed = 0
-                    FlowManager.toggleClaimOnDevice(device as Device)
-                }
-            }
-        })
-
-        akai.registerControl(ScannerMasterToggle, object : Control.Button.SimpleButton(13) {
-            override fun onDown() {
-                scanners.forEach { device ->
-                    device.noLight()
-                    FlowManager.toggleClaimOnDevice(device as Device)
-                }
-            }
-        })
+        registerMasterToggleControl(HexParsMasterToggle, 9, hexPars)
+        registerMasterToggleControl(OtherParsMasterToggle, 10, flatten(hexClones, tsssPars))
+        registerMasterToggleControl(LedBarsMasterToggle, 11, ledBars)
+        registerMasterToggleControl(QuadsMasterToggle, 12, quadPhases)
+        registerMasterToggleControl(ScannerMasterToggle, 13, scanners)
     }
 }

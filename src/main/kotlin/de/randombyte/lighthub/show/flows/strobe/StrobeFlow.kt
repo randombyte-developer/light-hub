@@ -22,7 +22,7 @@ class StrobeFlow(devices: List<ShutterFeature>) : Flow<ShutterFeature>(devices) 
         }
 
         device.fullIntensity()
-        (device as ColorFeature).setColor(device.colors.getValue(device.colorCategories.strobe))
+        (device as ColorFeature).setColor(device.colors.getValue(device.colorSets.strobe))
 
         // todo better
         when (speed) {

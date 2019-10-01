@@ -3,9 +3,12 @@ package de.randombyte.lighthub.osc
 import de.randombyte.lighthub.osc.devices.*
 import de.randombyte.lighthub.osc.devices.features.ColorFeature
 import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature
+import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
 import de.randombyte.lighthub.utils.Ranges
 import de.randombyte.lighthub.utils.intersects
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 object Devices {
     fun createDevicesFromConfig(): List<Device> {
         val (ledBar1, ledBar2) = createDeviceFromConfig(2, LedBar)
@@ -22,8 +25,8 @@ object Devices {
 
         checkChannels(devices)
         checkCollisions(devices)
-        checkStrobeColor(devices as List<ColorFeature>) // should be before checking color categories
-        checkColorCategories(devices)
+        checkStrobeColor(devices as List<ColorFeature>) // should be before checking color-sets
+        checkColorSets(devices)
         checkColorBounds(dimmableLights as List<DimmableComponentsColorFeature>)
         checkPanTiltBounds(scanners)
 
@@ -72,18 +75,18 @@ object Devices {
 
     private fun checkStrobeColor(devices: List<ColorFeature>) {
         devices.forEach { device ->
-            require(device.colorCategories.strobe.isNotBlank()) {
-                "[${device.type.id}] Strobe color is not set in the color categories config!"
+            require(device.colorSets.strobe.isNotBlank()) {
+                "[${device.type.id}] Strobe color is not set in the color-sets config!"
             }
         }
     }
 
-    private fun checkColorCategories(devices: List<ColorFeature>) {
+    private fun checkColorSets(devices: List<ColorFeature>) {
         devices.forEach { device ->
-            device.colorCategories.all.forEach { (categoryId, colorsIds) ->
+            device.colorSets.all.forEach { (setId, colorsIds) ->
                 colorsIds.forEach { colorId ->
-                    require(colorId in device.colors.keys) {
-                        "[${device.type.id}] Color '$colorId' is defined in the color category '$categoryId' " +
+                    require(colorId in device.colors.keys || colorId == ColorChangerFlow.NONE_COLOR_ID) {
+                        "[${device.type.id}] Color '$colorId' is defined in the color-set '$setId' " +
                                 "but is missing in the color definitions of the device!"
                     }
                 }

@@ -5,17 +5,17 @@ import de.randombyte.lighthub.osc.OscChannel
 import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.Rgbwauv
 import de.randombyte.lighthub.osc.devices.features.colors.RgbwauvConfig
-import de.randombyte.lighthub.show.flows.colorchanger.ColorCategoriesConfig
+import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
 
 interface RgbwauvFeature : RgbwFeature {
     override fun getColor(): Rgbwauv
 
     // configs
     override val colors get() = (type as Config).colors.config.colors
-    override val colorCategories get() = (type as Config).colorCategoriesConfig.config
+    override val colorSets get() = (type as Config).colorSetsConfig.config
     interface Config : RgbwFeature.Config {
         override val colors: ConfigHolder<RgbwauvConfig>
-        override val colorCategoriesConfig: ConfigHolder<ColorCategoriesConfig>
+        override val colorSetsConfig: ConfigHolder<ColorSetsConfig>
     }
 }
 

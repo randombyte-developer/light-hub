@@ -2,6 +2,7 @@ package de.randombyte.lighthub.show.flows.colorchanger
 
 import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.devices.features.*
+import de.randombyte.lighthub.osc.devices.features.colors.DimmableComponentsColor
 import de.randombyte.lighthub.show.flows.Flow
 import de.randombyte.lighthub.utils.multipleOf
 import kotlin.math.roundToInt
@@ -10,32 +11,33 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices) {
 
+    companion object {
+      const val NONE_COLOR_ID = "none" // basically shutter closed, no light
+    }
+
+    var colorSetSelector: ColorSetsConfig.() -> List<String> = { `set-1` }
     var ticksTransitionDuration = 10
 
     private var ticksSinceLastBeat = 0
 
-    private var dimmableColorGoals = mutableMapOf<DimmableComponentsColorFeature, String>()
+    private var dimmableColorGoals = mutableMapOf<DimmableComponentsColorFeature, DimmableComponentsColor>()
 
     override fun onResume() {
         usedDevices.forEach { device ->
             (device as? ShutterFeature)?.fullIntensity()
             (device as? StrobeFeature)?.noStrobe()
 
+            // directly set a color when resuming
+            val colorId = colorSetSelector(device.colorSets).random()
+            if (colorId == NONE_COLOR_ID) {
+                (device as? ShutterFeature)?.noLight()
+                return@forEach
+            }
             // instantly change color, no transition
-            device.setColor(device.colors.getValue(device.colorCategories.warm.random()))
+            device.setColor(device.colors.getValue(colorId))
+
             // delete all goals to prevent the instant change from being overwritten with old goals
             dimmableColorGoals.clear()
-        }
-    }
-
-    private fun changeColor(device: ColorFeature) {
-        when (device) {
-            is DimmableComponentsColorFeature -> {
-                dimmableColorGoals[device] = device.colorCategories.warm.random()
-            }
-            is FixedColorFeature -> {
-                device.setColor(device.colors.getValue(device.colorCategories.warm.random()))
-            }
         }
     }
 
@@ -52,8 +54,25 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
         }
     }
 
+    private fun changeColor(device: ColorFeature) {
+        val colorId = colorSetSelector(device.colorSets).random()
+        if (colorId == NONE_COLOR_ID) {
+            (device as? ShutterFeature)?.noLight()
+            return
+        }
+
+        when (device) {
+            is DimmableComponentsColorFeature -> {
+                dimmableColorGoals[device] = device.colors.getValue(colorId)
+            }
+            is FixedColorFeature -> {
+                device.setColor(device.colors.getValue(colorId))
+            }
+        }
+    }
+
     override fun onTick(tick: ULong) {
-        dimmableColorGoals.forEach { (device, targetColorId) ->
+        dimmableColorGoals.forEach { (device, targetColor) ->
             if (device !in usedDevices) return@forEach
 
             val ticksUntilColorChanged = ticksTransitionDuration - ticksSinceLastBeat
@@ -62,7 +81,6 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
                 return@forEach
             }
 
-            val targetColor = device.colors.getValue(targetColorId)
             val intermediateColor = device.getColor().transformComponents(targetColor) { currentComponentValue, targetComponentValue ->
                 almostLinearTransform(
                     currentComponentValue,
@@ -80,4 +98,3 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
     private fun almostLinearTransform(current: Int, goal: Int, ticksLeft: Int) =
         current + ((goal - current) / ticksLeft.toDouble()).roundToInt()
 }
-

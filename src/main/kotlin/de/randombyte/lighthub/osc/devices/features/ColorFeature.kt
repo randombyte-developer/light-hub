@@ -2,7 +2,7 @@ package de.randombyte.lighthub.osc.devices.features
 
 import de.randombyte.lighthub.config.ConfigHolder
 import de.randombyte.lighthub.osc.devices.features.colors.Color
-import de.randombyte.lighthub.show.flows.colorchanger.ColorCategoriesConfig
+import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
 import de.randombyte.lighthub.show.tickables.AutoPatternsConfig
 
 interface ColorFeature : Feature {
@@ -19,10 +19,10 @@ interface ColorFeature : Feature {
     }
 
     val colors: Map<String, Color>
-    val colorCategories get() = (type as Config).colorCategoriesConfig.config
+    val colorSets get() = (type as Config).colorSetsConfig.config
     val colorAutoPatterns get() = (type as Config).colorAutoPatterns.config
     interface Config {
-        val colorCategoriesConfig: ConfigHolder<out ColorCategoriesConfig>
+        val colorSetsConfig: ConfigHolder<out ColorSetsConfig>
         val colorAutoPatterns: ConfigHolder<out ColorAutoPatternsConfig>
     }
 }

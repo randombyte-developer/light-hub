@@ -8,7 +8,7 @@ import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.osc.devices.features.ColorFeature.ColorAutoPatternsConfig
 import de.randombyte.lighthub.osc.devices.features.PanTiltFeature.PanTiltAutoPatternsConfig
 import de.randombyte.lighthub.osc.devices.features.colors.ScannerColor
-import de.randombyte.lighthub.show.flows.colorchanger.ColorCategoriesConfig
+import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
 
 class Scanner(number: Int, dmxAddress: Int) : Device(
     type = Companion,
@@ -23,10 +23,10 @@ class Scanner(number: Int, dmxAddress: Int) : Device(
         override val channelsCount = 5
 
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
-        override val colorCategoriesConfig = createConfigHolder<ColorCategoriesConfig>(ColorCategoriesConfig.FILE_NAME)
+        override val colorSetsConfig = createConfigHolder<ColorSetsConfig>(ColorSetsConfig.FILE_NAME)
         override val colorAutoPatterns = createConfigHolder<ColorAutoPatternsConfig>(ColorAutoPatternsConfig.FILE_NAME)
         override val panTiltAutoPatterns = createConfigHolder<PanTiltAutoPatternsConfig>(PanTiltAutoPatternsConfig.FILE_NAME)
-        override val configs = listOf(colorCategoriesConfig, colorAutoPatterns, panTiltAutoPatterns)
+        override val configs = listOf(colorSetsConfig, colorAutoPatterns, panTiltAutoPatterns)
 
         private const val OSC_GOBO_OPEN = 0
     }

@@ -10,7 +10,7 @@ import de.randombyte.lighthub.osc.devices.features.RotationFeature.RotationAutoP
 import de.randombyte.lighthub.osc.devices.features.RotationFeature.RotationSpeedsConfig
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedsConfig
 import de.randombyte.lighthub.osc.devices.features.colors.QuadPhaseColor
-import de.randombyte.lighthub.show.flows.colorchanger.ColorCategoriesConfig
+import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
 
 class QuadPhase(number: Int, dmxAddress: Int) : Device(
         type = Companion,
@@ -25,12 +25,12 @@ class QuadPhase(number: Int, dmxAddress: Int) : Device(
         override val channelsCount = 4
 
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
-        override val colorCategoriesConfig = createConfigHolder<ColorCategoriesConfig>(ColorCategoriesConfig.FILE_NAME)
+        override val colorSetsConfig = createConfigHolder<ColorSetsConfig>(ColorSetsConfig.FILE_NAME)
         override val colorAutoPatterns = createConfigHolder<ColorAutoPatternsConfig>(ColorAutoPatternsConfig.FILE_NAME)
         override val strobeSpeeds = createConfigHolder<StrobeSpeedsConfig>(StrobeSpeedsConfig.FILE_NAME)
         override val rotationSpeeds = createConfigHolder<RotationSpeedsConfig>(RotationSpeedsConfig.FILE_NAME)
         override val rotationAutoPatterns = createConfigHolder<RotationAutoPatternsConfig>(RotationAutoPatternsConfig.FILE_NAME)
-        override val configs = listOf(colorCategoriesConfig, colorAutoPatterns, strobeSpeeds, rotationSpeeds, rotationAutoPatterns)
+        override val configs = listOf(colorSetsConfig, colorAutoPatterns, strobeSpeeds, rotationSpeeds, rotationAutoPatterns)
     }
 
     override val oscColorSelection = createOscChannel("color-selection", 0)
@@ -42,6 +42,11 @@ class QuadPhase(number: Int, dmxAddress: Int) : Device(
     override val oscNoStrobe = 0
 
     override val colors = QuadPhaseColor.colors
+
+    override fun noLight() {
+        super.noLight()
+        rotationSpeed = 0 // don't have to rotate when you can't even see it
+    }
 
     override val oscChannelList = OscChannelList(
         oscColorSelection,
