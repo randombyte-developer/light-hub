@@ -35,7 +35,7 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
     enum class ControlName {
         Blackout, MasterDimmer, SlowStrobe, FastStrobe,
         Knob1, Knob2, Knob3, Knob4, Knob5, Knob6, ManualControlNext, ManualControlPrevious, ManualControlClaim, ManualControlFree,
-        Set1, Set2, Set3, Set4, Set5, Set6, Set7, Set8,
+        Set1, Set2, Set3, Set4, Set5, Set6, Set7, Set8, Set9, Set10, Set11, Set12,
         ColorChangeTempoFader, ColorChangeTransitionTicksFader,
         HexParsMasterToggle, OtherParsMasterToggle, LedBarsMasterToggle, QuadsMasterToggle, ScannerMasterToggle
     }

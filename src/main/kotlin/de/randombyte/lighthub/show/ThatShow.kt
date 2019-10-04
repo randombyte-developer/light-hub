@@ -209,6 +209,10 @@ class ThatShow(
         registerColorControl(Set6, 9) { `set-6` }
         registerColorControl(Set7, 10) { `set-7` }
         registerColorControl(Set8, 11) { `set-8` }
+        registerColorControl(Set9, 4) { `set-9` }
+        registerColorControl(Set10, 5) { `set-10` }
+        registerColorControl(Set11, 6) { `set-11` }
+        registerColorControl(Set12, 7) { `set-12` }
 
         // strobe
         akai.registerControl(SlowStrobe, object : Control.Button.TouchButton(2) {

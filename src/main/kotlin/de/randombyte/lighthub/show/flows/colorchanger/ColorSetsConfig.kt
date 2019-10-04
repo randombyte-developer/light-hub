@@ -9,6 +9,10 @@ class ColorSetsConfig(
     val `set-6`: List<String> = emptyList(),
     val `set-7`: List<String> = emptyList(),
     val `set-8`: List<String> = emptyList(),
+    val `set-9`: List<String> = emptyList(),
+    val `set-10`: List<String> = emptyList(),
+    val `set-11`: List<String> = emptyList(),
+    val `set-12`: List<String> = emptyList(),
     val strobe: String = ""
 ) {
     val all = mapOf(
@@ -20,6 +24,10 @@ class ColorSetsConfig(
         "set-6" to `set-6`,
         "set-7" to `set-7`,
         "set-8" to `set-8`,
+        "set-9" to `set-9`,
+        "set-10" to `set-10`,
+        "set-11" to `set-11`,
+        "set-12" to `set-12`,
         "strobe" to listOf(strobe)
     )
 

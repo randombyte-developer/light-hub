@@ -63,6 +63,8 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
             return
         }
 
+        (device as? ShutterFeature)?.fullIntensity()
+
         when (device) {
             is DimmableComponentsColorFeature -> {
                 dimmableColorGoals[device] = device.colors.getValue(colorId)
