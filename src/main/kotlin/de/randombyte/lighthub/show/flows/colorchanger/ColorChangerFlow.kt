@@ -24,7 +24,6 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
 
     override fun onResume() {
         usedDevices.forEach { device ->
-            (device as? ShutterFeature)?.fullIntensity()
             (device as? StrobeFeature)?.noStrobe()
 
             // directly set a color when resuming
@@ -33,6 +32,9 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
                 (device as? ShutterFeature)?.noLight()
                 return@forEach
             }
+
+            (device as? ShutterFeature)?.fullIntensity()
+
             // instantly change color, no transition
             device.setColor(device.colors.getValue(colorId))
 

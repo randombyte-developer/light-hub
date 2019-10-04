@@ -13,6 +13,7 @@ import de.randombyte.lighthub.show.flows.FlowManager
 import de.randombyte.lighthub.show.flows.blackout.BlackoutFlow
 import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
 import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
+import de.randombyte.lighthub.show.flows.isClaimed
 import de.randombyte.lighthub.show.flows.manualcolor.ManualDeviceControl
 import de.randombyte.lighthub.show.flows.pantilt.PanTiltFlow
 import de.randombyte.lighthub.show.flows.rotation.RotationFlow
@@ -94,7 +95,9 @@ class ThatShow(
     private val longTermFlows = listOf(colorChangeFlow)
 
     private lateinit var currentLongTermFlow: Flow<*>
+    private var blockNewFlows = false
     fun activateFlow(flow: Flow<*>) {
+        if (blockNewFlows) return
         if (flow in longTermFlows) {
             currentLongTermFlow = flow
         }
@@ -134,7 +137,9 @@ class ThatShow(
                 if (value == 0) {
                     activateFlow(blackoutFlow)
                     blackedOutBecauseOfMasterDimmer = true
+                    blockNewFlows = true
                 } else if (blackedOutBecauseOfMasterDimmer) {
+                    blockNewFlows = false
                     activateFlow(currentLongTermFlow)
                     blackedOutBecauseOfMasterDimmer = false
                 }
@@ -147,9 +152,11 @@ class ThatShow(
         akai.registerControl(Blackout, object : Control.Button.TouchButton(0) {
             override fun onDown() {
                 activateFlow(blackoutFlow)
+                blockNewFlows = true
             }
 
             override fun onUp() {
+                blockNewFlows = false
                 activateFlow(currentLongTermFlow)
             }
         })
@@ -278,7 +285,12 @@ class ThatShow(
                 override fun onDown() {
                     devices.forEach { device ->
                         (device as ShutterFeature).noLight()
-                        FlowManager.toggleClaimOnDevice(device)
+                        if (device.isClaimed) {
+                            FlowManager.freeDevice(device)
+                            activateFlow(currentLongTermFlow)
+                        } else {
+                            FlowManager.claimDevice(device)
+                        }
                     }
                 }
             })
