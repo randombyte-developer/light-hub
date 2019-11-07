@@ -6,6 +6,8 @@ import de.randombyte.lighthub.osc.Devices
 import de.randombyte.lighthub.qlc.QlcShowFileGenerator
 import de.randombyte.lighthub.show.ThatShow
 import de.randombyte.lighthub.show.tickables.Ticker
+import de.randombyte.lighthub.ui.LightHubApp
+import tornadofx.launch
 import java.nio.file.Paths
 import kotlin.time.ExperimentalTime
 
@@ -21,7 +23,9 @@ fun main(args: Array<String>) {
         return
     }
 
-    LightHub.run()
+    launch<LightHubApp>()
+
+    //LightHub.run()
 }
 
 @ExperimentalTime

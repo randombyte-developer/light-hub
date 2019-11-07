@@ -1,5 +1,15 @@
 # light-hub
 
+# Build requirements
+```
+sudo apt install openjdk-11-jdk openjfx
+```
+
+# Runtime requirements
+```
+sudo apt install openjdk-11-jre openjfx
+```
+
 # Pads
 
 |                   |           |               |               |
