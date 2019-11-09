@@ -13,7 +13,6 @@ import de.randombyte.lighthub.show.flows.FlowManager
 import de.randombyte.lighthub.show.flows.blackout.BlackoutFlow
 import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
 import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
-import de.randombyte.lighthub.show.flows.isClaimed
 import de.randombyte.lighthub.show.flows.manualcolor.ManualDeviceControl
 import de.randombyte.lighthub.show.flows.pantilt.PanTiltFlow
 import de.randombyte.lighthub.show.flows.rotation.RotationFlow
@@ -22,8 +21,13 @@ import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Fast
 import de.randombyte.lighthub.show.flows.strobe.StrobeFlow.Speed.Slow
 import de.randombyte.lighthub.show.tickables.Tickable
 import de.randombyte.lighthub.show.tickables.Ticker
+import de.randombyte.lighthub.ui.events.ToggledMasterEvent
+import de.randombyte.lighthub.ui.events.ToggledMasterEvent.MasterToggleDeviceCategory
+import de.randombyte.lighthub.ui.events.ToggledMasterEvent.MasterToggleDeviceCategory.*
 import de.randombyte.lighthub.utils.Ranges
 import de.randombyte.lighthub.utils.flatten
+import de.randombyte.lighthub.utils.pollForEach
+import tornadofx.FX
 import kotlin.time.ExperimentalTime
 
 /**
@@ -49,11 +53,11 @@ class ThatShow(
 ) {
 
     companion object {
-        fun createShow(akai: Akai) {
+        fun createShow(akai: Akai): ThatShow {
             val devices = Devices.createDevicesFromConfig()
 
             // todo: better
-            ThatShow(
+            return ThatShow(
                 akai,
                 devices[0] as LedBar,
                 devices[1] as LedBar,
@@ -104,10 +108,15 @@ class ThatShow(
         FlowManager.requestDevices(flow)
     }
 
+    private val masterToggle = MasterToggleDeviceCategory.values().map { it to true }.toMap().toMutableMap()
+
     init {
         registerTickables()
         registerControls()
         activateFlow(colorChangeFlow)
+
+        // cause the event [ToggledMasterEvent] to be fired to set the color in the UI
+        repeat(2) { MasterToggleDeviceCategory.values().forEach { toggleMaster(it) } }
     }
 
     private fun registerTickables() {
@@ -124,6 +133,9 @@ class ThatShow(
         Ticker.register(object : Tickable {
             override fun onTick(tick: ULong) {
                 akai.processCachedSignals()
+
+                // run Runnables which were queued by other Threads to be executed on this Thread
+                ShowThreadRunner.runnables.pollForEach { it.run() }
             }
         })
     }
@@ -284,26 +296,37 @@ class ThatShow(
 
         // master toggle
 
-        fun registerMasterToggleControl(controlName: Akai.ControlName, buttonNumber: Int, devices: List<Device>) {
+        fun registerSimpleButton(controlName: Akai.ControlName, buttonNumber: Int, onPressed: () -> Unit) {
             akai.registerControl(controlName, object : Control.Button.SimpleButton(buttonNumber) {
                 override fun onDown() {
-                    devices.forEach { device ->
-                        (device as ShutterFeature).noLight()
-                        if (device.isClaimed) {
-                            FlowManager.freeDevice(device)
-                            activateFlow(currentLongTermFlow)
-                        } else {
-                            FlowManager.claimDevice(device)
-                        }
-                    }
+                    onPressed()
                 }
             })
         }
 
-        registerMasterToggleControl(HexParsMasterToggle, 9, hexPars)
-        registerMasterToggleControl(OtherParsMasterToggle, 10, flatten(hexClones, tsssPars))
-        registerMasterToggleControl(LedBarsMasterToggle, 11, ledBars)
-        registerMasterToggleControl(QuadsMasterToggle, 12, quadPhases)
-        registerMasterToggleControl(ScannerMasterToggle, 13, scanners)
+        registerSimpleButton(HexParsMasterToggle, 9) { toggleMaster(HexPars) }
+        registerSimpleButton(OtherParsMasterToggle, 10) { toggleMaster(OtherPars) }
+        registerSimpleButton(LedBarsMasterToggle, 11) { toggleMaster(LedBars) }
+        registerSimpleButton(QuadsMasterToggle, 12) { toggleMaster(Quads) }
+        registerSimpleButton(ScannerMasterToggle, 13) { toggleMaster(Scanners) }
+    }
+
+    fun toggleMaster(deviceCategory: MasterToggleDeviceCategory) {
+        masterToggle[deviceCategory] = !masterToggle.getValue(deviceCategory)
+        val activated = masterToggle.getValue(deviceCategory)
+
+        lights
+            .filter { it.type in deviceCategory.types }
+            .forEach { device ->
+                (device as ShutterFeature).noLight()
+                if (activated) {
+                    FlowManager.freeDevice(device)
+                    activateFlow(currentLongTermFlow)
+                } else {
+                    FlowManager.claimDevice(device)
+                }
+        }
+
+        FX.eventbus.fire(ToggledMasterEvent(activated, deviceCategory))
     }
 }

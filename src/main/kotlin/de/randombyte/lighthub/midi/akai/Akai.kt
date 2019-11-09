@@ -3,6 +3,7 @@ package de.randombyte.lighthub.midi.akai
 import de.randombyte.lighthub.midi.MidiHandler
 import de.randombyte.lighthub.midi.Signal
 import de.randombyte.lighthub.midi.akai.Control.Button.TouchButton
+import de.randombyte.lighthub.utils.pollForEach
 import java.util.concurrent.ConcurrentLinkedQueue
 import javax.sound.midi.*
 
@@ -40,9 +41,9 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         HexParsMasterToggle, OtherParsMasterToggle, LedBarsMasterToggle, QuadsMasterToggle, ScannerMasterToggle
     }
 
-    private val controls: MutableMap<ControlName, Control> = mutableMapOf()
+    private val controls = mutableMapOf<ControlName, Control>()
 
-    private val signalsCache: ConcurrentLinkedQueue<Signal> = ConcurrentLinkedQueue<Signal>()
+    private val signalsCache = ConcurrentLinkedQueue<Signal>()
 
     override fun open(): Boolean {
         if (!super.open()) return false
@@ -78,12 +79,9 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
     }
 
     fun processCachedSignals() {
-        var signal: Signal? = signalsCache.poll()
-
-        while (signal != null) {
+        signalsCache.pollForEach { signal ->
             val control = findControl(signal)
             control?.update(signal.value)
-            signal = signalsCache.poll()
         }
     }
 

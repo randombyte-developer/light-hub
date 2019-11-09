@@ -1,5 +1,7 @@
 package de.randombyte.lighthub.utils
 
+import java.util.*
+
 // this function exists because for some reason the kotlin compiler can't infer the type when a generic is used
 fun <T> flatten(vararg objects: List<T>) = objects.toList().flatten()
 
@@ -9,4 +11,12 @@ inline fun <reified A, reified B> List<*>.requireInstanceOf(): List<A> {
     }
 
     return this as List<A>
+}
+
+fun <T : Any?> Queue<T>.pollForEach(action: (T) -> Unit) {
+    var obj: T? = poll()
+    while (obj != null) {
+        action(obj)
+        obj = poll()
+    }
 }
