@@ -115,7 +115,7 @@ class ThatShow(
         registerControls()
         activateFlow(colorChangeFlow)
 
-        // cause the event [ToggledMasterEvent] to be fired to set the color in the UI
+        // cause the event ToggledMasterEvent to be fired to set the color in the UI
         repeat(2) { MasterToggleDeviceCategory.values().forEach { toggleMaster(it) } }
     }
 
@@ -173,7 +173,7 @@ class ThatShow(
             }
         })
 
-        akai.registerControl(ColorChangeTempoFader, object : Control.Potentiometer(11) {
+        akai.registerControl(TempoFader, object : Control.Potentiometer(11) {
             override fun onUpdate() {
                 val bpm = Ranges.mapRange(
                     from = Ranges.MIDI_RANGE,

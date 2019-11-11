@@ -22,8 +22,8 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 class MainView : View("LightHub") {
 
-    lateinit var hexParsLabel: Label
-    lateinit var otherParsLabel: Label
+    private lateinit var hexParsLabel: Label
+    private lateinit var otherParsLabel: Label
     private lateinit var barsLabel: Label
     private lateinit var quadsLabel: Label
     private lateinit var scannersLabel: Label
