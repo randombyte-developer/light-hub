@@ -6,7 +6,9 @@ import org.redundent.kotlin.xml.PrintOptions
 import org.redundent.kotlin.xml.xml
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 object QlcShowFileGenerator {
 
     const val VC_WIDTH = 1920

@@ -1,41 +1,48 @@
 package de.randombyte.lighthub.show.flows
 
+import de.randombyte.lighthub.config.GlobalConfigs
 import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.show.tickables.Tickable
 import kotlin.time.ExperimentalTime
 
 /**
- * A [Flow] takes control over some devices. It uses the features (-interfaces) of the devices to control them. A device
- * can only be used by one Flow at a time. A Flow can only use a subset of [assignedDevices]: Only the ones which are
- * currently in use are in [usedDevices]. A Flow gets its [usedDevices] assigned from the [FlowManager].
+ * A [Flow] takes control over some devices. It uses the features (-interfaces) of the devices to control them.
+ * A Flow can only use a subset of [acceptedDevices]: Only the ones which are  currently in use are in [usedDevices].
+ * A Flow gets its [usedDevices] assigned by the [FlowManager].
  *
- * @param assignedDevices are the devices which the Flow is designed to use
+ * @param acceptedDevices are the devices which the Flow is designed to use
  * @param usedDevices are the devices which are currently in use, this list will vary in size during runtime, it will
- *      only contain devices which are in [assignedDevices]
+ *      only contain devices which are also in acceptedDevices
  */
 @ExperimentalTime
-open class Flow<T>(val assignedDevices: List<T>, val usedDevices: MutableList<T> = assignedDevices.toMutableList()) : Tickable {
+open class Flow<T>(val acceptedDevices: List<T>, val usedDevices: MutableList<T> = acceptedDevices.toMutableList()) : Tickable {
+
     init {
-        require(assignedDevices.all { it is Device }) { "List 'assignedDevices' must only contain objects of type Device!" }
+        require(acceptedDevices.all { it is Device }) { "List 'acceptedDevices' must only contain objects of type Device!" }
     }
 
-    open fun onResume() {
-        usedDevices.forEach { onDeviceResume(it) }
+    override fun onActivate() {
+        usedDevices.forEach { onActivate(it) }
     }
 
     override fun onTick(tick: ULong) {
-        usedDevices.forEach { onDeviceTick(tick, it) }
+        usedDevices.forEach { onTick(tick, it) }
     }
 
     override fun onBeat(beat: ULong) {
-        usedDevices.forEach { onDeviceBeat(beat, it) }
+        usedDevices.forEach { onBeat(beat, it) }
     }
 
-    open fun onDeviceResume(device: T) {}
-    open fun onDeviceTick(tick: ULong, device: T) {}
-    open fun onDeviceBeat(beat: ULong, device: T) {}
+    open fun onActivate(device: T) {}
+    open fun onTick(tick: ULong, device: T) {}
+    open fun onBeat(beat: ULong, device: T) {}
 
-    fun offerDevices(canBeUsed: (Device) -> Boolean) {
-        usedDevices.addAll(assignedDevices.filter { canBeUsed(it as Device) })
-    }
+    inline fun <reified C : AutoPatternsConfig> getTicksUntilNextChange(tick: ULong, device: Device) =
+        getTicksUntilNextChange(tick, device, device.type.getCurrentMasterFlowConfig<C>().config)
+
+    inline fun <reified C : AutoPatternsConfig> getIntervalTicks(device: Device) =
+        device.type.getCurrentMasterFlowConfig<C>().config.interval * GlobalConfigs.general.config.`ticks-per-beat`
+
+    inline fun <reified C : AutoPatternsConfig> getPercentUntilNextChange(tick: ULong, device: Device) =
+        getTicksUntilNextChange<C>(tick, device) / getIntervalTicks<C>(device)
 }

@@ -9,9 +9,11 @@ import io.github.config4k.readers.SelectReader
 import io.github.config4k.toConfig
 import java.io.File
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
+import kotlin.time.ExperimentalTime
 
 val CONFIG_PATH = Paths.get("config")
 
@@ -30,6 +32,10 @@ open class ConfigHolder<T : Any>(val clazz: KClass<T>, val name: String, val fil
 
     private val genericType = object : TypeReference<T>() {}
 
+    init {
+        reload()
+    }
+
     fun reload() {
         val config = ConfigFactory.parseFile(file)
         val result = SelectReader.getReader(ClassContainer(clazz, genericType.genericType()))(config, name) ?: clazz.createInstance()
@@ -44,11 +50,10 @@ open class ConfigHolder<T : Any>(val clazz: KClass<T>, val name: String, val fil
     }
 }
 
-inline fun <reified T : Any> createConfigHolder(folder: String, name: String): ConfigHolder<T> {
-    val configPath = CONFIG_PATH.resolve(folder)
-    if (Files.notExists(configPath)) Files.createDirectories(configPath)
-
-    return ConfigHolder(T::class, name, configPath.resolve("$name.conf").toFile())
+inline fun <reified T : Any> createConfigHolder(folder: Path, name: String): ConfigHolder<T> {
+    if (Files.notExists(folder)) Files.createDirectories(folder)
+    return ConfigHolder(T::class, name, folder.resolve("$name.conf").toFile())
 }
 
-inline fun <reified T : Any> Device.Type<*>.createConfigHolder(name: String): ConfigHolder<T> = createConfigHolder(id, name)
+@ExperimentalTime
+inline fun <reified T : Any> Device.Type<*>.createConfigHolder(name: String): ConfigHolder<T> = createConfigHolder(configPath, name)

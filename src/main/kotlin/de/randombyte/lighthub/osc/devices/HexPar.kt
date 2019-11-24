@@ -5,19 +5,20 @@ import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.*
-import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature.DimmableComponentsColorAutoPatternsConfig
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedsConfig
 import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.RgbwauvConfig
 import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 class HexPar(number: Int, dmxAddress: Int) : Device(
     type = Companion,
     number = number,
     dmxAddress = dmxAddress
 ), RgbwauvFeatureImpl, MasterDimmerFeatureImpl, StrobeFeatureImpl {
 
-    companion object : Type<HexPar>, RgbwauvFeature.Config, StrobeFeature.Config {
+    companion object : Type<HexPar>(), RgbwauvFeature.Config, StrobeFeature.Config {
         override val clazz = HexPar::class
         override val constructor = ::HexPar
         override val id = "hex-par"
@@ -26,9 +27,8 @@ class HexPar(number: Int, dmxAddress: Int) : Device(
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colors = createConfigHolder<RgbwauvConfig>(Color.Config.FILE_NAME)
         override val colorSetsConfig = createConfigHolder<ColorSetsConfig>(ColorSetsConfig.FILE_NAME)
-        override val colorAutoPatterns = createConfigHolder<DimmableComponentsColorAutoPatternsConfig>(DimmableComponentsColorAutoPatternsConfig.FILE_NAME)
         override val strobeSpeeds = createConfigHolder<StrobeSpeedsConfig>(StrobeSpeedsConfig.FILE_NAME)
-        override val configs = listOf(colors, colorSetsConfig, colorAutoPatterns, strobeSpeeds)
+        override val configs = listOf(colors, colorSetsConfig, strobeSpeeds)
 
         private const val OSC_PROGRAM_DIMMING_MODE = 0
         private const val OSC_SHUTTER_LED_ON = 32

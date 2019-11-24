@@ -10,7 +10,7 @@ import javax.sound.midi.*
 /**
  * Specifically the Akai MPD26. The listener will only react to the special SysEx messages enabled with [enableSpecialMode].
  */
-class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, outDevice) {
+class Akai(inDevice: MidiDevice, outDevice: MidiDevice, val onClose: () -> Unit) : MidiHandler(inDevice, outDevice) {
 
     companion object {
         const val NAME = "MPD26"
@@ -20,13 +20,13 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
         private const val MIDI_ON = 0x90.toByte()
         private const val MIDI_OFF = 0x80.toByte()
 
-        fun findBestMatch(): Akai? = try {
+        fun findBestMatch(onClose: () -> Unit): Akai? = try {
             val devices = MidiSystem.getMidiDeviceInfo().map { MidiSystem.getMidiDevice(it) }
 
             val inDevice = devices.firstOrNull { "MidiInDevice" in it.javaClass.simpleName && NAME in it.deviceInfo.name }
             val outDevice = devices.firstOrNull { "MidiOutDevice" in it.javaClass.simpleName && NAME in it.deviceInfo.name }
 
-            if (inDevice != null && outDevice != null) Akai(inDevice, outDevice) else null
+            if (inDevice != null && outDevice != null) Akai(inDevice, outDevice, onClose) else null
         } catch (ex: MidiUnavailableException) {
             null
         }
@@ -73,7 +73,7 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice) : MidiHandler(inDevice, 
             }
 
             override fun close() {
-                println("Closing")
+                onClose()
             }
         }
     }

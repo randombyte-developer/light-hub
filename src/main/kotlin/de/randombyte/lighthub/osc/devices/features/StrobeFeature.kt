@@ -5,7 +5,9 @@ import de.randombyte.lighthub.osc.OscChannel
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature.Companion.STROBE_SPEED_RANGE
 import de.randombyte.lighthub.utils.coerceIn
 import de.randombyte.lighthub.utils.length
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 interface StrobeFeature : Feature {
     companion object {
         val STROBE_SPEED_RANGE = 0.0..1.0
@@ -36,6 +38,7 @@ interface StrobeFeature : Feature {
     }
 }
 
+@ExperimentalTime
 interface StrobeFeatureImpl : StrobeFeature {
     val oscStrobeSpeed: OscChannel
 

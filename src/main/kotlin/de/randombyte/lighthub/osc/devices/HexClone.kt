@@ -5,18 +5,20 @@ import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.*
-import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature.DimmableComponentsColorAutoPatternsConfig
 import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.RgbwauvConfig
 import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 class HexClone(number: Int, dmxAddress: Int) : Device(
         type = Companion,
         number = number,
         dmxAddress = dmxAddress
 ), RgbwauvFeatureImpl, MasterDimmerFeatureImpl, StrobeFeatureImpl {
 
-    companion object : Type<HexClone>, RgbwauvFeature.Config, StrobeFeature.Config {
+    @ExperimentalTime
+    companion object : Type<HexClone>(), RgbwauvFeature.Config, StrobeFeature.Config {
         override val clazz = HexClone::class
         override val constructor = ::HexClone
         override val id = "hex-clone"
@@ -25,9 +27,8 @@ class HexClone(number: Int, dmxAddress: Int) : Device(
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colors = createConfigHolder<RgbwauvConfig>(Color.Config.FILE_NAME)
         override val colorSetsConfig = createConfigHolder<ColorSetsConfig>(ColorSetsConfig.FILE_NAME)
-        override val colorAutoPatterns = createConfigHolder<DimmableComponentsColorAutoPatternsConfig>(DimmableComponentsColorAutoPatternsConfig.FILE_NAME)
         override val strobeSpeeds = createConfigHolder<StrobeFeature.StrobeSpeedsConfig>(StrobeFeature.StrobeSpeedsConfig.FILE_NAME)
-        override val configs = listOf(colors, colorSetsConfig, colorAutoPatterns, strobeSpeeds)
+        override val configs = listOf(colors, colorSetsConfig, strobeSpeeds)
     }
 
     override val oscMasterDimmer = createOscChannel("master-dimmer", 0)

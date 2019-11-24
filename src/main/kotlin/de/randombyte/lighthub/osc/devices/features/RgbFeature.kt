@@ -6,7 +6,9 @@ import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.Rgb
 import de.randombyte.lighthub.osc.devices.features.colors.RgbConfig
 import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 interface RgbFeature : DimmableComponentsColorFeature {
     override fun getColor(): Rgb
 
@@ -19,6 +21,7 @@ interface RgbFeature : DimmableComponentsColorFeature {
     }
 }
 
+@ExperimentalTime
 interface RgbFeatureImpl : RgbFeature {
     val oscRed: OscChannel
     val oscGreen: OscChannel

@@ -20,3 +20,5 @@ fun <T : Any?> Queue<T>.pollForEach(action: (T) -> Unit) {
         obj = poll()
     }
 }
+
+fun List<*>.containsIgnoreType(element: Any) = contains(element)

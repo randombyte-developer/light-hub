@@ -6,7 +6,9 @@ import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.Rgbw
 import de.randombyte.lighthub.osc.devices.features.colors.RgbwConfig
 import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 interface RgbwFeature : RgbFeature {
     override fun getColor(): Rgbw
 
@@ -19,12 +21,13 @@ interface RgbwFeature : RgbFeature {
     }
 }
 
+@ExperimentalTime
 interface RgbwFeatureImpl : RgbwFeature, RgbFeatureImpl {
     val oscWhite: OscChannel
 
     override fun getColor() = Rgbw.new(super.getColor(), w = oscWhite.lastValue)
     override fun setColor(color: Color) {
-        super.setColor(color)
+        super<RgbFeatureImpl>.setColor(color)
         if (color is Rgbw) oscWhite.sendValue(color.white)
     }
 }

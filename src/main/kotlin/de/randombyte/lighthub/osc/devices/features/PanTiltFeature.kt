@@ -3,32 +3,32 @@ package de.randombyte.lighthub.osc.devices.features
 import de.randombyte.lighthub.config.ConfigHolder
 import de.randombyte.lighthub.osc.OscChannel
 import de.randombyte.lighthub.osc.devices.features.PanTiltFeature.Position
-import de.randombyte.lighthub.show.tickables.AutoPatternsConfig
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 interface PanTiltFeature : Feature {
     class Position(val pan: Int, val tilt: Int)
 
     var position: Position
 
-    open class PanTiltAutoPatternsConfig(
-        `change-every-n-beats`: Int = 4,
-        `change-beats-offset`: Int = 0,
+    open class PanTiltBoundsConfig(
         val `pan-min`: Int = 50,
         val `pan-max`: Int = 200,
         val `tilt-min`: Int = 50,
         val `tilt-max`: Int = 200
-    ) : AutoPatternsConfig(`change-every-n-beats`, `change-beats-offset`) {
+    ) {
         companion object {
-            const val FILE_NAME = "pan-tilt-auto-pattern"
+            const val FILE_NAME = "pan-tilt-bounds"
         }
     }
 
-    val panTiltAutoPatterns get() = (type as Config).panTiltAutoPatterns.config
+    val panTiltBounds get() = (type as Config).panTiltBounds.config
     interface Config {
-        val panTiltAutoPatterns: ConfigHolder<out PanTiltAutoPatternsConfig>
+        val panTiltBounds: ConfigHolder<out PanTiltBoundsConfig>
     }
 }
 
+@ExperimentalTime
 interface PanTiltFeatureImpl : PanTiltFeature {
     val oscPan: OscChannel
     val oscTilt: OscChannel

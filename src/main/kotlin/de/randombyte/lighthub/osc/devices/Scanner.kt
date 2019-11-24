@@ -5,18 +5,21 @@ import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.*
-import de.randombyte.lighthub.osc.devices.features.ColorFeature.ColorAutoPatternsConfig
-import de.randombyte.lighthub.osc.devices.features.PanTiltFeature.PanTiltAutoPatternsConfig
+import de.randombyte.lighthub.osc.devices.features.PanTiltFeature.PanTiltBoundsConfig
 import de.randombyte.lighthub.osc.devices.features.colors.ScannerColor
 import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
+import de.randombyte.lighthub.show.flows.pantilt.PanTiltAutoPatternsConfig
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 class Scanner(number: Int, dmxAddress: Int) : Device(
     type = Companion,
     number = number,
     dmxAddress = dmxAddress
 ), FixedColorFeatureImpl, ShutterFeatureImpl, PanTiltFeatureImpl {
 
-    companion object : Type<Scanner>, ColorFeature.Config, PanTiltFeature.Config {
+    @ExperimentalTime
+    companion object : Type<Scanner>(), ColorFeature.Config, PanTiltFeature.Config {
         override val clazz = Scanner::class
         override val constructor = ::Scanner
         override val id = "adj-scanner"
@@ -24,9 +27,8 @@ class Scanner(number: Int, dmxAddress: Int) : Device(
 
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colorSetsConfig = createConfigHolder<ColorSetsConfig>(ColorSetsConfig.FILE_NAME)
-        override val colorAutoPatterns = createConfigHolder<ColorAutoPatternsConfig>(ColorAutoPatternsConfig.FILE_NAME)
-        override val panTiltAutoPatterns = createConfigHolder<PanTiltAutoPatternsConfig>(PanTiltAutoPatternsConfig.FILE_NAME)
-        override val configs = listOf(colorSetsConfig, colorAutoPatterns, panTiltAutoPatterns)
+        override val panTiltBounds = createConfigHolder<PanTiltBoundsConfig>(PanTiltAutoPatternsConfig.FILE_NAME)
+        override val configs = listOf(colorSetsConfig, panTiltBounds)
 
         private const val OSC_GOBO_OPEN = 0
     }
@@ -39,6 +41,11 @@ class Scanner(number: Int, dmxAddress: Int) : Device(
 
     override val colors = ScannerColor.colors
 
+    override fun fullIntensity() {
+        super.fullIntensity()
+        oscGoboSelection.sendValue(OSC_GOBO_OPEN) // resend this to be sure that the Gobo is reset
+    }
+
     override val oscChannelList = OscChannelList(
         oscPan,
         oscTilt,
@@ -46,8 +53,4 @@ class Scanner(number: Int, dmxAddress: Int) : Device(
         oscGoboSelection,
         oscShutter
     )
-
-    init {
-        oscGoboSelection.sendValue(OSC_GOBO_OPEN)
-    }
 }

@@ -5,19 +5,21 @@ import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.*
-import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature.DimmableComponentsColorAutoPatternsConfig
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedsConfig
 import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.RgbwConfig
 import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 class TsssPar(number: Int, dmxAddress: Int) : Device(
     type = Companion,
     number = number,
     dmxAddress = dmxAddress
 ), RgbwFeatureImpl, MasterDimmerFeatureImpl, StrobeFeatureImpl {
 
-    companion object : Type<TsssPar>, RgbwFeature.Config, StrobeFeature.Config {
+    @ExperimentalTime
+    companion object : Type<TsssPar>(), RgbwFeature.Config, StrobeFeature.Config {
         override val clazz = TsssPar::class
         override val constructor = ::TsssPar
         override val id = "tsss-par"
@@ -26,9 +28,8 @@ class TsssPar(number: Int, dmxAddress: Int) : Device(
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colors = createConfigHolder<RgbwConfig>(Color.Config.FILE_NAME)
         override val colorSetsConfig = createConfigHolder<ColorSetsConfig>(ColorSetsConfig.FILE_NAME)
-        override val colorAutoPatterns = createConfigHolder<DimmableComponentsColorAutoPatternsConfig>(DimmableComponentsColorAutoPatternsConfig.FILE_NAME)
         override val strobeSpeeds = createConfigHolder<StrobeSpeedsConfig>(StrobeSpeedsConfig.FILE_NAME)
-        override val configs = listOf(colors, colorSetsConfig, colorAutoPatterns, strobeSpeeds)
+        override val configs = listOf(colors, colorSetsConfig, strobeSpeeds)
 
         private const val OSC_MODE_DIMMING = 0
         private val OSC_MODE_STROBE_RANGE = 103..255

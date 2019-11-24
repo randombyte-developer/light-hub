@@ -1,23 +1,71 @@
-package de.randombyte.lighthub.osc
+package de.randombyte.lighthub.show
 
+import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.devices.*
 import de.randombyte.lighthub.osc.devices.features.ColorFeature
 import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature
 import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
 import de.randombyte.lighthub.utils.Ranges
+import de.randombyte.lighthub.utils.flatten
 import de.randombyte.lighthub.utils.intersects
+import kotlin.reflect.KMutableProperty0
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
-object Devices {
-    fun createDevicesFromConfig(): List<Device> {
-        val (ledBar1, ledBar2) = createDeviceFromConfig(2, LedBar)
-        val (tsssPar1, tsssPar2) = createDeviceFromConfig(2, TsssPar)
-        val (hexPar1, hexPar2) = createDeviceFromConfig(2, HexPar)
-        val (hexClone1, hexClone2) = createDeviceFromConfig(2, HexClone)
-        val (quadPhase1, quadPhase2) = createDeviceFromConfig(2, QuadPhase)
-        val (scanner1, scanner2, scanner3, scanner4) = createDeviceFromConfig(4, Scanner)
+object DevicesManager {
+    lateinit var ledBar1: LedBar
+    lateinit var ledBar2: LedBar
 
+    lateinit var tsssPar1: TsssPar
+    lateinit var tsssPar2: TsssPar
+
+    lateinit var hexPar1: HexPar
+    lateinit var hexPar2: HexPar
+
+    lateinit var hexClone1: HexClone
+    lateinit var hexClone2: HexClone
+
+    lateinit var quadPhase1: QuadPhase
+    lateinit var quadPhase2: QuadPhase
+
+    lateinit var scanner1: Scanner
+    lateinit var scanner2: Scanner
+    lateinit var scanner3: Scanner
+    lateinit var scanner4: Scanner
+
+    val ledBars get() = listOf(ledBar1, ledBar2)
+    val tsssPars get() = listOf(tsssPar1, tsssPar2)
+    val hexPars get() = listOf(hexPar1, hexPar2)
+    val hexClones get() = listOf(hexClone1, hexClone2)
+    val quadPhases get() = listOf(quadPhase1, quadPhase2)
+    val scanners get() = listOf(scanner1, scanner2, scanner3, scanner4)
+
+    val pars get() = flatten<DimmableComponentsColorFeature>(tsssPars, hexPars, hexClones)
+    val lights get() = flatten<Device>(ledBars, tsssPars, hexPars, hexClones, quadPhases, scanners)
+
+    fun init() {
+        createDeviceFromConfig(LedBar, ::ledBar1, ::ledBar2)
+        createDeviceFromConfig(TsssPar, ::tsssPar1, ::tsssPar2)
+        createDeviceFromConfig(HexPar, ::hexPar1, ::hexPar2)
+        createDeviceFromConfig(HexClone, ::hexClone1, ::hexClone2)
+        createDeviceFromConfig(QuadPhase, ::quadPhase1, ::quadPhase2)
+        createDeviceFromConfig(Scanner, ::scanner1, ::scanner2, ::scanner3, ::scanner4)
+
+        checkDevicesConfigurations()
+    }
+
+    private fun <T : Device> createDeviceFromConfig(type: Device.Type<T>, vararg fields: KMutableProperty0<T>) {
+        val addresses = type.metaConfig.config.addresses
+        if (addresses.size != fields.size) {
+            throw RuntimeException("Exactly ${fields.size} addresses are needed for ${type.id}! ${addresses.size} addresses are set.")
+        }
+
+        addresses.forEachIndexed { index, address ->
+            fields[index].set(type.constructor(index, address))
+        }
+    }
+
+    private fun checkDevicesConfigurations() {
         val dimmableLights = listOf(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2, hexClone1, hexClone2)
         val quadPhases = listOf(quadPhase1, quadPhase2)
         val scanners = listOf(scanner1, scanner2, scanner3, scanner4)
@@ -29,22 +77,6 @@ object Devices {
         checkColorSets(devices)
         checkColorBounds(dimmableLights as List<DimmableComponentsColorFeature>)
         checkPanTiltBounds(scanners)
-
-        return listOf(ledBar1, ledBar2, tsssPar1, tsssPar2, hexPar1, hexPar2, hexClone1, hexClone2,
-            quadPhase1, quadPhase2, scanner1, scanner2, scanner3, scanner4)
-    }
-
-    private fun <T : Device> createDeviceFromConfig(amount: Int, type: Device.Type<T>): List<T> {
-        type.metaConfig.reload()
-        type.reloadConfigs()
-
-        val addresses = type.metaConfig.config.addresses
-        if (addresses.size != amount) {
-            throw RuntimeException("Exactly $amount addresses are needed for ${type.id}! ${addresses.size} addresses are set.")
-        }
-
-        val devices = addresses.mapIndexed { index, address -> type.constructor(index, address) }
-        return devices
     }
 
     private fun checkChannels(devices: List<Device>) {
@@ -108,7 +140,7 @@ object Devices {
 
     private fun checkPanTiltBounds(devices: List<Scanner>) {
         devices.forEach { device ->
-            with (device.panTiltAutoPatterns) {
+            with (device.panTiltBounds) {
                 require(`pan-min` <= `pan-max`) { "[${device.type.id}] pan-min must be smaller than or equal to pan-max!" }
                 require(`tilt-min` <= `tilt-max`) { "[${device.type.id}] tilt-min must be smaller than or equal to tilt-max!" }
             }

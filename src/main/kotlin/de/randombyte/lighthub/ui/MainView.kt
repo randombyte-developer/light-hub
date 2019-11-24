@@ -1,8 +1,6 @@
 package de.randombyte.lighthub.ui
 
-import de.randombyte.lighthub.midi.akai.Akai
-import de.randombyte.lighthub.show.ShowThreadRunner
-import de.randombyte.lighthub.show.ThatShow
+import de.randombyte.lighthub.show.*
 import de.randombyte.lighthub.show.tickables.Ticker
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent.MasterToggleDeviceCategory.*
@@ -42,8 +40,6 @@ class MainView : View("LightHub") {
 
     private lateinit var asyncTask: Task<*>
 
-    private lateinit var show: ThatShow
-
     override val root = vbox {
         hbox {
             hexParsLabel = squareLabelWithCenteredText("Hex")
@@ -72,12 +68,15 @@ class MainView : View("LightHub") {
         addEventFilter(KeyEvent.KEY_PRESSED) { event ->
             ShowThreadRunner.runLater {
                 when (event.code.char) {
-                    "1" -> show.toggleMaster(HexPars)
-                    "2" -> show.toggleMaster(OtherPars)
-                    "3" -> show.toggleMaster(LedBars)
-                    "4" -> show.toggleMaster(Quads)
-                    "5" -> show.toggleMaster(Scanners)
+                    "1" -> ThatShow.toggleMaster(HexPars)
+                    "2" -> ThatShow.toggleMaster(OtherPars)
+                    "3" -> ThatShow.toggleMaster(LedBars)
+                    "4" -> ThatShow.toggleMaster(Quads)
+                    "5" -> ThatShow.toggleMaster(Scanners)
                 }
+
+                val masterFlow = ThatShow.masterFlowsKeyboardMapping[event.code.char]
+                if (masterFlow != null) MasterFlowManager.activate(masterFlow)
             }
         }
     }
@@ -85,21 +84,15 @@ class MainView : View("LightHub") {
     override fun onDock() {
         root.requestFocus()
 
-         asyncTask = runAsync {
-            val akai = Akai.findBestMatch()
-            if (akai == null) {
+        asyncTask = runAsync {
+            if (!AkaiControls.init()) {
                 runLater {
                     statusLabel.text = "Akai not found!"
                 }
             } else {
-                if (!akai.open()) {
-                    runLater {
-                        statusLabel.text("Akai interface couldn't be opened!")
-                    }
-                } else {
-                    show = ThatShow.createShow(akai)
-                    Ticker.runBlocking()
-                }
+                DevicesManager.init()
+                ThatShow.init()
+                Ticker.runBlocking()
             }
         }
     }

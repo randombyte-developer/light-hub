@@ -1,10 +1,8 @@
 package de.randombyte.lighthub.show.flows.colorchanger
 
-import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.osc.devices.features.colors.DimmableComponentsColor
 import de.randombyte.lighthub.show.flows.Flow
-import de.randombyte.lighthub.utils.multipleOf
 import kotlin.math.roundToInt
 import kotlin.time.ExperimentalTime
 
@@ -22,37 +20,35 @@ class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices
 
     private var dimmableColorGoals = mutableMapOf<DimmableComponentsColorFeature, DimmableComponentsColor>()
 
-    override fun onResume() {
-        usedDevices.forEach { device ->
-            (device as? StrobeFeature)?.noStrobe()
+    override fun onActivate(device: ColorFeature) {
+        (device as? StrobeFeature)?.noStrobe()
 
-            // directly set a color when resuming
-            val colorId = colorSetSelector(device.colorSets).random()
-            if (colorId == NONE_COLOR_ID) {
-                (device as? ShutterFeature)?.noLight()
-                return@forEach
-            }
-
-            (device as? ShutterFeature)?.fullIntensity()
-
-            // instantly change color, no transition
-            device.setColor(device.colors.getValue(colorId))
-
-            // delete all goals to prevent the instant change from being overwritten with old goals
-            dimmableColorGoals.clear()
+        // directly set a color when resuming
+        val colorId = colorSetSelector(device.colorSets).random()
+        if (colorId == NONE_COLOR_ID) {
+            (device as? ShutterFeature)?.noLight()
+            return
         }
+
+        (device as? ShutterFeature)?.fullIntensity()
+
+        // instantly change color, no transition
+        device.setColor(device.colors.getValue(colorId))
+
+        // delete all goals to prevent the instant change from being overwritten with old goals
+        dimmableColorGoals.clear()
     }
 
     override fun onBeat(beat: ULong) {
         ticksSinceLastBeat = 0
 
         usedDevices.forEach { device ->
-            with(device.colorAutoPatterns) {
+            /*with(device.colorAutoPatterns) {
                 val specificDeviceOffset = `change-beats-offset` * (device as Device).number
                 if ((beat + specificDeviceOffset.toUInt()).multipleOf(`change-every-n-beats`)) {
                     changeColor(device)
                 }
-            }
+            }*/
         }
     }
 
