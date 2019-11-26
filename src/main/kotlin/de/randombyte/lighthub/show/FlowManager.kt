@@ -1,27 +1,17 @@
 package de.randombyte.lighthub.show
 
 import de.randombyte.lighthub.osc.Device
-import de.randombyte.lighthub.show.DevicesManager.hexClones
-import de.randombyte.lighthub.show.DevicesManager.hexPars
-import de.randombyte.lighthub.show.DevicesManager.ledBars
-import de.randombyte.lighthub.show.DevicesManager.quadPhases
-import de.randombyte.lighthub.show.DevicesManager.scanners
-import de.randombyte.lighthub.show.DevicesManager.tsssPars
 import de.randombyte.lighthub.show.flows.Flow
 import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
+import de.randombyte.lighthub.show.flows.intensity.IntensityFlow
 import de.randombyte.lighthub.show.flows.pantilt.PanTiltFlow
 import de.randombyte.lighthub.show.flows.rotation.RotationFlow
 import de.randombyte.lighthub.utils.containsIgnoreType
-import de.randombyte.lighthub.utils.flatten
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
 object FlowManager {
-    val colorChangeFlow = ColorChangerFlow(flatten(ledBars, tsssPars, hexPars, hexClones, quadPhases, scanners))
-    val rotationFlow = RotationFlow(quadPhases)
-    val panTiltFlow = PanTiltFlow(scanners)
-
-    private val flows = mutableSetOf<Flow<*>>()
+    val flows = setOf<Flow<*>>(ColorChangerFlow, RotationFlow, PanTiltFlow, IntensityFlow)
 
     private val lockedDevices = mutableListOf<Device>()
 

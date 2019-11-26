@@ -10,11 +10,7 @@ import de.randombyte.lighthub.show.DevicesManager.lights
 import de.randombyte.lighthub.show.DevicesManager.quadPhases
 import de.randombyte.lighthub.show.DevicesManager.scanners
 import de.randombyte.lighthub.show.DevicesManager.tsssPars
-import de.randombyte.lighthub.show.FlowManager.colorChangeFlow
-import de.randombyte.lighthub.show.FlowManager.panTiltFlow
-import de.randombyte.lighthub.show.FlowManager.rotationFlow
 import de.randombyte.lighthub.show.events.SelectedColorSet
-import de.randombyte.lighthub.show.masterflows.OneLightOnly
 import de.randombyte.lighthub.show.strobe.Strobe
 import de.randombyte.lighthub.show.tickables.Tickable
 import de.randombyte.lighthub.show.tickables.Ticker
@@ -36,26 +32,22 @@ object ThatShow : Controller() {
 
     val deviceCategoryMasterActivated = MasterToggleDeviceCategory.values().map { it to true }.toMap().toMutableMap()
 
-    val masterFlowsKeyboardMapping = mapOf(
-        "G" to OneLightOnly
-    )
+
 
     fun init() {
         registerTickables()
         subscribeToEvents()
 
-        MasterFlowManager.activate(masterFlowsKeyboardMapping.getValue("G"))
+        MasterFlowManager.activate(KeyboardControls.masterFlows.getValue("G"))
 
         // cause the event ToggledMasterEvent to be fired to set the color in the UI
         repeat(2) { MasterToggleDeviceCategory.values().forEach { toggleMaster(it) } }
     }
 
     private fun registerTickables() {
-        Ticker.register(colorChangeFlow)
-        Ticker.register(rotationFlow)
-        Ticker.register(panTiltFlow)
+        FlowManager.flows.forEach { Ticker.register(it) }
 
-        masterFlowsKeyboardMapping.values.forEach { Ticker.register(it) }
+        KeyboardControls.masterFlows.values.forEach { Ticker.register(it) }
 
         Ticker.register(object : Tickable {
             override fun onTick(tick: ULong) {

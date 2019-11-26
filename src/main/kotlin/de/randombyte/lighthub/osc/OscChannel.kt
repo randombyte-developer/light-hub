@@ -41,9 +41,9 @@ open class OscChannel(val path: String, val relativeDmxAddress: Int) {
     class OscDimmedChannel(path: String, relativeDmxAddress: Int, val masterDimmer: () -> Int) : OscChannel(path, relativeDmxAddress) {
         override fun sendValue(value: Int): Int {
             val coercedValue = value.coerceIn(DMX_RANGE, "Sending DMX value to OscDimmedChannel")
-            val dimmedValue = (masterDimmer() / DMX_RANGE.last) * coercedValue
+            val dimmedValue = (masterDimmer() / DMX_RANGE.last.toDouble()) * coercedValue
 
-            Osc.send(path, dimmedValue)
+            Osc.send(path, dimmedValue.toInt())
             lastValue = coercedValue
 
             return coercedValue
@@ -55,7 +55,7 @@ fun Receiver.createOscChannel(path: String, relativeDmxAddress: Int) = OscChanne
 
 fun Receiver.createOscDimmedChannel(path: String, relativeDmxAddress: Int, masterDimmer: () -> Int) = OscDimmedChannel("/$oscBasePath/$path", relativeDmxAddress, masterDimmer)
 
-class OscChannelList(vararg val channels: OscChannel) {
+class OscChannelList(vararg channels: OscChannel) {
     val allNestedChannels = channels.flatMap {
         (it as? OscChannel.OscMultiChannel)?.getAllNestedChannels() ?: listOf(it)
     }

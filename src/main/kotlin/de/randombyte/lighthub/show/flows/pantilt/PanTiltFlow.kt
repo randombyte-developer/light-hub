@@ -1,12 +1,13 @@
 package de.randombyte.lighthub.show.flows.pantilt
 
 import de.randombyte.lighthub.osc.devices.features.PanTiltFeature
+import de.randombyte.lighthub.show.DevicesManager.scanners
 import de.randombyte.lighthub.show.flows.Flow
 import kotlin.random.Random
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
-class PanTiltFlow(acceptedDevices: List<PanTiltFeature>) : Flow<PanTiltFeature>(acceptedDevices) {
+object PanTiltFlow : Flow<PanTiltFeature>(acceptedDevices = scanners) {
     override fun onActivate(device: PanTiltFeature) {
         changePanTilt(device)
     }

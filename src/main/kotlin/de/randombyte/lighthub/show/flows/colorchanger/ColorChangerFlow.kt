@@ -2,16 +2,19 @@ package de.randombyte.lighthub.show.flows.colorchanger
 
 import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.osc.devices.features.colors.DimmableComponentsColor
+import de.randombyte.lighthub.show.DevicesManager
 import de.randombyte.lighthub.show.flows.Flow
+import de.randombyte.lighthub.utils.flatten
 import kotlin.math.roundToInt
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
-class ColorChangerFlow(devices: List<ColorFeature>) : Flow<ColorFeature>(devices) {
+object ColorChangerFlow : Flow<ColorFeature>(acceptedDevices = flatten(
+    DevicesManager.ledBars, DevicesManager.tsssPars, DevicesManager.hexPars, DevicesManager.hexClones,
+    DevicesManager.quadPhases, DevicesManager.scanners)
+) {
 
-    companion object {
-      const val NONE_COLOR_ID = "none" // basically shutter closed, no light
-    }
+  const val NONE_COLOR_ID = "none" // basically shutter closed, no light
 
     var colorSetSelector: ColorSetsConfig.() -> List<String> = { `set-1` }
     var ticksTransitionDuration = 10

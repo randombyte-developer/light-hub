@@ -1,11 +1,12 @@
 package de.randombyte.lighthub.show.flows.rotation
 
 import de.randombyte.lighthub.osc.devices.features.RotationFeature
+import de.randombyte.lighthub.show.DevicesManager.quadPhases
 import de.randombyte.lighthub.show.flows.Flow
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
-class RotationFlow(acceptedDevices: List<RotationFeature>) : Flow<RotationFeature>(acceptedDevices) {
+object RotationFlow : Flow<RotationFeature>(acceptedDevices = quadPhases) {
     override fun onActivate(device: RotationFeature) {
         changeRotation(device)
     }

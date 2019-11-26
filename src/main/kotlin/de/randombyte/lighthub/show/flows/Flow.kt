@@ -1,8 +1,8 @@
 package de.randombyte.lighthub.show.flows
 
-import de.randombyte.lighthub.config.GlobalConfigs
 import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.show.tickables.Tickable
+import de.randombyte.lighthub.show.tickables.Ticker
 import kotlin.time.ExperimentalTime
 
 /**
@@ -41,8 +41,9 @@ open class Flow<T>(val acceptedDevices: List<T>, val usedDevices: MutableList<T>
         getTicksUntilNextChange(tick, device, device.type.getCurrentMasterFlowConfig<C>().config)
 
     inline fun <reified C : AutoPatternsConfig> getIntervalTicks(device: Device) =
-        device.type.getCurrentMasterFlowConfig<C>().config.interval * GlobalConfigs.general.config.`ticks-per-beat`
+        device.type.getCurrentMasterFlowConfig<C>().config.interval * Ticker.ticksPerBeat
 
-    inline fun <reified C : AutoPatternsConfig> getPercentUntilNextChange(tick: ULong, device: Device) =
-        getTicksUntilNextChange<C>(tick, device) / getIntervalTicks<C>(device)
+    inline fun <reified C : AutoPatternsConfig> getPercentUntilNextChange(tick: ULong, device: Device): Double {
+        return getTicksUntilNextChange<C>(tick, device).toDouble() / getIntervalTicks<C>(device)
+    }
 }

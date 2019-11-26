@@ -1,6 +1,9 @@
 package de.randombyte.lighthub.ui
 
-import de.randombyte.lighthub.show.*
+import de.randombyte.lighthub.show.AkaiControls
+import de.randombyte.lighthub.show.DevicesManager
+import de.randombyte.lighthub.show.KeyboardControls
+import de.randombyte.lighthub.show.ThatShow
 import de.randombyte.lighthub.show.tickables.Ticker
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent.MasterToggleDeviceCategory.*
@@ -8,7 +11,6 @@ import javafx.concurrent.Task
 import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.control.Label
-import javafx.scene.input.KeyEvent
 import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
 import javafx.scene.paint.Color
@@ -64,21 +66,6 @@ class MainView : View("LightHub") {
             val background = Background((BackgroundFill(backgroundColor, null, null)))
             labelDeviceCategoryMapping.getValue(event.deviceCategory).background = background
         }
-
-        addEventFilter(KeyEvent.KEY_PRESSED) { event ->
-            ShowThreadRunner.runLater {
-                when (event.code.char) {
-                    "1" -> ThatShow.toggleMaster(HexPars)
-                    "2" -> ThatShow.toggleMaster(OtherPars)
-                    "3" -> ThatShow.toggleMaster(LedBars)
-                    "4" -> ThatShow.toggleMaster(Quads)
-                    "5" -> ThatShow.toggleMaster(Scanners)
-                }
-
-                val masterFlow = ThatShow.masterFlowsKeyboardMapping[event.code.char]
-                if (masterFlow != null) MasterFlowManager.activate(masterFlow)
-            }
-        }
     }
 
     override fun onDock() {
@@ -90,8 +77,10 @@ class MainView : View("LightHub") {
                     statusLabel.text = "Akai not found!"
                 }
             } else {
+                // todo better
                 DevicesManager.init()
                 ThatShow.init()
+                KeyboardControls.init(root)
                 Ticker.runBlocking()
             }
         }

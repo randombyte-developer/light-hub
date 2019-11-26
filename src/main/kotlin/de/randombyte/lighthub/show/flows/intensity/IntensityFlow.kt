@@ -16,7 +16,7 @@ object IntensityFlow : Flow<MasterDimmerFeature>(acceptedDevices = ledBars) {
 
     override fun onTick(tick: ULong, device: MasterDimmerFeature) {
         if (mode == Sawtooth) {
-            device.masterDimmer = DMX_RANGE.last * getPercentUntilNextChange<IntensityAutoPatternsConfig>(tick, device as Device)
+            device.masterDimmer = (DMX_RANGE.last * getPercentUntilNextChange<IntensityAutoPatternsConfig>(tick, device as Device)).toInt()
         }
     }
 }

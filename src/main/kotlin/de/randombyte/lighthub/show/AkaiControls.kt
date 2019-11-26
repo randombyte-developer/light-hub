@@ -5,6 +5,7 @@ import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.midi.akai.Akai.ControlName.*
 import de.randombyte.lighthub.midi.akai.Control
 import de.randombyte.lighthub.osc.devices.QlcPlus
+import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
 import de.randombyte.lighthub.show.strobe.Strobe
 import de.randombyte.lighthub.show.tickables.Ticker
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent.MasterToggleDeviceCategory.*
@@ -85,7 +86,7 @@ object AkaiControls {
                     value = value
                 )
 
-                FlowManager.colorChangeFlow.ticksTransitionDuration = ticks
+                ColorChangerFlow.ticksTransitionDuration = ticks
                 akai.sendMapping("$ticks Ticks")
             }
         })

@@ -1,16 +1,14 @@
 package de.randombyte.lighthub.show.tickables
 
 import de.randombyte.lighthub.config.GlobalConfigs
-import java.util.concurrent.TimeUnit
 import kotlin.time.ExperimentalTime
 import kotlin.time.MonoClock
 import kotlin.time.seconds
 
 @ExperimentalTime
 object Ticker {
-    val TICKS_PER_SECOND = GlobalConfigs.general.config.`ticks-per-beat`
+    val TICKS_PER_SECOND = GlobalConfigs.general.config.`ticks-per-second`
 
-    private const val SLEEP_TIME_MILLIS = 3L
     private val DURATION_PER_TICK = (1.0 / TICKS_PER_SECOND).seconds
 
     private var clockMark = MonoClock.markNow()
@@ -18,8 +16,8 @@ object Ticker {
     private var tick = 0uL
     private var beat = 0uL
 
-    var bpm = 120
-    private val ticksPerBeat get() = (TICKS_PER_SECOND * 60 / bpm).toULong()
+    var bpm = GlobalConfigs.general.config.`beats-per-minute`
+    val ticksPerBeat get() = (TICKS_PER_SECOND * 60 / bpm)
 
     private val tickables = mutableSetOf<Tickable>()
 
@@ -30,9 +28,10 @@ object Ticker {
     fun runBlocking() {
         while (true) {
             if (clockMark.elapsedNow() > DURATION_PER_TICK) {
+                clockMark = MonoClock.markNow()
 
                 tick++
-                val isOnBeat = bpm > 0 && tick.rem(ticksPerBeat) == 0uL
+                val isOnBeat = bpm > 0 && tick.rem(ticksPerBeat.toULong()) == 0uL
                 if (isOnBeat) beat++
 
                 tickables.forEach {
@@ -41,10 +40,7 @@ object Ticker {
                         it.onBeat(beat)
                     }
                 }
-                clockMark = MonoClock.markNow()
             }
-
-            TimeUnit.MILLISECONDS.sleep(SLEEP_TIME_MILLIS)
         }
     }
 }
