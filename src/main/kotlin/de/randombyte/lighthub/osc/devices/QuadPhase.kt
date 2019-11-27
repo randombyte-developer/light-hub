@@ -7,6 +7,7 @@ import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.osc.devices.features.RotationFeature.RotationSpeedsConfig
 import de.randombyte.lighthub.osc.devices.features.StrobeFeature.StrobeSpeedsConfig
+import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.QuadPhaseColor
 import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
 import kotlin.time.ExperimentalTime
@@ -41,6 +42,14 @@ class QuadPhase(number: Int, dmxAddress: Int) : Device(
     override val oscNoStrobe = 0
 
     override val colors = QuadPhaseColor.colors
+
+    override fun setColor(color: Color) {
+        if (color == QuadPhaseColor.Off) {
+            noLight()
+            return
+        }
+        super.setColor(color)
+    }
 
     override fun noLight() {
         super.noLight()

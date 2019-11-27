@@ -6,6 +6,7 @@ import de.randombyte.lighthub.osc.OscChannelList
 import de.randombyte.lighthub.osc.createOscChannel
 import de.randombyte.lighthub.osc.devices.features.*
 import de.randombyte.lighthub.osc.devices.features.PanTiltFeature.PanTiltBoundsConfig
+import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.ScannerColor
 import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
 import de.randombyte.lighthub.show.flows.pantilt.PanTiltAutoPatternsConfig
@@ -40,6 +41,14 @@ class Scanner(number: Int, dmxAddress: Int) : Device(
     override val oscShutter = createOscChannel("shutter", 4)
 
     override val colors = ScannerColor.colors
+
+    override fun setColor(color: Color) {
+        if (color == ScannerColor.Off) {
+            noLight()
+            return
+        }
+        super.setColor(color)
+    }
 
     override fun fullIntensity() {
         super.fullIntensity()

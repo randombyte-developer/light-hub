@@ -5,6 +5,7 @@ package de.randombyte.lighthub.osc.devices.features.colors
  */
 sealed class ScannerColor(id: String, dmxRange: IntRange) : FixedColor(id, dmxRange) {
 
+    object Off : ScannerColor("off", -1..-1)
     object White : ScannerColor("white", 0..10)
     object Red : ScannerColor("red", 11..21)
     object Blue : ScannerColor("blue", 22..32)
@@ -21,7 +22,7 @@ sealed class ScannerColor(id: String, dmxRange: IntRange) : FixedColor(id, dmxRa
 
     companion object {
         val colors = listOf(
-            White, Red, Blue, Green, Yellow, Orange, Pink, LightBlue, Uv, Magenta, OrangeRed, LightBlueMagenta, Rainbow
+            Off, White, Red, Blue, Green, Yellow, Orange, Pink, LightBlue, Uv, Magenta, OrangeRed, LightBlueMagenta, Rainbow
         ).map { it.id to it }.toMap()
     }
 
