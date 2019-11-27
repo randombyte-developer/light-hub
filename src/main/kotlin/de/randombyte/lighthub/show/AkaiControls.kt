@@ -5,8 +5,12 @@ import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.midi.akai.Akai.ControlName.*
 import de.randombyte.lighthub.midi.akai.Control
 import de.randombyte.lighthub.osc.devices.QlcPlus
+import de.randombyte.lighthub.show.DevicesManager.scanners
 import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
-import de.randombyte.lighthub.show.strobe.Strobe
+import de.randombyte.lighthub.show.quickeffects.Blackout
+import de.randombyte.lighthub.show.quickeffects.Strobe
+import de.randombyte.lighthub.show.quickeffects.Strobe.Speed.Fast
+import de.randombyte.lighthub.show.quickeffects.Strobe.Speed.Slow
 import de.randombyte.lighthub.show.tickables.Ticker
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent.MasterToggleDeviceCategory.*
 import de.randombyte.lighthub.utils.Ranges
@@ -53,15 +57,13 @@ object AkaiControls {
             }
         })
 
-        akai.registerControl(Blackout, object : Control.Button.TouchButton(0) {
+        akai.registerControl(Akai.ControlName.Blackout, object : Control.Button.TouchButton(0) {
             override fun onDown() {
-                ThatShow.blackout()
-                FlowManager.blockFlowChanges = true
+                Blackout.activate()
             }
 
             override fun onUp() {
-                FlowManager.blockFlowChanges = false
-                MasterFlowManager.activateFallback()
+                Blackout.deactivate()
             }
         })
 
@@ -116,25 +118,29 @@ object AkaiControls {
         // strobe
         akai.registerControl(SlowStrobe, object : Control.Button.TouchButton(2) {
             override fun onDown() {
-                ThatShow.strobe.activate(Strobe.Speed.Slow)
+                ThatShow.blackout(scanners)
+                Strobe.speed = Slow
+                Strobe.activate()
             }
 
             override fun onUp() {
                 // if not the other strobe button is pressed
                 if (akai.getControlByName(FastStrobe)?.value?.isPressed != true) {
-                    MasterFlowManager.activateFallback()
+                    Strobe.deactivate()
                 }
             }
         })
 
         akai.registerControl(FastStrobe, object : Control.Button.TouchButton(3) {
             override fun onDown() {
-                ThatShow.strobe.activate(Strobe.Speed.Fast)
+                ThatShow.blackout(scanners)
+                Strobe.speed = Fast
+                Strobe.activate()
             }
 
             override fun onUp() {
                 if (akai.getControlByName(SlowStrobe)?.value?.isPressed != true) {
-                    MasterFlowManager.activateFallback()
+                    Strobe.deactivate()
                 }
             }
         })

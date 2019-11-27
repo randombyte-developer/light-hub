@@ -18,4 +18,8 @@ abstract class MasterFlow<T>(val isFallback: Boolean, val devices: List<T>) : Ti
     override fun onActivate() {
         FlowManager.removeAllDevicesFromFlows()
     }
+
+    // MasterFlows only activate and don't tick
+    final override fun onTick(tick: ULong) { }
+    final override fun onBeat(beat: ULong) { }
 }

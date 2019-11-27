@@ -3,20 +3,12 @@ package de.randombyte.lighthub.show
 import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.osc.devices.features.ShutterFeature
 import de.randombyte.lighthub.show.AkaiControls.akai
-import de.randombyte.lighthub.show.DevicesManager.hexClones
-import de.randombyte.lighthub.show.DevicesManager.hexPars
-import de.randombyte.lighthub.show.DevicesManager.ledBars
 import de.randombyte.lighthub.show.DevicesManager.lights
-import de.randombyte.lighthub.show.DevicesManager.quadPhases
-import de.randombyte.lighthub.show.DevicesManager.scanners
-import de.randombyte.lighthub.show.DevicesManager.tsssPars
 import de.randombyte.lighthub.show.events.SelectedColorSet
-import de.randombyte.lighthub.show.strobe.Strobe
 import de.randombyte.lighthub.show.tickables.Tickable
 import de.randombyte.lighthub.show.tickables.Ticker
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent.MasterToggleDeviceCategory
-import de.randombyte.lighthub.utils.flatten
 import de.randombyte.lighthub.utils.pollForEach
 import tornadofx.Controller
 import tornadofx.FX
@@ -28,11 +20,7 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 object ThatShow : Controller() {
 
-    val strobe = Strobe(flatten(ledBars, tsssPars, hexPars, hexClones, quadPhases, scanners))
-
     val deviceCategoryMasterActivated = MasterToggleDeviceCategory.values().map { it to true }.toMap().toMutableMap()
-
-
 
     fun init() {
         registerTickables()

@@ -13,7 +13,7 @@ import kotlin.time.ExperimentalTime
 object FlowManager {
     val flows = setOf<Flow<*>>(ColorChangerFlow, RotationFlow, PanTiltFlow, IntensityFlow)
 
-    private val lockedDevices = mutableListOf<Device>()
+    val lockedDevices: List<Device> = mutableListOf()
 
     var blockFlowChanges = false
 
@@ -42,11 +42,11 @@ object FlowManager {
     }
 
     fun lockDevice(device: Device) {
-        lockedDevices += device
+        (lockedDevices as MutableList) += device
         flows.forEach { it.usedDevices.remove(device) }
     }
 
     fun unlockDevice(device: Device) {
-        lockedDevices -= device
+        (lockedDevices as MutableList) -= device
     }
 }
