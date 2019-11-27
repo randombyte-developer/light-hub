@@ -40,6 +40,9 @@ open class Flow<T>(val acceptedDevices: List<T>, val usedDevices: MutableList<T>
     inline fun <reified C : AutoPatternsConfig> getTicksUntilNextChange(tick: ULong, device: Device) =
         getTicksUntilNextChange(tick, device, device.type.getCurrentMasterFlowConfig<C>().config)
 
+    inline fun <reified C : AutoPatternsConfig> isOnChange(tick: ULong, device: Device) =
+        getTicksUntilNextChange<C>(tick, device) == 1
+
     inline fun <reified C : AutoPatternsConfig> getIntervalTicks(device: Device) =
         device.type.getCurrentMasterFlowConfig<C>().config.interval * Ticker.ticksPerBeat
 

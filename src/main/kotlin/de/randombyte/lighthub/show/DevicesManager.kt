@@ -4,7 +4,6 @@ import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.devices.*
 import de.randombyte.lighthub.osc.devices.features.ColorFeature
 import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature
-import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
 import de.randombyte.lighthub.utils.Ranges
 import de.randombyte.lighthub.utils.flatten
 import de.randombyte.lighthub.utils.intersects
@@ -117,7 +116,7 @@ object DevicesManager {
         devices.forEach { device ->
             device.colorSets.all.forEach { (setId, colorsIds) ->
                 colorsIds.forEach { colorId ->
-                    require(colorId in device.colors.keys || colorId == ColorChangerFlow.NONE_COLOR_ID) {
+                    require(colorId in device.colors.keys) {
                         "[${device.type.id}] Color '$colorId' is defined in the color-set '$setId' " +
                                 "but is missing in the color definitions of the device!"
                     }

@@ -9,7 +9,6 @@ import de.randombyte.lighthub.osc.devices.features.PanTiltFeature.PanTiltBoundsC
 import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.ScannerColor
 import de.randombyte.lighthub.show.flows.colorchanger.ColorSetsConfig
-import de.randombyte.lighthub.show.flows.pantilt.PanTiltAutoPatternsConfig
 import kotlin.time.ExperimentalTime
 
 @ExperimentalTime
@@ -28,7 +27,7 @@ class Scanner(number: Int, dmxAddress: Int) : Device(
 
         override val metaConfig = createConfigHolder<MetaConfig>(MetaConfig.FILE_NAME)
         override val colorSetsConfig = createConfigHolder<ColorSetsConfig>(ColorSetsConfig.FILE_NAME)
-        override val panTiltBounds = createConfigHolder<PanTiltBoundsConfig>(PanTiltAutoPatternsConfig.FILE_NAME)
+        override val panTiltBounds = createConfigHolder<PanTiltBoundsConfig>(PanTiltBoundsConfig.FILE_NAME)
         override val configs = listOf(colorSetsConfig, panTiltBounds)
 
         private const val OSC_GOBO_OPEN = 0

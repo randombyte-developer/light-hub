@@ -1,6 +1,5 @@
 package de.randombyte.lighthub.show.masterflows
 
-import de.randombyte.lighthub.config.ConfigHolder
 import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.devices.features.ColorFeature
 import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeature
@@ -14,8 +13,6 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 object SawToothIntensity : MasterFlow<Any?>(isFallback = true, devices = flatten<MasterDimmerFeature>(ledBars)) {
     override val configFolderName = "saw-tooth-intensity"
-
-    override val configs: List<ConfigHolder<*>> = listOf()
 
     override fun onActivate() {
         super.onActivate()

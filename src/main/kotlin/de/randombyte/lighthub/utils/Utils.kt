@@ -22,3 +22,5 @@ fun <T : Any?> Queue<T>.pollForEach(action: (T) -> Unit) {
 }
 
 fun List<*>.containsIgnoreType(element: Any) = contains(element)
+
+fun <T> List<T>.getElementWrappedAround(index: ULong) = get(index.rem(size).toInt())

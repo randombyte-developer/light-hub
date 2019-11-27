@@ -2,6 +2,7 @@ package de.randombyte.lighthub.show
 
 import de.randombyte.lighthub.keyboard.KeyControl
 import de.randombyte.lighthub.keyboard.Keyboard
+import de.randombyte.lighthub.show.masterflows.Everything
 import de.randombyte.lighthub.show.masterflows.OneLightOnly
 import de.randombyte.lighthub.show.masterflows.SawToothIntensity
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent.MasterToggleDeviceCategory.*
@@ -21,6 +22,7 @@ object KeyboardControls {
     )
 
     val masterFlows = mapOf(
+        "Q" to Everything,
         "G" to OneLightOnly,
         "Z" to SawToothIntensity
     )

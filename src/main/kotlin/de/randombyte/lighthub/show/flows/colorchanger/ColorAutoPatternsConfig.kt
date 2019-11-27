@@ -1,12 +1,14 @@
 package de.randombyte.lighthub.show.flows.colorchanger
 
+import de.randombyte.lighthub.config.ConfigDescription
 import de.randombyte.lighthub.show.flows.AutoPatternsConfig
 
 open class ColorAutoPatternsConfig(
-    `change-every-n-beats`: Int = 4,
-    `change-beats-offset`: Int = 0
-) : AutoPatternsConfig(`change-every-n-beats`, `change-beats-offset`) {
-    companion object {
-        const val FILE_NAME = "color-auto-pattern"
+    interval: Int = 4,
+    `device-type-offset`: Int = 0,
+    `global-type-offset`: Int = 0
+) : AutoPatternsConfig(interval, `device-type-offset`, `global-type-offset`) {
+    companion object : ConfigDescription {
+        override val fileName = "color-auto-pattern"
     }
 }

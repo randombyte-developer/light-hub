@@ -1,5 +1,6 @@
 package de.randombyte.lighthub.show.flows.rotation
 
+import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.devices.features.RotationFeature
 import de.randombyte.lighthub.show.DevicesManager.quadPhases
 import de.randombyte.lighthub.show.flows.Flow
@@ -11,13 +12,10 @@ object RotationFlow : Flow<RotationFeature>(acceptedDevices = quadPhases) {
         changeRotation(device)
     }
 
-    override fun onBeat(beat: ULong, device: RotationFeature) {
-        /*with(device.rotationAutoPatterns) {
-            val specificDeviceOffset = `change-beats-offset` * (device as Device).number
-            if ((beat + specificDeviceOffset.toUInt()).multipleOf(`change-every-n-beats`)) {
-                changeRotation(device)
-            }
-        }*/
+    override fun onTick(tick: ULong, device: RotationFeature) {
+        if (isOnChange<RotationAutoPatternsConfig>(tick, device as Device)) {
+            changeRotation(device)
+        }
     }
 
     private fun changeRotation(device: RotationFeature) {

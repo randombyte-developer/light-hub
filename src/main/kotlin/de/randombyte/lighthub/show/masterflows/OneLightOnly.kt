@@ -1,6 +1,5 @@
 package de.randombyte.lighthub.show.masterflows
 
-import de.randombyte.lighthub.config.ConfigHolder
 import de.randombyte.lighthub.osc.devices.features.ColorFeature
 import de.randombyte.lighthub.osc.devices.features.ShutterFeature
 import de.randombyte.lighthub.show.DevicesManager.lights
@@ -10,8 +9,6 @@ import kotlin.time.ExperimentalTime
 object OneLightOnly : MasterFlow<ColorFeature>(isFallback = true, devices = lights as List<ColorFeature>) {
 
     override val configFolderName = "one-light-only"
-
-    override val configs = emptyList<ConfigHolder<*>>()
 
     override fun onActivate() {
         super.onActivate()

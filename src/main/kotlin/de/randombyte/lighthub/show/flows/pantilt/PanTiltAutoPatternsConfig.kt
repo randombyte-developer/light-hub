@@ -1,12 +1,14 @@
 package de.randombyte.lighthub.show.flows.pantilt
 
+import de.randombyte.lighthub.config.ConfigDescription
 import de.randombyte.lighthub.show.flows.AutoPatternsConfig
 
 open class PanTiltAutoPatternsConfig(
-    `change-every-n-beats`: Int = 4,
-    `change-beats-offset`: Int = 0
-) : AutoPatternsConfig(`change-every-n-beats`, `change-beats-offset`) {
-    companion object {
-        const val FILE_NAME = "pan-tilt-auto-pattern"
+    interval: Int = 16,
+    `device-type-offset`: Int = 0,
+    `global-type-offset`: Int = 0
+) : AutoPatternsConfig(interval, `device-type-offset`, `global-type-offset`) {
+    companion object : ConfigDescription {
+        override val fileName = "pan-tilt-auto-pattern"
     }
 }

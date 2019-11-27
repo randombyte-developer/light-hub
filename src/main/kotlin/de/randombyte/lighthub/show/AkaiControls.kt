@@ -97,7 +97,7 @@ object AkaiControls {
         fun registerColorControl(controlName: Akai.ControlName, padNumber: Int, colorSet: String) {
             akai.registerControl(controlName, object : Control.Button.TouchButton(padNumber) {
                 override fun onDown() {
-                    ColorSetSelector.selectedColorSetId = colorSet
+                    ColorSelector.selectedColorSetId = colorSet
                 }
             })
         }

@@ -1,5 +1,6 @@
 package de.randombyte.lighthub.show.flows.pantilt
 
+import de.randombyte.lighthub.osc.Device
 import de.randombyte.lighthub.osc.devices.features.PanTiltFeature
 import de.randombyte.lighthub.show.DevicesManager.scanners
 import de.randombyte.lighthub.show.flows.Flow
@@ -12,12 +13,9 @@ object PanTiltFlow : Flow<PanTiltFeature>(acceptedDevices = scanners) {
         changePanTilt(device)
     }
 
-    override fun onBeat(beat: ULong, device: PanTiltFeature) {
-        with(device.panTiltBounds) {
-           /* val specificDeviceOffset = `change-beats-offset` * (device as Device).number
-            if ((beat + specificDeviceOffset.toUInt()).multipleOf(`change-every-n-beats`)) {
-                changePanTilt(device)
-            }*/
+    override fun onTick(tick: ULong, device: PanTiltFeature) {
+        if (isOnChange<PanTiltAutoPatternsConfig>(tick, device as Device)) {
+            changePanTilt(device)
         }
     }
 
