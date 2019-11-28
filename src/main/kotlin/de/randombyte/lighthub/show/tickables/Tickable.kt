@@ -9,7 +9,7 @@ import kotlin.time.ExperimentalTime
 interface Tickable {
     fun onActivate() {}
     fun onTick(tick: ULong) {}
-    fun onBeat(beat: ULong) {}
+    fun onBeat(beat: ULong) {} // todo: pretty much unused, integrate this again with the ticks and "next change"
 
     fun getTicksUntilNextChange(currentTick: ULong, device: Device, config: AutoPatternsConfig): Int {
         with(config) {

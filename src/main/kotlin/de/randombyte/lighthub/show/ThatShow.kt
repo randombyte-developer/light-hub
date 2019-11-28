@@ -26,7 +26,7 @@ object ThatShow : Controller() {
     fun init() {
         registerTickables()
 
-        MasterFlowManager.activate(KeyboardControls.masterFlows.getValue("G"))
+        MasterFlowManager.activate(KeyboardControls.masterFlows.getValue("Q"))
 
         // cause the event ToggledMasterEvent to be fired to set the color in the UI
         repeat(2) { MasterToggleDeviceCategory.values().forEach { toggleMaster(it) } }

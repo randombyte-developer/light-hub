@@ -1,5 +1,6 @@
 package de.randombyte.lighthub.midi.akai
 
+import de.randombyte.lighthub.config.GlobalConfigs
 import de.randombyte.lighthub.midi.MidiHandler
 import de.randombyte.lighthub.midi.Signal
 import de.randombyte.lighthub.midi.akai.Control.Button.TouchButton
@@ -35,7 +36,7 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice, val onClose: () -> Unit)
     // todo: better, nesting?
     enum class ControlName {
         Blackout, MasterDimmer, SlowStrobe, FastStrobe,
-        Knob1, Knob2, Knob3, Knob4, Knob5, Knob6, ManualControlNext, ManualControlPrevious, ManualControlClaim, ManualControlFree,
+        Knob1, Knob2, Knob3, Knob4, Knob5, Knob6, ManualControlNext, ManualControlPrevious, ManualControlClaim, UltraSlowBpm,
         Set1, Set2, Set3, Set4, Set5, Set6, Set7, Set8, Set9, Set10, Set11, Set12,
         TempoFader, ColorChangeTransitionTicksFader,
         HexParsMasterToggle, OtherParsMasterToggle, LedBarsMasterToggle, QuadsMasterToggle, ScannerMasterToggle
@@ -113,6 +114,7 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice, val onClose: () -> Unit)
     }
 
     fun sendMapping(name: String) {
+        if (!GlobalConfigs.general.config.`akai-send-display-info`) return
         outDevice.receiver.send(SysexMessage(SysEx.createMappingWithName(name), SysEx.MAPPING_LENGTH), -1)
     }
 }

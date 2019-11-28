@@ -2,7 +2,7 @@ package de.randombyte.lighthub.osc.devices.features.colors
 
 sealed class QuadPhaseColor(id: String, dmxRange: IntRange) : FixedColor(id, dmxRange) {
 
-    object Off : QuadPhaseColor("off", -1..-1)
+    object Off : FixedColorOff()
     object Red : QuadPhaseColor("r", 0..16)
     object Green : QuadPhaseColor("g", 17..33)
     object Blue : QuadPhaseColor("b", 34..50)

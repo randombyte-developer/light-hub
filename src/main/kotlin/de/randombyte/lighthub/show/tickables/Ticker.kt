@@ -17,7 +17,11 @@ object Ticker {
     private var beat = 0uL
 
     var bpm = GlobalConfigs.general.config.`beats-per-minute`
-    val ticksPerBeat get() = (TICKS_PER_SECOND * 60 / bpm)
+    val ticksPerBeat: Int
+        get() {
+            if (bpm == 0) throw IllegalStateException("BPM is 0, there is no tick!")
+            return (TICKS_PER_SECOND * 60 / bpm)
+        }
 
     private val tickables = mutableSetOf<Tickable>()
 
@@ -35,6 +39,7 @@ object Ticker {
                 if (isOnBeat) beat++
 
                 tickables.forEach {
+                    if (bpm == 0 && it is StoppableTickable) return@forEach
                     it.onTick(tick)
                     if (isOnBeat) {
                         it.onBeat(beat)

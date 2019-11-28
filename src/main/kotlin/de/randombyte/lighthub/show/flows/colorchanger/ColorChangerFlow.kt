@@ -5,13 +5,12 @@ import de.randombyte.lighthub.osc.devices.features.ColorFeature
 import de.randombyte.lighthub.osc.devices.features.DimmableComponentsColorFeature
 import de.randombyte.lighthub.osc.devices.features.FixedColorFeature
 import de.randombyte.lighthub.osc.devices.features.ShutterFeature
-import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.DimmableComponentsColor
+import de.randombyte.lighthub.osc.devices.features.colors.FixedColorOff
 import de.randombyte.lighthub.show.ColorSelector
 import de.randombyte.lighthub.show.DevicesManager.lights
-import de.randombyte.lighthub.show.events.SelectedColorSet
+import de.randombyte.lighthub.show.events.UpdateColor
 import de.randombyte.lighthub.show.flows.Flow
-import de.randombyte.lighthub.utils.getElementWrappedAround
 import kotlin.math.roundToInt
 import kotlin.time.ExperimentalTime
 
@@ -23,17 +22,22 @@ object ColorChangerFlow : Flow<ColorFeature>(acceptedDevices = lights as List<Co
     private var dimmableColorGoals = mutableMapOf<DimmableComponentsColorFeature, DimmableComponentsColor>()
 
     init {
-        subscribe<SelectedColorSet> {
+        subscribe<UpdateColor> {
             onActivate()
         }
     }
 
     override fun onActivate(device: ColorFeature) {
         // instantly change color, no transition
-        (device as? ShutterFeature)?.fullIntensity()
-        device.setColor(getSelectedColor(device))
+        if (device is FixedColorFeature) {
+            changeFixedColor(device)
+        } else {
+            (device as? ShutterFeature)?.fullIntensity()
+            device.setColor(ColorSelector.getSelectedColor(device))
+        }
 
         // delete all goals to prevent the instant change from being overwritten with old goals
+
         dimmableColorGoals.clear()
     }
 
@@ -69,19 +73,20 @@ object ColorChangerFlow : Flow<ColorFeature>(acceptedDevices = lights as List<Co
     private fun changeColor(device: ColorFeature) {
         when (device) {
             is DimmableComponentsColorFeature -> {
-                dimmableColorGoals[device] = getSelectedColor(device) as DimmableComponentsColor
+                dimmableColorGoals[device] = ColorSelector.getSelectedColor(device) as DimmableComponentsColor
             }
             is FixedColorFeature -> {
-                device.setColor(getSelectedColor(device))
+                changeFixedColor(device)
             }
         }
     }
 
-    private fun getSelectedColor(device: ColorFeature): Color {
-        val colorSetId = ColorSelector.selectedColorSetId
-        val colorIndex = ColorSelector.colorSetSelectedColorIndex.getValue(device as Device)
-        val colorId = device.colorSets.all.getValue(colorSetId).getElementWrappedAround(colorIndex)
-        return device.colors.getValue(colorId)
+    private fun changeFixedColor(device: FixedColorFeature) {
+        val color = ColorSelector.getSelectedColor(device)
+        device.setColor(color)
+        if (color !is FixedColorOff) {
+            (device as? ShutterFeature)?.fullIntensity()
+        }
     }
 
     // todo: better name, that's by no means linear

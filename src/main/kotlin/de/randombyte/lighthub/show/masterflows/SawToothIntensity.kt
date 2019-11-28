@@ -5,7 +5,7 @@ import de.randombyte.lighthub.osc.devices.features.ColorFeature
 import de.randombyte.lighthub.osc.devices.features.MasterDimmerFeature
 import de.randombyte.lighthub.show.DevicesManager.ledBars
 import de.randombyte.lighthub.show.FlowManager
-import de.randombyte.lighthub.show.events.SelectedColorSet
+import de.randombyte.lighthub.show.events.UpdateColor
 import de.randombyte.lighthub.show.flows.intensity.IntensityFlow
 import de.randombyte.lighthub.show.flows.intensity.IntensityFlow.Mode.Sawtooth
 import de.randombyte.lighthub.utils.flatten
@@ -16,7 +16,7 @@ object SawToothIntensity : MasterFlow<Any?>(isFallback = true, devices = flatten
     override val configFolderName = "saw-tooth-intensity"
 
     init {
-        subscribeIfActive<SelectedColorSet> {
+        subscribeIfActive<UpdateColor> {
             OneLightOnly.onActivate()
         }
     }

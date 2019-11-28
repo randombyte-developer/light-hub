@@ -1,7 +1,7 @@
 package de.randombyte.lighthub.show.flows
 
 import de.randombyte.lighthub.osc.Device
-import de.randombyte.lighthub.show.tickables.Tickable
+import de.randombyte.lighthub.show.tickables.StoppableTickable
 import de.randombyte.lighthub.show.tickables.Ticker
 import tornadofx.Controller
 import kotlin.time.ExperimentalTime
@@ -16,7 +16,7 @@ import kotlin.time.ExperimentalTime
  *      only contain devices which are also in acceptedDevices
  */
 @ExperimentalTime
-open class Flow<T>(val acceptedDevices: List<T>, val usedDevices: MutableList<T> = acceptedDevices.toMutableList()) : Controller(), Tickable {
+open class Flow<T>(val acceptedDevices: List<T>, val usedDevices: MutableList<T> = acceptedDevices.toMutableList()) : Controller(), StoppableTickable {
 
     init {
         require(acceptedDevices.all { it is Device }) { "List 'acceptedDevices' must only contain objects of type Device!" }

@@ -5,7 +5,7 @@ package de.randombyte.lighthub.osc.devices.features.colors
  */
 sealed class ScannerColor(id: String, dmxRange: IntRange) : FixedColor(id, dmxRange) {
 
-    object Off : ScannerColor("off", -1..-1)
+    object Off : FixedColorOff()
     object White : ScannerColor("white", 0..10)
     object Red : ScannerColor("red", 11..21)
     object Blue : ScannerColor("blue", 22..32)

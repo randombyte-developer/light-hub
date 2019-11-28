@@ -5,6 +5,7 @@ import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.midi.akai.Akai.ControlName.*
 import de.randombyte.lighthub.midi.akai.Control
 import de.randombyte.lighthub.osc.devices.QlcPlus
+import de.randombyte.lighthub.show.DevicesManager.lights
 import de.randombyte.lighthub.show.DevicesManager.scanners
 import de.randombyte.lighthub.show.flows.colorchanger.ColorChangerFlow
 import de.randombyte.lighthub.show.quickeffects.Blackout
@@ -65,7 +66,8 @@ object AkaiControls {
 
         akai.registerControl(TempoFader, object : Control.Potentiometer(11) {
             override fun onUpdate() {
-                val bpm = Ranges.mapRange(
+
+                val bpm = if (value == 0) 0 else Ranges.mapRange(
                     from = Ranges.MIDI_RANGE,
                     to = GlobalConfigs.general.config.run { `bpm-fader-min`..`bpm-fader-max` },
                     value = value
@@ -93,7 +95,12 @@ object AkaiControls {
         fun registerColorControl(controlName: Akai.ControlName, padNumber: Int, colorSet: String) {
             akai.registerControl(controlName, object : Control.Button.TouchButton(padNumber) {
                 override fun onDown() {
-                    ColorSelector.selectedColorSetId = colorSet
+                    if (ColorSelector.selectedColorSetId == colorSet) {
+                        lights.forEach { ColorSelector.selectNextColor(it) }
+                        ColorSelector.requestColorUpdate()
+                    } else {
+                        ColorSelector.selectedColorSetId = colorSet
+                    }
                 }
             })
         }
@@ -138,6 +145,15 @@ object AkaiControls {
 
             override fun onUp() {
                 if (!akai.isControlPressed(SlowStrobe)) Strobe.deactivate()
+            }
+        })
+
+        // ultra slow BPM for ambient light
+
+        akai.registerControl(UltraSlowBpm, object : Control.Button.SimpleButton(20) {
+            override fun onDown() {
+                Ticker.bpm = GlobalConfigs.general.config.`ultra-slow-bpm`
+                akai.sendMapping("${Ticker.bpm} BPM")
             }
         })
 
