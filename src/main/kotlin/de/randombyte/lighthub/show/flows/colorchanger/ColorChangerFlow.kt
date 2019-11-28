@@ -30,28 +30,10 @@ object ColorChangerFlow : Flow<ColorFeature>(acceptedDevices = lights as List<Co
         dimmableColorGoals.clear()
     }
 
-    private fun changeColor(device: ColorFeature) {
-        (device as? ShutterFeature)?.fullIntensity()
-
-        when (device) {
-            is DimmableComponentsColorFeature -> {
-                dimmableColorGoals[device] = getSelectedColor(device) as DimmableComponentsColor
-            }
-            is FixedColorFeature -> {
-                device.setColor(getSelectedColor(device))
-            }
-        }
-    }
-
     override fun onTick(tick: ULong) {
-        usedDevices.forEach { device ->
-            if (isOnChange<ColorAutoPatternsConfig>(tick, device as Device)) {
-                ColorSelector.selectNextColor(device)
-                changeColor(device)
-            }
-        }
-
         dimmableColorGoals.forEach { (device, targetColor) ->
+            if (device !in usedDevices) return@forEach
+
             val ticksUntilColorChanged = getTicksUntilNextChange<ColorAutoPatternsConfig>(tick, device as Device)
             if (ticksUntilColorChanged <= 0) {
                 // the color has changed and the transition is already done
@@ -66,6 +48,26 @@ object ColorChangerFlow : Flow<ColorFeature>(acceptedDevices = lights as List<Co
                 )
             }
             device.setColor(intermediateColor)
+        }
+
+        usedDevices.forEach { device ->
+            if (isOnChange<ColorAutoPatternsConfig>(tick, device as Device)) {
+                ColorSelector.selectNextColor(device)
+                changeColor(device)
+            }
+        }
+    }
+
+    private fun changeColor(device: ColorFeature) {
+        (device as? ShutterFeature)?.fullIntensity()
+
+        when (device) {
+            is DimmableComponentsColorFeature -> {
+                dimmableColorGoals[device] = getSelectedColor(device) as DimmableComponentsColor
+            }
+            is FixedColorFeature -> {
+                device.setColor(getSelectedColor(device))
+            }
         }
     }
 
