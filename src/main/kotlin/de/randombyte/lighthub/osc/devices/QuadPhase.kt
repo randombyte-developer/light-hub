@@ -51,11 +51,6 @@ class QuadPhase(number: Int, dmxAddress: Int) : Device(
         super.setColor(color)
     }
 
-    override fun noLight() {
-        super.noLight()
-        rotationSpeed = 0 // don't have to rotate when you can't even see it
-    }
-
     override val oscChannelList = OscChannelList(
         oscColorSelection,
         oscRotation,

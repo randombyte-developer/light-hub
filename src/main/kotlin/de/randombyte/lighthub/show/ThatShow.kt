@@ -4,7 +4,6 @@ import de.randombyte.lighthub.midi.akai.Akai
 import de.randombyte.lighthub.osc.devices.features.ShutterFeature
 import de.randombyte.lighthub.show.AkaiControls.akai
 import de.randombyte.lighthub.show.DevicesManager.lights
-import de.randombyte.lighthub.show.events.SelectedColorSet
 import de.randombyte.lighthub.show.tickables.Tickable
 import de.randombyte.lighthub.show.tickables.Ticker
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent
@@ -20,11 +19,12 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 object ThatShow : Controller() {
 
+    var blockEveryOscMessage = false
+
     val deviceCategoryMasterActivated = MasterToggleDeviceCategory.values().map { it to true }.toMap().toMutableMap()
 
     fun init() {
         registerTickables()
-        subscribeToEvents()
 
         MasterFlowManager.activate(KeyboardControls.masterFlows.getValue("G"))
 
@@ -46,14 +46,6 @@ object ThatShow : Controller() {
             }
         })
     }
-
-    private fun subscribeToEvents() {
-        subscribe<SelectedColorSet> {
-            MasterFlowManager.active.onActivate() // reactivate to immediately propagate the color set change
-        }
-    }
-
-    fun blackout() = blackout(lights as List<ShutterFeature>)
 
     fun blackout(devices: List<ShutterFeature>) {
         devices.forEach { it.noLight() }

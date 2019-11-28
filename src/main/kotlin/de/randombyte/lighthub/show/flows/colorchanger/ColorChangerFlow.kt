@@ -9,6 +9,7 @@ import de.randombyte.lighthub.osc.devices.features.colors.Color
 import de.randombyte.lighthub.osc.devices.features.colors.DimmableComponentsColor
 import de.randombyte.lighthub.show.ColorSelector
 import de.randombyte.lighthub.show.DevicesManager.lights
+import de.randombyte.lighthub.show.events.SelectedColorSet
 import de.randombyte.lighthub.show.flows.Flow
 import de.randombyte.lighthub.utils.getElementWrappedAround
 import kotlin.math.roundToInt
@@ -17,14 +18,20 @@ import kotlin.time.ExperimentalTime
 @ExperimentalTime
 object ColorChangerFlow : Flow<ColorFeature>(acceptedDevices = lights as List<ColorFeature>) {
 
-    var ticksTransitionDuration = 40
+    var ticksTransitionDuration = 20
 
     private var dimmableColorGoals = mutableMapOf<DimmableComponentsColorFeature, DimmableComponentsColor>()
 
+    init {
+        subscribe<SelectedColorSet> {
+            onActivate()
+        }
+    }
+
     override fun onActivate(device: ColorFeature) {
         // instantly change color, no transition
-        device.setColor(getSelectedColor(device))
         (device as? ShutterFeature)?.fullIntensity()
+        device.setColor(getSelectedColor(device))
 
         // delete all goals to prevent the instant change from being overwritten with old goals
         dimmableColorGoals.clear()
@@ -34,8 +41,9 @@ object ColorChangerFlow : Flow<ColorFeature>(acceptedDevices = lights as List<Co
         dimmableColorGoals.forEach { (device, targetColor) ->
             if (device !in usedDevices) return@forEach
 
-            val ticksUntilColorChanged = getTicksUntilNextChange<ColorAutoPatternsConfig>(tick, device as Device)
-            if (ticksUntilColorChanged <= 0) {
+            val ticksSinceLastChange = getTicksSinceLastChange<ColorAutoPatternsConfig>(tick, device as Device)
+            val ticksUntilColorTransitionComplete = ticksTransitionDuration - ticksSinceLastChange
+            if (ticksUntilColorTransitionComplete <= 0) {
                 // the color has changed and the transition is already done
                 return@forEach
             }
@@ -44,7 +52,7 @@ object ColorChangerFlow : Flow<ColorFeature>(acceptedDevices = lights as List<Co
                 almostLinearTransform(
                     currentComponentValue,
                     targetComponentValue,
-                    ticksLeft = ticksUntilColorChanged
+                    ticksLeft = ticksUntilColorTransitionComplete
                 )
             }
             device.setColor(intermediateColor)
@@ -59,8 +67,6 @@ object ColorChangerFlow : Flow<ColorFeature>(acceptedDevices = lights as List<Co
     }
 
     private fun changeColor(device: ColorFeature) {
-        (device as? ShutterFeature)?.fullIntensity()
-
         when (device) {
             is DimmableComponentsColorFeature -> {
                 dimmableColorGoals[device] = getSelectedColor(device) as DimmableComponentsColor

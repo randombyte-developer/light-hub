@@ -17,6 +17,7 @@ import kotlin.time.ExperimentalTime
  * A thing that receives messages from this program over an [OscChannel]. The [oscBasePath] will be used as part of the
  * path on the various [OscChannel]s in the [oscChannelList].
  */
+@ExperimentalTime
 abstract class Receiver(val oscBasePath: String) {
     abstract val oscChannelList: OscChannelList
 }

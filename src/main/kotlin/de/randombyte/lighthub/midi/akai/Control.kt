@@ -17,7 +17,8 @@ sealed class Control(val type: Int, val number: Int) {
 
     sealed class Button(type: Int, number: Int) : Control(type, number) {
 
-        val Int.isPressed: Boolean get() = this > 0
+        val Int.isPressed get() = this > 0
+        val isPressed get() = value.isPressed
 
         override fun onUpdate() {
             if (value.isPressed && !lastValue.isPressed) {

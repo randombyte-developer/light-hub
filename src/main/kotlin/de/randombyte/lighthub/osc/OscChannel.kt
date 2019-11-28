@@ -1,10 +1,13 @@
 package de.randombyte.lighthub.osc
 
 import de.randombyte.lighthub.osc.OscChannel.OscDimmedChannel
+import de.randombyte.lighthub.show.ThatShow
 import de.randombyte.lighthub.utils.CRC16
 import de.randombyte.lighthub.utils.Ranges.DMX_RANGE
 import de.randombyte.lighthub.utils.coerceIn
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 open class OscChannel(val path: String, val relativeDmxAddress: Int) {
 
     val qlcChannel = CRC16.checksum(path.toCharArray())
@@ -13,6 +16,8 @@ open class OscChannel(val path: String, val relativeDmxAddress: Int) {
         protected set
 
     open fun sendValue(value: Int): Int {
+        if (ThatShow.blockEveryOscMessage) return -1
+
         val coercedValue = value.coerceIn(DMX_RANGE, "Sending DMX value to OscChannel")
 
         Osc.send(path, coercedValue)
@@ -51,10 +56,13 @@ open class OscChannel(val path: String, val relativeDmxAddress: Int) {
     }
 }
 
+@ExperimentalTime
 fun Receiver.createOscChannel(path: String, relativeDmxAddress: Int) = OscChannel("/$oscBasePath/$path", relativeDmxAddress)
 
+@ExperimentalTime
 fun Receiver.createOscDimmedChannel(path: String, relativeDmxAddress: Int, masterDimmer: () -> Int) = OscDimmedChannel("/$oscBasePath/$path", relativeDmxAddress, masterDimmer)
 
+@ExperimentalTime
 class OscChannelList(vararg channels: OscChannel) {
     val allNestedChannels = channels.flatMap {
         (it as? OscChannel.OscMultiChannel)?.getAllNestedChannels() ?: listOf(it)

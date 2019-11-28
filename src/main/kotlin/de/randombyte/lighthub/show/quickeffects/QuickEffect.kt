@@ -15,12 +15,12 @@ abstract class QuickEffect {
         activateFallback()
     }
 
-    protected fun deactivateFlows() {
+    private fun deactivateFlows() {
         FlowManager.removeAllDevicesFromFlows()
         FlowManager.blockFlowChanges = true
     }
 
-    protected fun activateFallback() {
+    private fun activateFallback() {
         FlowManager.blockFlowChanges = false
         MasterFlowManager.activateFallback()
     }

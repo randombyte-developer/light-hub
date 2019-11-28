@@ -57,6 +57,8 @@ class Akai(inDevice: MidiDevice, outDevice: MidiDevice, val onClose: () -> Unit)
         controls[controlName] = control
     }
 
+    fun isControlPressed(controlName: ControlName) = (getControlByName(controlName) as? Control.Button)?.isPressed == true
+
     fun getControlByName(controlName: ControlName) = controls[controlName]
 
     private fun setupListener() {

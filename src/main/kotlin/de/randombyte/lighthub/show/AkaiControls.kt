@@ -40,15 +40,11 @@ object AkaiControls {
 
             override fun onUpdate() {
                 if (value == 0) {
-                    ThatShow.blackout()
-
+                    Blackout.activate()
                     blackedOutBecauseOfMasterDimmer = true
-                    FlowManager.blockFlowChanges = true
                 } else if (blackedOutBecauseOfMasterDimmer) {
-                    FlowManager.blockFlowChanges = false
                     blackedOutBecauseOfMasterDimmer = false
-
-                    MasterFlowManager.activateFallback()
+                    Blackout.deactivate()
                 }
 
                 QlcPlus.oscMasterDimmer.sendValue(Ranges.mapMidiToDmx(value))
@@ -118,6 +114,8 @@ object AkaiControls {
         // strobe
         akai.registerControl(SlowStrobe, object : Control.Button.TouchButton(2) {
             override fun onDown() {
+                if (akai.isControlPressed(Akai.ControlName.Blackout)) return
+
                 ThatShow.blackout(scanners)
                 Strobe.speed = Slow
                 Strobe.activate()
@@ -125,23 +123,21 @@ object AkaiControls {
 
             override fun onUp() {
                 // if not the other strobe button is pressed
-                if (akai.getControlByName(FastStrobe)?.value?.isPressed != true) {
-                    Strobe.deactivate()
-                }
+                if (!akai.isControlPressed(FastStrobe)) Strobe.deactivate()
             }
         })
 
         akai.registerControl(FastStrobe, object : Control.Button.TouchButton(3) {
             override fun onDown() {
+                if (akai.isControlPressed(Akai.ControlName.Blackout)) return
+
                 ThatShow.blackout(scanners)
                 Strobe.speed = Fast
                 Strobe.activate()
             }
 
             override fun onUp() {
-                if (akai.getControlByName(SlowStrobe)?.value?.isPressed != true) {
-                    Strobe.deactivate()
-                }
+                if (!akai.isControlPressed(SlowStrobe)) Strobe.deactivate()
             }
         })
 
