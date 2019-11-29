@@ -8,5 +8,6 @@ class GeneralConfig(
     val `transition-ticks-fader-min`: Int = 1,
     val `transition-ticks-fader-max`: Int = 90,
     val `ultra-slow-bpm`: Int = 20,
+    val `very-fast-bpm`: Int = 500,
     val `akai-send-display-info`: Boolean = true
 )

@@ -22,9 +22,9 @@ is done in half notes, so basically a 240 BPM beat.
 
 # Pads
 
-|                   |           |               |               |
-|---                |---        |---            |---            |
-|warm               |cold       |red            |green          |
-|colorful-1         |colorful-2 |uv             |blue           |
-|colorful-black     |quads      |scanners       |X              |
-|blackout           |X          |slow-strobe    |fast-strobe    |
+|                    |            |               |               |
+|---                 |---         |---            |---            |
+|warm                |cold        |red            |green          |
+|colorful            |red-white   |uv             |blue           |
+|yellow-purple-orange|orange-green|pink-purple    |X              |
+|blackout            |X           |slow-strobe    |fast-strobe    |

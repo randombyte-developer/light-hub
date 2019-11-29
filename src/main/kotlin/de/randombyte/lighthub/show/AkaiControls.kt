@@ -157,6 +157,15 @@ object AkaiControls {
             }
         })
 
+        // very fast BPM
+
+        akai.registerControl(VeryFastBpm, object : Control.Button.SimpleButton(19) {
+            override fun onDown() {
+                Ticker.bpm = GlobalConfigs.general.config.`very-fast-bpm`
+                akai.sendMapping("${Ticker.bpm} BPM")
+            }
+        })
+
         // master toggle
 
         fun registerSimpleButton(controlName: Akai.ControlName, buttonNumber: Int, onPressed: () -> Unit) {

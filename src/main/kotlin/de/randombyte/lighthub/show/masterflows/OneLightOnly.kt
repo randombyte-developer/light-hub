@@ -12,7 +12,8 @@ object OneLightOnly : MasterFlow<ColorFeature>(isFallback = true, devices = ligh
 
     override val configFolderName = "one-light-only"
 
-    var device: ColorFeature? = null
+    const val LIGHT_COUNT = 2
+    val selectedDevices = mutableListOf<ColorFeature>()
 
     init {
         subscribeIfActive<UpdateColor> {
@@ -28,13 +29,16 @@ object OneLightOnly : MasterFlow<ColorFeature>(isFallback = true, devices = ligh
     }
 
     private fun randomDevice() {
-        device = devices.random()
+        selectedDevices.clear()
+        repeat(LIGHT_COUNT) { selectedDevices += devices.filterNot { it in selectedDevices }.random()}
         devices.forEach { (it as ShutterFeature).noLight() }
-        (device as ShutterFeature).fullIntensity()
+        selectedDevices.forEach { (it as ShutterFeature).fullIntensity() }
     }
 
     private fun setColor() {
-        if (device == null) randomDevice()
-        device!!.setColor(ColorSelector.getSelectedColor(device!!))
+        if (selectedDevices.isEmpty()) randomDevice()
+        selectedDevices.forEach { device ->
+            device.setColor(ColorSelector.getSelectedColor(device))
+        }
     }
 }

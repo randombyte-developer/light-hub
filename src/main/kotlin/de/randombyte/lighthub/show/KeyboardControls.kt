@@ -24,7 +24,7 @@ object KeyboardControls {
     val masterFlows = mapOf(
         "Q" to Everything,
         "G" to OneLightOnly,
-        "Z" to SawToothIntensity
+        "Y" to SawToothIntensity
     )
 
     fun init(sceneGraphNode: Node) {
