@@ -11,6 +11,7 @@ import de.randombyte.lighthub.show.ColorSelector
 import de.randombyte.lighthub.show.DevicesManager.lights
 import de.randombyte.lighthub.show.events.UpdateColor
 import de.randombyte.lighthub.show.flows.Flow
+import de.randombyte.lighthub.utils.subscribeRunOnShowThread
 import kotlin.math.roundToInt
 import kotlin.time.ExperimentalTime
 
@@ -22,7 +23,7 @@ object ColorChangerFlow : Flow<ColorFeature>(acceptedDevices = lights as List<Co
     private var dimmableColorGoals = mutableMapOf<DimmableComponentsColorFeature, DimmableComponentsColor>()
 
     init {
-        subscribe<UpdateColor> {
+        subscribeRunOnShowThread<UpdateColor> {
             onActivate()
         }
     }

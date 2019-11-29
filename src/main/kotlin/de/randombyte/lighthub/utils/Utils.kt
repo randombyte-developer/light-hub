@@ -1,5 +1,9 @@
 package de.randombyte.lighthub.utils
 
+import de.randombyte.lighthub.show.ShowThreadRunner
+import tornadofx.Component
+import tornadofx.EventContext
+import tornadofx.FXEvent
 import java.util.*
 
 // this function exists because for some reason the kotlin compiler can't infer the type when a generic is used
@@ -24,3 +28,11 @@ fun <T : Any?> Queue<T>.pollForEach(action: (T) -> Unit) {
 fun List<*>.containsIgnoreType(element: Any) = contains(element)
 
 fun <T> List<T>.getElementWrappedAround(index: ULong) = get(index.rem(size).toInt())
+
+inline fun <reified T : FXEvent> Component.subscribeRunOnShowThread(crossinline action: EventContext.(T) -> Unit) {
+    subscribe<T> {
+        ShowThreadRunner.runLater {
+            action(it)
+        }
+    }
+}

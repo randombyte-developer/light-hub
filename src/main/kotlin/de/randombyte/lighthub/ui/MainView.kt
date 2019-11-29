@@ -7,6 +7,7 @@ import de.randombyte.lighthub.show.ThatShow
 import de.randombyte.lighthub.show.tickables.Ticker
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent
 import de.randombyte.lighthub.ui.events.ToggledMasterEvent.MasterToggleDeviceCategory.*
+import de.randombyte.lighthub.utils.subscribeRunOnShowThread
 import javafx.concurrent.Task
 import javafx.event.EventTarget
 import javafx.geometry.Pos
@@ -61,7 +62,7 @@ class MainView : View("LightHub") {
             }
         }
 
-        subscribe<ToggledMasterEvent> { event ->
+        subscribeRunOnShowThread<ToggledMasterEvent> { event ->
             val backgroundColor = if (event.activated) Color.DARKSEAGREEN else Color.LIGHTGOLDENRODYELLOW
             val background = Background((BackgroundFill(backgroundColor, null, null)))
             labelDeviceCategoryMapping.getValue(event.deviceCategory).background = background

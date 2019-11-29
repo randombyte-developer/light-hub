@@ -17,7 +17,7 @@ object SawToothIntensity : MasterFlow<Any?>(isFallback = true, devices = flatten
 
     init {
         subscribeIfActive<UpdateColor> {
-            OneLightOnly.onActivate()
+            onActivate()
         }
     }
 

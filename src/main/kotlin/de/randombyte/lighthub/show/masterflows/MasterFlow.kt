@@ -3,6 +3,7 @@ package de.randombyte.lighthub.show.masterflows
 import de.randombyte.lighthub.show.FlowManager
 import de.randombyte.lighthub.show.MasterFlowManager
 import de.randombyte.lighthub.show.tickables.StoppableTickable
+import de.randombyte.lighthub.utils.subscribeRunOnShowThread
 import tornadofx.Controller
 import tornadofx.EventContext
 import tornadofx.FXEvent
@@ -26,7 +27,7 @@ abstract class MasterFlow<T>(val isFallback: Boolean, val devices: List<T>) : Co
     final override fun onBeat(beat: ULong) { }
 
     protected inline fun <reified T : FXEvent> subscribeIfActive(crossinline action: EventContext.(T) -> Unit) {
-        subscribe<T> {
+        subscribeRunOnShowThread<T> {
             if (MasterFlowManager.active == this@MasterFlow) action(it)
         }
     }
